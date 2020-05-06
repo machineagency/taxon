@@ -1,0 +1,27 @@
+{
+  "name": "machine-o-matic",
+  "version": "1.0.0",
+  "description": "Explore the design space of modular fabrication machines",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jhaazpr/machine-o-matic.git"
+  },
+  "author": "Jasper Tran O'Leary",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jhaazpr/machine-o-matic/issues"
+  },
+  "homepage": "https://github.com/jhaazpr/machine-o-matic#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "dat.gui": "^0.7.5",
+    "express": "^4.16.4",
+    "path": "^0.12.7",
+    "python-shell": "^1.0.7",
+    "three": "^0.100.0"
+  }
+}
