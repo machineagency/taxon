@@ -6,6 +6,7 @@ class MomScene {
         this.scene = this.initScene();
         this.camera = this.initCamera(this.scene);
         this.renderer = this.initRenderer();
+        this.controls = this.initControls(this.camera, this.renderer);
     }
 
     initScene() {
@@ -46,7 +47,16 @@ class MomScene {
         return renderer;
     }
 
+    initControls(camera, renderer) {
+        let controls = new THREE.TrackballControls(camera, renderer.domElement);
+        controls.rotateSpeed = 1.0;
+        controls.zoomSpeed = 1.2;
+        controls.panSpeed = 0.8;
+        return controls;
+    }
+
     renderScene() {
+        this.controls.update();
         this.renderer.render(this.scene, this.camera);
     }
 
