@@ -20,7 +20,7 @@ class MomScene {
         scene.add(topDirectionalLight);
         scene.add(leftDirectionalLight);
         scene.add(rightDirectionalLight);
-        scene.add(new THREE.GridHelper(2000, 100, 0x444444, 0xe5e6e8));
+        scene.add(new THREE.GridHelper(2000, 100, 'red', 0x444444));
         return scene;
     }
 
@@ -48,10 +48,11 @@ class MomScene {
     }
 
     initControls(camera, renderer) {
-        let controls = new THREE.TrackballControls(camera, renderer.domElement);
+        let controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.rotateSpeed = 1.0;
-        controls.zoomSpeed = 1.2;
+        controls.zoomSpeed = 0.8;
         controls.panSpeed = 0.8;
+        controls.keys = [65, 83, 68];
         return controls;
     }
 
