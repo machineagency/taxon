@@ -76,7 +76,8 @@ class StrangeComponent {
         angledTool: () => new THREE.CylinderBufferGeometry(10, 10, 80, 10),
         straightTool: () => new THREE.CylinderBufferGeometry(10, 10, 80, 10),
         connectionHandle: () => new THREE.SphereBufferGeometry(25, 32, 32),
-        buildEnvironment: () => new THREE.BoxBufferGeometry(500, 25, 500, 2, 2, 2)
+        buildEnvironment: () => new THREE.BoxBufferGeometry(500, 25, 500, 2, 2, 2),
+        workEnvelope: () => new THREE.PlaneBufferGeometry(250, 250)
     };
     constructor(name) {
         this.name = name;
@@ -98,6 +99,27 @@ class BuildEnvironment extends StrangeComponent {
     }
 }
 
+class WorkEnvelope extends StrangeComponent {
+    static color = 0x9d8dff;
+    constructor(name) {
+        if (name === undefined) {
+            name = 'WorkEnvelope';
+        }
+        super(name);
+        this.geom = WorkEnvelope.geometryFactories.workEnvelope();
+        this.material = new THREE.MeshLambertMaterial({
+            color : WorkEnvelope.color,
+            transparent : true,
+            opacity : 0.5
+        });
+        this.mesh = new THREE.Mesh(this.geom, this.material);
+    }
+
+    placeOnComponent(component) {
+        // TODO
+    }
+}
+
 class Lego extends StrangeComponent {
     // TODO
 }
@@ -105,7 +127,9 @@ class Lego extends StrangeComponent {
 function main() {
     let ss = new StrangeScene();
     let be = new BuildEnvironment();
-    ss.addComponent(be);
+    let we = new WorkEnvelope();
+    // ss.addComponent(be);
+    ss.addComponent(we);
     let animate = () => {
         requestAnimationFrame(animate);
         ss.renderScene();
