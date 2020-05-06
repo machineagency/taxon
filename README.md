@@ -10,7 +10,7 @@ Strange Machine lets you build and program a machine for a specific task in an e
 - Painting patterns onto your favorite specifically sized cup.
 - Being portable and engraving things onto phone cases.
 
-First, define some real-world constraints in the browser tool.
+First, **use the tool to 3D scan your real-world environment** and define some real-world constraints in the browser tool.
 Then, talk about what tool you would use.
 Next, connect the dots to build a machine and test it in the browser.
 Finally, export files and code to build and control the physical machine.
