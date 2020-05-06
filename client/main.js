@@ -3,7 +3,6 @@
 class MomScene {
     constructor() {
         this.domContainer = document.getElementById('container');
-        console.log(this.domContainer);
         this.scene = this.initScene();
         this.camera = this.initCamera(this.scene);
         this.renderer = this.initRenderer();
@@ -65,6 +64,15 @@ class BuildEnvironment extends MomComponent {
 
 class Lego extends MomComponent {
     // TODO
+    static geometryFactories = {
+        stageCase: () => new THREE.BoxBufferGeometry(200, 100, 1000, 2, 2, 2),
+        stagePlatform: () => new THREE.BoxBufferGeometry(200, 150, 200, 2, 2, 2),
+        rotaryStageCase: () => new THREE.BoxBufferGeometry(150, 50, 150, 2, 2, 2),
+        rotaryStagePlatform: () => new THREE.CylinderBufferGeometry(50, 50, 80, 10),
+        angledTool: () => new THREE.CylinderBufferGeometry(10, 10, 80, 10),
+        straightTool: () => new THREE.CylinderBufferGeometry(10, 10, 80, 10),
+        connectionHandle: () => new THREE.SphereBufferGeometry(25, 32, 32)
+    };
 }
 
 function main() {
