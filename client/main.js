@@ -123,6 +123,10 @@ class WorkEnvelope extends StrangeComponent {
             opacity : 0.5
         });
         this.mesh = new THREE.Mesh(this.geom, this.material);
+        let rotateQuaternion = new THREE.Quaternion();
+        rotateQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0),
+                                          -Math.PI / 2);
+        this.mesh.quaternion.copy(rotateQuaternion);
     }
 
     placeOnComponent(component) {
