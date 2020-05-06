@@ -61,6 +61,10 @@ class MomScene {
         this.renderer.render(this.scene, this.camera);
     }
 
+    addComponent(component) {
+        this.scene.add(component.mesh);
+    }
+
 }
 
 class MomComponent {
@@ -101,7 +105,7 @@ class Lego extends MomComponent {
 function main() {
     let ms = new MomScene();
     let be = new BuildEnvironment();
-    ms.scene.add(be.mesh);
+    ms.addComponent(be);
     let animate = () => {
         requestAnimationFrame(animate);
         ms.renderScene();
