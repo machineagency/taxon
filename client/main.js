@@ -64,17 +64,6 @@ class MomScene {
 }
 
 class MomComponent {
-    constructor(name) {
-        this.name = name;
-    }
-}
-
-class BuildEnvironment extends MomComponent {
-    // TODO
-}
-
-class Lego extends MomComponent {
-    // TODO
     static geometryFactories = {
         stageCase: () => new THREE.BoxBufferGeometry(200, 100, 1000, 2, 2, 2),
         stagePlatform: () => new THREE.BoxBufferGeometry(200, 150, 200, 2, 2, 2),
@@ -82,12 +71,37 @@ class Lego extends MomComponent {
         rotaryStagePlatform: () => new THREE.CylinderBufferGeometry(50, 50, 80, 10),
         angledTool: () => new THREE.CylinderBufferGeometry(10, 10, 80, 10),
         straightTool: () => new THREE.CylinderBufferGeometry(10, 10, 80, 10),
-        connectionHandle: () => new THREE.SphereBufferGeometry(25, 32, 32)
+        connectionHandle: () => new THREE.SphereBufferGeometry(25, 32, 32),
+        buildEnvironment: () => new THREE.BoxBufferGeometry(500, 25, 500, 2, 2, 2)
     };
+    constructor(name) {
+        this.name = name;
+    }
+}
+
+class BuildEnvironment extends MomComponent {
+    static color = 0xfefefe;
+    constructor(name) {
+        if (name === undefined) {
+            name = 'Build Environment';
+        }
+        super(name);
+        this.geom = BuildEnvironment.geometryFactories.buildEnvironment();
+        this.material = new THREE.MeshLambertMaterial({
+            color : BuildEnvironment.color
+        });
+        this.mesh = new THREE.Mesh(this.geom, this.material);
+    }
+}
+
+class Lego extends MomComponent {
+    // TODO
 }
 
 function main() {
     let ms = new MomScene();
+    let be = new BuildEnvironment();
+    ms.scene.add(be.mesh);
     let animate = () => {
         requestAnimationFrame(animate);
         ms.renderScene();
