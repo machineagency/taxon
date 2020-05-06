@@ -4,7 +4,7 @@ class StrangeScene {
     constructor() {
         this.domContainer = document.getElementById('container');
         this.scene = this.initScene();
-        this.camera = this.initCamera(this.scene);
+        this.camera = this.initCamera(this.scene, false);
         this.renderer = this.initRenderer();
         this.controls = this.initControls(this.camera, this.renderer);
     }
@@ -20,22 +20,32 @@ class StrangeScene {
         scene.add(topDirectionalLight);
         scene.add(leftDirectionalLight);
         scene.add(rightDirectionalLight);
-        // scene.add(new THREE.GridHelper(2000, 100, 'red', 0x444444));
+        scene.add(new THREE.GridHelper(2000, 100, 'red', 0x444444));
         return scene;
     }
 
-    initCamera(scene) {
+    initCamera(scene, isOrtho) {
+        let camera;
         let aspect = window.innerWidth / window.innerHeight;
         let viewSize = 150;
-        let camera = new THREE.OrthographicCamera(-viewSize * aspect,
-            viewSize * aspect,
-            viewSize, -viewSize, -1000, 10000);
-        camera.zoom = 0.35;
-        camera.updateProjectionMatrix();
-        camera.frustumCulled = false;
-        camera.position.set(-500, 500, 500); // I don't know why this works
-        camera.lookAt(scene.position);
-        camera.position.set(-400, 500, 800); // Pan away to move machine to left
+        if (isOrtho) {
+            camera = new THREE.OrthographicCamera(-viewSize * aspect,
+                viewSize * aspect,
+                viewSize, -viewSize, -1000, 10000);
+            camera.zoom = 0.35;
+            camera.updateProjectionMatrix();
+            camera.frustumCulled = false;
+            camera.position.set(-500, 500, 500); // I don't know why this works
+            camera.lookAt(scene.position);
+            camera.position.set(-400, 500, 800); // Pan away to move machine to left
+        }
+        else {
+            let fov = 50;
+            camera = new THREE.PerspectiveCamera(fov, aspect, 0.01, 30000);
+            camera.lookAt(scene.position);
+            camera.position.set(-500, 500, 500);
+            camera.updateProjectionMatrix();
+        }
         return camera;
     }
 
