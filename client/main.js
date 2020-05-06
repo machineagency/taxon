@@ -53,6 +53,20 @@ class MomScene {
 
 }
 
+class MomComponent {
+    constructor(name) {
+        this.name = name;
+    }
+}
+
+class BuildEnvironment extends MomComponent {
+    // TODO
+}
+
+class Lego extends MomComponent {
+    // TODO
+}
+
 function main() {
     let ms = new MomScene();
     let animate = () => {
