@@ -1,6 +1,6 @@
 'use strict';
 
-class MomScene {
+class StrangeScene {
     constructor() {
         this.domContainer = document.getElementById('container');
         this.scene = this.initScene();
@@ -20,7 +20,7 @@ class MomScene {
         scene.add(topDirectionalLight);
         scene.add(leftDirectionalLight);
         scene.add(rightDirectionalLight);
-        scene.add(new THREE.GridHelper(2000, 100, 'red', 0x444444));
+        // scene.add(new THREE.GridHelper(2000, 100, 'red', 0x444444));
         return scene;
     }
 
@@ -67,7 +67,7 @@ class MomScene {
 
 }
 
-class MomComponent {
+class StrangeComponent {
     static geometryFactories = {
         stageCase: () => new THREE.BoxBufferGeometry(200, 100, 1000, 2, 2, 2),
         stagePlatform: () => new THREE.BoxBufferGeometry(200, 150, 200, 2, 2, 2),
@@ -83,7 +83,7 @@ class MomComponent {
     }
 }
 
-class BuildEnvironment extends MomComponent {
+class BuildEnvironment extends StrangeComponent {
     static color = 0xfefefe;
     constructor(name) {
         if (name === undefined) {
@@ -98,17 +98,17 @@ class BuildEnvironment extends MomComponent {
     }
 }
 
-class Lego extends MomComponent {
+class Lego extends StrangeComponent {
     // TODO
 }
 
 function main() {
-    let ms = new MomScene();
+    let ss = new StrangeScene();
     let be = new BuildEnvironment();
-    ms.addComponent(be);
+    ss.addComponent(be);
     let animate = () => {
         requestAnimationFrame(animate);
-        ms.renderScene();
+        ss.renderScene();
     };
     animate();
 }
