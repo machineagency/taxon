@@ -16,7 +16,20 @@ class MeshBuilder:
         """
         return np.load('sample_img.npy')
 
-    def sample_heightmap(self):
+    def downsample(self, img):
+        return block_reduce(img, block_size=(16, 16), func=np.mean)
+
+    def create_tile_vertices(self, m_tile):
+        """
+        Takes in a greatly reduced image matrix aka "tile matrix" M_TILE,
+        and returns a list of vertices corresponding to vertices of floating
+        each tile according to that tile's depth.
+        Per tile, starting at the NW corner, we push vertices in a clockwise
+        order.
+        For tile (x, y), the tile's vertices in the list will index range:
+        [4 * (x + y * m_tile.width), 4 * (x + y * m_tile.width) + 3].
+        Returns ???
+        """
         pass
 
     def render_meshes(self, meshes):
@@ -37,6 +50,7 @@ class MeshBuilder:
 
     def test(self):
         img = self.load_depth_img()
+        img = self.downsample(img)
         print(img.shape)
 
 if __name__ == '__main__':
