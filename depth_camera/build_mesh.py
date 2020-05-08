@@ -39,7 +39,7 @@ class MeshBuilder:
     def invert(self, img):
         return np.max(img) - img
 
-    def create_tile_faces(self, m_tile):
+    def create_tile_faces(self, m_tile, is_floor=False):
         """
         Takes in a greatly reduced image matrix aka "tile matrix" M_TILE,
         and returns a list of vertices corresponding to vertices of floating
@@ -56,7 +56,10 @@ class MeshBuilder:
         i = 0
         for y in range(m_tile_height):
             for x in range(m_tile_width):
-                tile_depth = m_tile[y, x]
+                if is_floor:
+                    tile_depth = 0
+                else:
+                    tile_depth = m_tile[y, x]
                 v_nw = [y - 0.5, x - 0.5, tile_depth]
                 v_ne = [y + 0.5, x - 0.5, tile_depth]
                 v_se = [y + 0.5, x + 0.5, tile_depth]
@@ -158,9 +161,11 @@ class MeshBuilder:
         img = self.invert(img)
         tile_faces = self.create_tile_faces(img)
         wall_faces = self.create_wall_faces(img)
+        floor_faces = self.create_tile_faces(img, is_floor=True)
         tile_mesh = mesh.Mesh(tile_faces.copy())
         wall_mesh = mesh.Mesh(wall_faces.copy())
-        self.render_meshes([tile_mesh, wall_mesh])
+        floor_mesh = mesh.Mesh(floor_faces.copy())
+        self.render_meshes([tile_mesh, wall_mesh, floor_mesh])
 
 if __name__ == '__main__':
     mb = MeshBuilder()
