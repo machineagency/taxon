@@ -53,24 +53,22 @@ class MeshBuilder:
         for y in range(m_tile_height):
             for x in range(m_tile_width):
                 tile_depth = m_tile[y, x]
-                v_nw = [x - 0.5, y - 0.5, tile_depth]
-                v_ne = [x + 0.5, y - 0.5, tile_depth]
-                v_se = [x + 0.5, y + 0.5, tile_depth]
-                v_sw = [x - 0.5, y + 0.5, tile_depth]
+                v_nw = [y - 0.5, x - 0.5, tile_depth]
+                v_ne = [y + 0.5, x - 0.5, tile_depth]
+                v_se = [y + 0.5, x + 0.5, tile_depth]
+                v_sw = [y - 0.5, x + 0.5, tile_depth]
                 data['vectors'][i] = np.array([v_nw, v_ne, v_sw])
                 data['vectors'][i + 1] = np.array([v_ne, v_sw, v_se])
                 i += 2
         return data
 
     def create_wall_faces(self, m_tile):
-        m_tile_height, m_tile_width = m_tile.shape
-        wall_list = []
-        # print(m_tile.shape)
         # NOTE: x,y and height,width are flipped because I am bad at counting
+        wall_list = []
+        m_tile_height, m_tile_width = m_tile.shape
         for _y in range(m_tile_height):
             for _x in range(m_tile_width):
                 x, y = _y, _x
-                # print((x, y))
                 # North
                 if y > 0 and m_tile[x, y] > m_tile[x, y - 1]:
                     wall_list.append(self.wall((x, y), (x, y - 1), m_tile))
@@ -135,9 +133,9 @@ class MeshBuilder:
         img = self.normalize(img)
         tile_faces = self.create_tile_faces(img)
         wall_faces = self.create_wall_faces(img)
-        all_faces = np.concatenate((tile_faces, wall_faces))
-        tf_mesh = mesh.Mesh(all_faces.copy())
-        self.render_meshes([tf_mesh])
+        tile_mesh = mesh.Mesh(tile_faces.copy())
+        wall_mesh = mesh.Mesh(wall_faces.copy())
+        self.render_meshes([tile_mesh, wall_mesh])
 
 if __name__ == '__main__':
     mb = MeshBuilder()
