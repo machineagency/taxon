@@ -17,7 +17,7 @@ class MeshBuilder:
         return np.load('sample_img.npy')
 
     def downsample(self, img):
-        return block_reduce(img, block_size=(16, 16), func=np.mean)
+        return block_reduce(img, block_size=(32, 32), func=np.mean)
 
     def remove_outliers(self, img):
         # FIXME: doesn't seem to be working as intended
@@ -62,6 +62,56 @@ class MeshBuilder:
                 i += 2
         return data
 
+    def create_wall_faces(self, m_tile):
+        m_tile_height, m_tile_width = m_tile.shape
+        wall_list = []
+        # print(m_tile.shape)
+        # NOTE: x,y and height,width are flipped because I am bad at counting
+        for _y in range(m_tile_height):
+            for _x in range(m_tile_width):
+                x, y = _y, _x
+                # print((x, y))
+                # North
+                if y > 0 and m_tile[x, y] > m_tile[x, y - 1]:
+                    wall_list.append(self.wall((x, y), (x, y - 1), m_tile))
+                # East
+                if x < m_tile_height - 1 and m_tile[x, y] > m_tile[x + 1, y]:
+                    wall_list.append(self.wall((x, y), (x + 1, y), m_tile))
+                # South
+                if y < m_tile_width - 1 and m_tile[x, y] > m_tile[x, y + 1]:
+                    wall_list.append(self.wall((x, y), (x, y + 1), m_tile))
+                # West
+                if x > 0 and m_tile[x, y] > m_tile[x - 1, y]:
+                    wall_list.append(self.wall((x, y), (x - 1, y), m_tile))
+        data = np.zeros(len(wall_list) * 2, dtype=mesh.Mesh.dtype)
+        data['vectors'] = np.array(wall_list)\
+                            .reshape((len(wall_list) * 2, 3, 3))
+        return data
+
+    def wall(self, idx_tile_from, idx_tile_to, m_tile):
+        """
+        Only make if FROM is higher than TO.
+        """
+        x_from, y_from = idx_tile_from
+        x_to, y_to = idx_tile_to
+        z_high = m_tile[x_from, y_from]
+        z_low = m_tile[x_to, y_to]
+        # East and West cases
+        if y_from == y_to:
+            v_tl = [(x_from + x_to) * 0.5, y_from - 0.5, z_high]
+            v_tr = [(x_from + x_to) * 0.5, y_from + 0.5, z_high]
+            v_bl = [(x_from + x_to) * 0.5, y_from - 0.5, z_low]
+            v_br = [(x_from + x_to) * 0.5, y_from + 0.5, z_low]
+        # North and South cases
+        else:
+            v_tl = [x_from - 0.5, (y_from + y_to) * 0.5, z_high]
+            v_tr = [x_from + 0.5, (y_from + y_to) * 0.5, z_high]
+            v_bl = [x_from - 0.5, (y_from + y_to) * 0.5, z_low]
+            v_br = [x_from + 0.5, (y_from + y_to) * 0.5, z_low]
+        face_tl = np.array([v_tl, v_tr, v_bl])
+        face_br = np.array([v_tr, v_bl, v_br])
+        return (face_tl, face_br)
+
     def render_meshes(self, meshes):
         # Create a new plot
         figure = pyplot.figure()
@@ -83,8 +133,10 @@ class MeshBuilder:
         img = self.downsample(img)
         img = self.remove_outliers(img)
         img = self.normalize(img)
-        faces = self.create_tile_faces(img)
-        tf_mesh = mesh.Mesh(faces.copy())
+        tile_faces = self.create_tile_faces(img)
+        wall_faces = self.create_wall_faces(img)
+        all_faces = np.concatenate((tile_faces, wall_faces))
+        tf_mesh = mesh.Mesh(all_faces.copy())
         self.render_meshes([tf_mesh])
 
 if __name__ == '__main__':
