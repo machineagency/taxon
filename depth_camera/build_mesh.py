@@ -137,6 +137,13 @@ class MeshBuilder:
         face_br = np.array([v_tr, v_bl, v_br])
         return (face_tl, face_br)
 
+    def combine_face_lists_into_mesh(self, face_lists):
+        """
+        Not a boolean operation, just throws all the faces together.abs
+        """
+        all_faces = np.concatenate(face_lists)
+        return mesh.Mesh(all_faces.copy())
+
     def render_meshes(self, meshes):
         # Create a new plot
         figure = pyplot.figure()
@@ -162,10 +169,9 @@ class MeshBuilder:
         tile_faces = self.create_tile_faces(img)
         wall_faces = self.create_wall_faces(img)
         floor_faces = self.create_tile_faces(img, is_floor=True)
-        tile_mesh = mesh.Mesh(tile_faces.copy())
-        wall_mesh = mesh.Mesh(wall_faces.copy())
-        floor_mesh = mesh.Mesh(floor_faces.copy())
-        self.render_meshes([tile_mesh, wall_mesh, floor_mesh])
+        all_mesh = self.combine_face_lists_into_mesh([tile_faces, wall_faces,
+                                                      floor_faces])
+        self.render_meshes([all_mesh])
 
 if __name__ == '__main__':
     mb = MeshBuilder()
