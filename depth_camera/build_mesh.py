@@ -7,7 +7,7 @@ from mpl_toolkits import mplot3d
 
 class MeshBuilder:
     def __init__(self):
-        pass
+        self.DOWNSAMPLE_FACTOR = 64
 
     def load_depth_img(self):
         """
@@ -17,7 +17,8 @@ class MeshBuilder:
         return np.load('sample_img.npy')
 
     def downsample(self, img):
-        return block_reduce(img, block_size=(32, 32), func=np.mean)
+        f = self.DOWNSAMPLE_FACTOR
+        return block_reduce(img, block_size=(f, f), func=np.mean)
 
     def remove_outliers(self, img):
         # FIXME: doesn't seem to be working as intended
