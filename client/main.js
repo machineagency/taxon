@@ -91,6 +91,7 @@ class StrangeComponent {
     };
     constructor(name) {
         this.name = name;
+        this.geom = new THREE.Geometry();
         this.mesh = new THREE.Mesh();
     }
 
@@ -136,7 +137,22 @@ class WorkEnvelope extends StrangeComponent {
     }
 
     placeOnComponent(component) {
-        // TODO
+        component.geom.computeBoundingBox();
+        let bbox = component.geom.boundingBox;
+        let bmax = bbox.max;
+        let bmin = bbox.min;
+        let eps = 10;
+        let topPlanePts = [
+            new THREE.Vector3(bmax.x, bmax.y, bmax.z),
+            new THREE.Vector3(bmax.x, bmax.y - bmin.y, bmax.z),
+            new THREE.Vector3(bmax.x - bmin.y, bmax.y - bmin.y, bmax.z),
+            new THREE.Vector3(bmax.x - bmin.y, bmax.y, bmax.z)
+        ];
+        let centerPt = (topPlanePts[0].multiplyScalar(0.5))
+                            .add(topPlanePts[2].multiplyScalar(0.5));
+        centerPt.z += eps;
+        this.position = centerPt;
+        debugger;
     }
 }
 
@@ -150,6 +166,7 @@ function main() {
     let we = new WorkEnvelope();
     ss.addComponent(be);
     ss.addComponent(we);
+    we.placeOnComponent(be);
     let animate = () => {
         requestAnimationFrame(animate);
         ss.renderScene();
