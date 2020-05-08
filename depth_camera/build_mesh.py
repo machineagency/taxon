@@ -75,28 +75,48 @@ class MeshBuilder:
                 # North
                 if y > 0 and m_tile[x, y] > m_tile[x, y - 1]:
                     wall_list.append(self.wall((x, y), (x, y - 1), m_tile))
+                elif y == 0:
+                    wall_list.append(self.wall((x, y), (x, y - 1), m_tile, 'north'))
                 # East
                 if x < m_tile_height - 1 and m_tile[x, y] > m_tile[x + 1, y]:
                     wall_list.append(self.wall((x, y), (x + 1, y), m_tile))
+                elif x == m_tile_height - 1:
+                    wall_list.append(self.wall((x, y), (x + 1, y), m_tile, 'east'))
                 # South
                 if y < m_tile_width - 1 and m_tile[x, y] > m_tile[x, y + 1]:
                     wall_list.append(self.wall((x, y), (x, y + 1), m_tile))
+                elif y == m_tile_width - 1:
+                    wall_list.append(self.wall((x, y), (x, y + 1), m_tile, 'south'))
                 # West
                 if x > 0 and m_tile[x, y] > m_tile[x - 1, y]:
                     wall_list.append(self.wall((x, y), (x - 1, y), m_tile))
+                elif x == 0:
+                    wall_list.append(self.wall((x, y), (x - 1, y), m_tile, 'west'))
         data = np.zeros(len(wall_list) * 2, dtype=mesh.Mesh.dtype)
         data['vectors'] = np.array(wall_list)\
                             .reshape((len(wall_list) * 2, 3, 3))
         return data
 
-    def wall(self, idx_tile_from, idx_tile_to, m_tile):
+    def wall(self, idx_tile_from, idx_tile_to, m_tile, edge=''):
         """
         Only make if FROM is higher than TO.
         """
         x_from, y_from = idx_tile_from
-        x_to, y_to = idx_tile_to
+        if edge == '':
+            x_to, y_to = idx_tile_to
+        elif edge == 'east':
+            x_to, y_to = x_from + 1, y_from
+        elif edge == 'west':
+            x_to, y_to = x_from - 1, y_from
+        elif edge == 'north':
+            x_to, y_to = x_from, y_from + 1
+        elif edge == 'south':
+            x_to, y_to = x_from, y_from - 1
         z_high = m_tile[x_from, y_from]
-        z_low = m_tile[x_to, y_to]
+        if edge == '':
+            z_low = m_tile[x_to, y_to]
+        else:
+            z_low = 0
         # East and West cases
         if y_from == y_to:
             v_tl = [(x_from + x_to) * 0.5, y_from - 0.5, z_high]
