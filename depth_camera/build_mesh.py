@@ -109,9 +109,9 @@ class MeshBuilder:
         elif edge == 'west':
             x_to, y_to = x_from - 1, y_from
         elif edge == 'north':
-            x_to, y_to = x_from, y_from + 1
-        elif edge == 'south':
             x_to, y_to = x_from, y_from - 1
+        elif edge == 'south':
+            x_to, y_to = x_from, y_from + 1
         z_high = m_tile[x_from, y_from]
         if edge == '':
             z_low = m_tile[x_to, y_to]
