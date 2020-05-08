@@ -1,7 +1,7 @@
 import numpy as np
 from skimage.measure import block_reduce
 import sys
-from stl import mesh
+from stl import mesh, Mode
 from matplotlib import pyplot
 from mpl_toolkits import mplot3d
 
@@ -160,6 +160,9 @@ class MeshBuilder:
         # Show the plot to the screen
         pyplot.show()
 
+    def export_mesh(self, mesh_export):
+        mesh_export.save('mesh.stl', mode=Mode.ASCII)
+
     def test(self):
         img = self.load_depth_img()
         img = self.downsample(img)
@@ -172,6 +175,7 @@ class MeshBuilder:
         all_mesh = self.combine_face_lists_into_mesh([tile_faces, wall_faces,
                                                       floor_faces])
         self.render_meshes([all_mesh])
+        self.export_mesh(all_mesh)
 
 if __name__ == '__main__':
     mb = MeshBuilder()
