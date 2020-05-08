@@ -35,6 +35,9 @@ class MeshBuilder:
         factor = NEW_MAX / curr_max
         return factor * img
 
+    def invert(self, img):
+        return np.max(img) - img
+
     def create_tile_faces(self, m_tile):
         """
         Takes in a greatly reduced image matrix aka "tile matrix" M_TILE,
@@ -131,6 +134,7 @@ class MeshBuilder:
         img = self.downsample(img)
         img = self.remove_outliers(img)
         img = self.normalize(img)
+        img = self.invert(img)
         tile_faces = self.create_tile_faces(img)
         wall_faces = self.create_wall_faces(img)
         tile_mesh = mesh.Mesh(tile_faces.copy())
