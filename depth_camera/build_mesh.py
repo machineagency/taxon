@@ -44,9 +44,23 @@ class MeshBuilder:
         order.
         For tile (x, y), the tile's vertices in the list will index range:
         [4 * (x + y * m_tile.width), 4 * (x + y * m_tile.width) + 3].
+        ACTUALLY maybe we can just make two triangle faces?
         Returns ???
         """
-        pass
+        data = np.zeros(m_tile.size * 2, dtype=mesh.Mesh.dtype)
+        m_tile_height, m_tile_width = m_tile.shape
+        i = 0
+        for y in range(m_tile_height):
+            for x in range(m_tile_width):
+                tile_depth = m_tile[y, x]
+                v_nw = [x - 0.5, y - 0.5, tile_depth]
+                v_ne = [x + 0.5, y - 0.5, tile_depth]
+                v_se = [x + 0.5, y + 0.5, tile_depth]
+                v_sw = [x - 0.5, y + 0.5, tile_depth]
+                data['vectors'][i] = np.array([v_nw, v_ne, v_sw])
+                data['vectors'][i + 1] = np.array([v_ne, v_sw, v_se])
+                i += 2
+        return data
 
     def render_meshes(self, meshes):
         # Create a new plot
@@ -58,7 +72,7 @@ class MeshBuilder:
             axes.add_collection3d(mplot3d.art3d.Poly3DCollection(m.vectors))
 
         # Auto scale to the mesh size
-        scale = numpy.concatenate([m.points for m in meshes]).flatten(-1)
+        scale = np.concatenate([m.points for m in meshes]).flatten('C')
         axes.auto_scale_xyz(scale, scale, scale)
 
         # Show the plot to the screen
@@ -67,7 +81,11 @@ class MeshBuilder:
     def test(self):
         img = self.load_depth_img()
         img = self.downsample(img)
-        print(img.shape)
+        img = self.remove_outliers(img)
+        img = self.normalize(img)
+        faces = self.create_tile_faces(img)
+        tf_mesh = mesh.Mesh(faces.copy())
+        self.render_meshes([tf_mesh])
 
 if __name__ == '__main__':
     mb = MeshBuilder()
