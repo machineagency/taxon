@@ -19,7 +19,23 @@ class MeshBuilder:
     def downsample(self, img):
         return block_reduce(img, block_size=(16, 16), func=np.mean)
 
-    def create_tile_vertices(self, m_tile):
+    def remove_outliers(self, img):
+        # FIXME: doesn't seem to be working as intended
+        MAX_Z = 3
+        img_flat = img.flatten()
+        m = np.mean(img_flat)
+        s = np.std(img_flat)
+        img_f = np.where(img < 3 * -s + m, 3 * -s + m, img)
+        img_fc = np.where(img_f > 3 * s + m, 3 * s + m, img_f)
+        return img_fc
+
+    def normalize(self, img):
+        NEW_MAX = img.shape[0]
+        curr_max = np.max(img)
+        factor = NEW_MAX / curr_max
+        return factor * img
+
+    def create_tile_faces(self, m_tile):
         """
         Takes in a greatly reduced image matrix aka "tile matrix" M_TILE,
         and returns a list of vertices corresponding to vertices of floating
