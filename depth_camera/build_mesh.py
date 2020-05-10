@@ -70,7 +70,7 @@ class MeshBuilder:
                 v_se = [y + 0.5, x + 0.5, tile_depth]
                 v_sw = [y - 0.5, x + 0.5, tile_depth]
                 data['vectors'][i] = np.array([v_nw, v_ne, v_sw])
-                data['vectors'][i + 1] = np.array([v_ne, v_sw, v_se])
+                data['vectors'][i + 1] = np.array([v_ne, v_se, v_sw])
                 i += 2
         return data
 
@@ -139,7 +139,7 @@ class MeshBuilder:
             v_bl = [x_from - 0.5, (y_from + y_to) * 0.5, z_low]
             v_br = [x_from + 0.5, (y_from + y_to) * 0.5, z_low]
         face_tl = np.array([v_tl, v_tr, v_bl])
-        face_br = np.array([v_tr, v_bl, v_br])
+        face_br = np.array([v_tr, v_br, v_bl])
         return (face_tl, face_br)
 
     def combine_face_lists_into_mesh(self, face_lists):
