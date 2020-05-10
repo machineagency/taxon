@@ -41,6 +41,9 @@ class MeshBuilder:
     def invert(self, img):
         return np.max(img) - img
 
+    def test_img(self):
+        return np.array([[10, 5], [1, 5]])
+
     def calculate_floor_depth(self, img):
         self.FLOOR_DEPTH = np.min(img) - self.FLOOR_THICKNESS
 
@@ -169,11 +172,12 @@ class MeshBuilder:
         mesh_export.save('mesh.stl', mode=Mode.ASCII)
 
     def test(self):
-        img = self.load_depth_img()
-        img = self.downsample(img)
-        img = self.remove_outliers(img)
-        img = self.normalize(img)
-        img = self.invert(img)
+        # img = self.load_depth_img()
+        # img = self.downsample(img)
+        # img = self.remove_outliers(img)
+        # img = self.normalize(img)
+        # img = self.invert(img)
+        img = self.test_img()
         self.calculate_floor_depth(img)
         tile_faces = self.create_tile_faces(img)
         wall_faces = self.create_wall_faces(img)
