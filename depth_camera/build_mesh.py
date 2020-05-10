@@ -8,6 +8,8 @@ from mpl_toolkits import mplot3d
 class MeshBuilder:
     def __init__(self):
         self.DOWNSAMPLE_FACTOR = 64
+        self.FLOOR_THICKNESS = 1
+        self.FLOOR_DEPTH = 0
 
     def load_depth_img(self):
         """
@@ -39,6 +41,9 @@ class MeshBuilder:
     def invert(self, img):
         return np.max(img) - img
 
+    def calculate_floor_depth(self, img):
+        self.FLOOR_DEPTH = np.min(img) - self.FLOOR_THICKNESS
+
     def create_tile_faces(self, m_tile, is_floor=False):
         """
         Takes in a greatly reduced image matrix aka "tile matrix" M_TILE,
@@ -57,7 +62,7 @@ class MeshBuilder:
         for y in range(m_tile_height):
             for x in range(m_tile_width):
                 if is_floor:
-                    tile_depth = 0
+                    tile_depth = self.FLOOR_DEPTH
                 else:
                     tile_depth = m_tile[y, x]
                 v_nw = [y - 0.5, x - 0.5, tile_depth]
@@ -120,7 +125,7 @@ class MeshBuilder:
         if edge == '':
             z_low = m_tile[x_to, y_to]
         else:
-            z_low = 0
+            z_low = self.FLOOR_DEPTH
         # East and West cases
         if y_from == y_to:
             v_tl = [(x_from + x_to) * 0.5, y_from - 0.5, z_high]
@@ -169,12 +174,13 @@ class MeshBuilder:
         img = self.remove_outliers(img)
         img = self.normalize(img)
         img = self.invert(img)
+        self.calculate_floor_depth(img)
         tile_faces = self.create_tile_faces(img)
         wall_faces = self.create_wall_faces(img)
         floor_faces = self.create_tile_faces(img, is_floor=True)
         all_mesh = self.combine_face_lists_into_mesh([tile_faces, wall_faces,
                                                       floor_faces])
-        self.render_meshes([all_mesh])
+        # self.render_meshes([all_mesh])
         self.export_mesh(all_mesh)
 
 if __name__ == '__main__':

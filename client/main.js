@@ -152,7 +152,6 @@ class WorkEnvelope extends StrangeComponent {
                             .add(topPlanePts[2].multiplyScalar(0.5));
         centerPt.z += eps;
         this.position = centerPt;
-        debugger;
     }
 }
 
@@ -160,18 +159,41 @@ class Lego extends StrangeComponent {
     // TODO
 }
 
+let makeLoadStlPromise = (filepath, strangeScene) => {
+    let loadPromise = new Promise(resolve => {
+        let loader = new THREE.STLLoader();
+        let stlMesh;
+        return loader.load(filepath, (stlGeom) => {
+            let material = new THREE.MeshLambertMaterial({
+                color : BuildEnvironment.color
+            });
+            stlMesh = new THREE.Mesh(stlGeom, material);
+            stlMesh.scale.set(10, 10, 10);
+            stlMesh.isLoadedStl = true;
+            strangeScene.scene.add(stlMesh);
+            resolve(stlMesh);
+        }, undefined, (errorMsg) => {
+            console.log(errorMsg);
+        });
+    });
+    return loadPromise;
+};
+
+var myStl;
+
 function main() {
     let ss = new StrangeScene();
     let be = new BuildEnvironment();
     let we = new WorkEnvelope();
-    ss.addComponent(be);
-    ss.addComponent(we);
-    we.placeOnComponent(be);
+    // ss.addComponent(be);
+    // ss.addComponent(we);
+    // we.placeOnComponent(be);
     let animate = () => {
         requestAnimationFrame(animate);
         ss.renderScene();
     };
     animate();
+    makeLoadStlPromise('assets/mesh.stl', ss);
 }
 
 main();
