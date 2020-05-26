@@ -1,25 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<title>Strange Machine</title>
-<meta charset="utf-8">
-<link rel="icon"
-      type="image/png"
-      href="img/favicon.png">
-<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-<link rel="stylesheet" href="style.css">
+	<title>Strange Machine</title>
+	<meta charset="utf-8">
+	<link rel="icon" type="image/png" href="img/favicon.png">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap"
+		rel="stylesheet">
+	<link rel="stylesheet" href="./css/reset.css">
+	<link rel="stylesheet" href="./css/navbar.css">
+	<link rel="stylesheet" href="./css/type.css">
+
 </head>
+
 <body>
 
-<div id="container"></div>
+	<div id="container"></div>
 
-<script src="/assets/three.js"></script>
+	<div class="navbar">
+
+		<div class="nav-filename">
+			<input type="text" name="filename" id="filename" value="Rube Goldberg Prototype 1">
+		</div>
+
+		<div class="nav-btns">
+
+			<div class="nav-btns-left">
+				<button type="button" class="btn" id="navbtn-leftmost"><span>Workspace</span></button>
+				<button type="button" class="btn" id="nav-button"><span>Import</span></button>
+			</div>
+	
+			<div class="nav-btns-right">
+				<button type="button" class="btn" id="navbtn-rightmost"><span>Compile</span></button>
+			</div>
+			
+		</div>
+
+
+	</div>
+
+	<div class="dialog"></div>
+
+	<div class="toolbar"></div>
+
+	<!-- <script src="/assets/three.js"></script>
 <script src="/assets/TransformControls.js"></script>
 <script src="/assets/OrbitControls.js"></script>
 <script src="/assets/stats.min.js"></script>
 
-<script type="module" src="main.js"></script>
+<script type="module" src="main.js"></script> -->
 
 </body>
-</html>
 
+</html>

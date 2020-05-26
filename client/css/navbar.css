@@ -1,0 +1,66 @@
+.navbar {
+	width: calc(100vw - 32px);
+	height: 54px;
+	border-radius: 30px;
+	margin-top: 16px;
+	background: #242931;
+   position: relative;
+   
+   /* display: grid;
+   grid-template-columns: ; */
+}
+
+.nav-filename {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	/* position: absolute; */
+	margin: 0 auto;
+	height: inherit;
+}
+
+input[type=text] {
+   width: 186px;
+   background: none;
+   border: none;
+}
+
+input[type=text]:focus {
+   outline: none;
+}
+
+.nav-btns {
+	display: flex;
+	justify-content: space-between;
+   align-items: center;
+}
+
+.nav-btns-left, .nav-btns-right {
+	display: flex;
+}
+
+button {
+	background: #494E57;
+	color: #EAEAEA;
+	border: none;
+	padding: 14px 15px 14px 15px;
+	border-radius: 6px;
+	margin: 6px;
+}
+
+button:hover {
+	cursor: pointer;
+}
+
+#navbtn-leftmost {
+   border-radius: 20px 6px 6px 20px;
+   padding: 14px 14px 14px 16px;
+	margin-right: 0;
+}
+
+#navbtn-rightmost {
+   border-radius: 6px 20px 20px 6px;
+   padding: 14px 16px 14px 14px;
+	margin-left: 0;
+}
