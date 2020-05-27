@@ -11,41 +11,151 @@
 		rel="stylesheet">
 	<link rel="stylesheet" href="./css/reset.css">
 	<link rel="stylesheet" href="./css/navbar.css">
+	
+	<link rel="stylesheet" href="./css/dialog.css">
+	<link rel="stylesheet" href="./css/layerslist.css">
+	<link rel="stylesheet" href="./css/toolbar.css">
+
 	<link rel="stylesheet" href="./css/type.css">
 
 </head>
 
 <body>
 
-	<div id="container"></div>
+	<!-- <div id="container"></div> -->
 
-	<div class="navbar">
+	<!-- Header Section -------------------------------- -->
 
-		<div class="nav-filename">
-			<input type="text" name="filename" id="filename" value="Rube Goldberg Prototype 1">
-		</div>
+	<div class="nav-container">
+		<div class="navbar">
 
-		<div class="nav-btns">
-
-			<div class="nav-btns-left">
-				<button type="button" class="btn" id="navbtn-leftmost"><span>Workspace</span></button>
-				<button type="button" class="btn" id="nav-button"><span>Import</span></button>
+			<div class="nav-left">
+				<button type="button" class="nav-btn" id="navbtn-leftmost">Workspace</button>
+				<button type="button" class="nav-btn" id="nav-button">Import</button>
 			</div>
 	
-			<div class="nav-btns-right">
-				<button type="button" class="btn" id="navbtn-rightmost"><span>Compile</span></button>
+			<div class="nav-mid">
+				<input type="text" name="filename" id="filename" value="Rube Goldberg Prototype 1">
 			</div>
+	
+			<div class="nav-right">
+				<button type="button" class="nav-btn" id="navbtn-rightmost">Compile</button>
+			</div>
+	
+		</div>
+	</div>
+	
+
+	<!-- Main Section ---------------------------------- -->
+
+	<div class="main">
+
+		<!-- Left Dialog ---------- -->
+
+		<div class="dialog dialog-left layerslist">
 			
+			<div class="dialog-header">
+				<h2>Objects</h2>
+			</div>
+
+			<div class="list">
+
+				<div class="line"></div>
+
+				<button type="button" class="list-item">
+					<p>Work Environment</p>
+				</button>
+
+				<div class="line"></div>
+	
+				<button type="button" class="list-item">
+					<p>Motor Stage 1</p>
+				</button>
+	
+			</div>
+	
+		</div>
+
+		<!-- Right Dialog ---------- -->
+
+		<div class="dialog dialog-right" id="create-new">
+			
+			<div class="dialog-header">
+				<h2>Create New</h2>
+			</div>
+
+			<div class="list">
+
+				<div class="line"></div>
+
+				<div class="lego-grid">
+
+					<div class="lego-left-col">
+
+						<button class="lego">
+							<img src="./img/block.png" alt="">
+							<p class="lego-desc">Work Environment</p>
+						</button>
+
+						<button class="lego">
+							<img src="./img/block.png" alt="">
+							<p class="lego-desc">Servo</p>
+						</button>
+
+						<button class="lego">
+							<img src="./img/block.png" alt="">
+							<p class="lego-desc">Enclosure</p>
+						</button>
+	
+					</div>
+	
+					<div class="lego-right-col">
+
+						<button class="lego">
+							<img src="./img/block.png" alt="">
+							<p class="lego-desc">Motor Stage</p>
+						</button>
+
+						<button class="lego">
+							<img src="./img/block.png" alt="">
+							<p class="lego-desc">Circular Stage</p>
+						</button>
+
+						<button class="lego">
+							<img src="./img/block.png" alt="">
+							<p class="lego-desc">Stabilizer</p>
+						</button>
+
+					</div>
+				</div>
+				
+			</div>
 		</div>
 
 
 	</div>
 
-	<div class="dialog"></div>
 
-	<div class="toolbar"></div>
+	<!-- Footer Section ------------------------------------- -->
 
-	<!-- <script src="/assets/three.js"></script>
+	<div class="toolbar">
+
+		<button type="button" class="tool-btn" id="create-new-btn">
+			<img src="./img/create.svg" alt="">
+			<!-- <img src="./img/add.png" alt=""> -->
+		</button>
+
+		<button type="button" class="tool-btn" id="measure-btn">
+			<img src="./img/measure.svg" alt="">	
+		</button>
+
+		<button type="button" class="tool-btn" id="instr-btn">
+			<img src="./img/instr.svg" alt="">			
+		</button>
+
+	</div>
+
+<!-- <script src="/assets/three.js"></script>
 <script src="/assets/TransformControls.js"></script>
 <script src="/assets/OrbitControls.js"></script>
 <script src="/assets/stats.min.js"></script>

@@ -1,66 +1,77 @@
-.navbar {
-	width: calc(100vw - 32px);
-	height: 54px;
-	border-radius: 30px;
-	margin-top: 16px;
-	background: #242931;
-   position: relative;
-   
-   /* display: grid;
-   grid-template-columns: ; */
+.nav-container {
+  grid-area: body-header;
+  display: flex;
+  justify-content: center;
 }
 
-.nav-filename {
-	display: flex;
-	justify-content: center;
-	align-items: center;
+.navbar {
+  width: calc(100vw - 32px);
+  height: 54px;
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: [hc1] 360px [hc2] auto [hc3] 360px [hc4];
+  grid-template-areas: "nav-left nav-mid nav-right";
+  border-radius: 30px;
+  background: #242931;
+}
 
-	/* position: absolute; */
-	margin: 0 auto;
-	height: inherit;
+.nav-left, .nav-mid, .nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.nav-left {
+  grid-area: nav-left;
+  justify-content: flex-start;
+}
+
+.nav-mid {
+  grid-area: nav-mid;
+  justify-content: center;
+  /* position: absolute; */
+  margin: 0 auto;
+  height: inherit;
 }
 
 input[type=text] {
-   width: 186px;
-   background: none;
-   border: none;
+  width: 200px;
 }
-
 input[type=text]:focus {
-   outline: none;
+  outline: none;
 }
 
-.nav-btns {
-	display: flex;
-	justify-content: space-between;
-   align-items: center;
+.nav-right {
+  grid-area: nav-right;
+  justify-content: flex-end;
 }
 
-.nav-btns-left, .nav-btns-right {
-	display: flex;
+.nav-btn {
+  /* Styling */
+  background: #494E57;
+  color: #EAEAEA;
+  /* Sizing */
+  padding: 14px 15px 14px 15px;
+  border-radius: 6px;
+  margin: 6px;
 }
-
-button {
-	background: #494E57;
-	color: #EAEAEA;
-	border: none;
-	padding: 14px 15px 14px 15px;
-	border-radius: 6px;
-	margin: 6px;
+.nav-btn:hover {
+  cursor: pointer;
+  background: #5C6370;
 }
-
-button:hover {
-	cursor: pointer;
+.nav-btn:active {
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.6);
 }
 
 #navbtn-leftmost {
-   border-radius: 20px 6px 6px 20px;
-   padding: 14px 14px 14px 16px;
-	margin-right: 0;
+  border-radius: 20px 6px 6px 20px;
+  padding: 14px 14px 14px 16px;
+  margin-right: 0;
 }
 
 #navbtn-rightmost {
-   border-radius: 6px 20px 20px 6px;
-   padding: 14px 16px 14px 14px;
-	margin-left: 0;
+  border-radius: 6px 20px 20px 6px;
+  padding: 14px 16px 14px 14px;
+  margin-left: 0;
 }
+
+/*# sourceMappingURL=navbar.css.map */

@@ -1,0 +1,87 @@
+.dialog {
+   position: absolute;
+   margin-top: 16px;
+   top: 0;
+
+   padding: 4px 12px;
+   background: white;
+   border-radius: 20px;
+   box-shadow: 0px 2px 10px rgba(0,0,0,0.05);
+   transition: all .5s cubic-bezier(.5,1,.5,1);
+}
+
+.dialog-left {
+   left: 0;
+   margin-left: 16px;
+}
+
+.dialog-right {
+   right: 0;
+   margin-right: 16px;
+}
+
+.dialog-header {
+   padding: 0px 12px;
+
+   h2 {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 20px;
+      padding: 16px 0px;
+      color: #202020;
+   }
+}
+
+.dialog-right#create-new {
+   width: 400px;
+   height: 488px;
+}
+
+.lego-grid {
+   display: grid;
+   height: inherit;
+   grid-template-columns: 50% 50%;
+   grid-template-areas: "left-col right-col";
+   padding: 0px 12px;
+}
+
+.lego-left-col {
+   grid-area: left-col;
+   padding-right: 8px;
+}
+
+
+.lego-right-col {
+   grid-area: right-col;
+   padding-left: 8px;
+}
+
+.lego {
+   width: 100%;
+   height: 120px;
+   margin-top: 16px;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   background: #F0F0F0;
+   border-radius: 6px;
+   transition: all .2s cubic-bezier(.5,1,.5,1);
+
+   img {
+      width: 100px;
+      margin-bottom: 16px;
+   }
+
+   &:hover {
+      background: #EAEAEA;
+      transform: scale(1.01);
+      transition: all .1s cubic-bezier(.5,1,.5,1);
+   }
+
+   &:active {
+      transform: scale(0.99);
+      transition: all .1s cubic-bezier(.5,1,.5,1);
+   }
+
+}
