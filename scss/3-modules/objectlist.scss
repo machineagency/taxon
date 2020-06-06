@@ -1,4 +1,4 @@
-.layerslist {
+.objectlist-container {
    width: 280px;
    height: fit-content;
 }
@@ -17,12 +17,12 @@
    transition: all .15s cubic-bezier(.5,1,.5,1);
 
    &:hover {
-      background: #F0F0F0;
+      background: $gray-hover;
       transition: all .3s cubic-bezier(.5,1,.5,1);
    }
 
    &:active {
-      background: #F4F2FF;
+      background: $list-item-focus;
       transform: scale(0.98);
       transition: all .1s cubic-bezier(.5,1,.5,1);
 
@@ -47,9 +47,9 @@
    height: 1px;
    width: calc(100% - 24px);
    margin: 0 auto;
-   background: #D0D0D0;
+   background: $divider-list;
 }
 
 .line:nth-child(1) {
-   background: #242424;
+   background: $divider-main;
 }

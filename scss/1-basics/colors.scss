@@ -1,0 +1,15 @@
+$primary-btn: #482AFF;
+$list-item-focus: #F4F2FF;
+
+$gray-hover: #F0F0F0;
+
+$divider-main: #242424;
+$divider-list: #D0D0D0;
+
+$shadow: rgba(0,0,0,0.05);
+
+@mixin transition($time) {
+   -webkit-transition: all $time cubic-bezier(.5,1,.5,1);
+   -ms-transition: all $time cubic-bezier(.5,1,.5,1);
+   transition: all $time cubic-bezier(.5,1,.5,1);
+}

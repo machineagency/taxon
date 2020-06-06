@@ -1,0 +1,30 @@
+.navbar {
+   display: grid;
+   grid-template-columns: [hc1] 360px [hc2] auto [hc3] 360px [hc4];
+   grid-template-areas: "nav-left nav-mid nav-right";
+   margin-top: 16px;
+}
+
+.nav-left, .nav-mid, .nav-right {
+   display: flex;
+   align-items: center;
+}
+
+.nav-left {
+   grid-area: nav-left;
+   justify-content: flex-start;
+}
+
+.nav-mid {
+   grid-area: nav-mid;
+	justify-content: center;
+
+	/* position: absolute; */
+	margin: 0 auto;
+	height: inherit;
+}
+
+.nav-right {
+   grid-area: nav-right;
+   justify-content: flex-end;
+}

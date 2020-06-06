@@ -20,34 +20,16 @@ time, mark, audio, video {
 	vertical-align: baseline;
 }
 
-body {
-	width: 100vw;
-	height: 100vh;
-	background: #F0F0F0; /* temporary */
-
-	display: grid;
-	grid-template-rows: 70px auto 100px;
-	grid-template-areas: 
-		"body-header"
-		"body-main"
-		"body-footer";
-}
-
 input, button {
 	background: none;
-	border: none;
-}
+   border: none;
+   
+   &:hover {
+      outline: none;
+      cursor: pointer;
+   }
 
-button:hover {
-	outline: none;
-	cursor: pointer;
-}
-
-input:focus, button:focus {
-	outline: none;
-}
-
-.main {
-	grid-area: body-main;
-	position: relative;
+   &:focus {
+      outline: none;
+   }
 }

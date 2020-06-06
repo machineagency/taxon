@@ -9,14 +9,7 @@
 
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap"
 		rel="stylesheet">
-	<link rel="stylesheet" href="./css/reset.css">
-	<link rel="stylesheet" href="./css/navbar.css">
-	
-	<link rel="stylesheet" href="./css/dialog.css">
-	<link rel="stylesheet" href="./css/layerslist.css">
-	<link rel="stylesheet" href="./css/toolbar.css">
-
-	<link rel="stylesheet" href="./css/type.css">
+	<link rel="stylesheet" href="./main.css">
 
 </head>
 
@@ -26,7 +19,7 @@
 
 	<!-- Header Section -------------------------------- -->
 
-	<div class="nav-container">
+	<div class="header">
 		<div class="navbar">
 
 			<div class="nav-left">
@@ -46,39 +39,26 @@
 	</div>
 	
 
+
 	<!-- Main Section ---------------------------------- -->
 
 	<div class="main">
 
 		<!-- Left Dialog ---------- -->
 
-		<div class="dialog dialog-left layerslist">
+		<div class="dialog dialog-left objectlist-container">
 			
 			<div class="dialog-header">
 				<h2>Objects</h2>
 			</div>
 
-			<div class="list">
-
-				<div class="line"></div>
-
-				<button type="button" class="list-item">
-					<p>Work Environment</p>
-				</button>
-
-				<div class="line"></div>
-	
-				<button type="button" class="list-item">
-					<p>Motor Stage 1</p>
-				</button>
-	
-			</div>
+			<div id="objectlist"></div>
 	
 		</div>
 
 		<!-- Right Dialog ---------- -->
 
-		<div class="dialog dialog-right" id="create-new">
+		<div class="dialog dialog-right" id="create-dialog">
 			
 			<div class="dialog-header">
 				<h2>Create New</h2>
@@ -92,17 +72,17 @@
 
 					<div class="lego-left-col">
 
-						<button class="lego">
+						<button class="lego" id="work-env-obj" onclick="add_object(this)">
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Work Environment</p>
 						</button>
 
-						<button class="lego">
+						<button class="lego" id="servo-obj" onclick="add_object(this)">
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Servo</p>
 						</button>
 
-						<button class="lego">
+						<button class="lego" id="enclosure-obj" onclick="add_object(this)">
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Enclosure</p>
 						</button>
@@ -111,17 +91,17 @@
 	
 					<div class="lego-right-col">
 
-						<button class="lego">
+						<button class="lego" id="motor-obj" onclick="add_object(this)">
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Motor Stage</p>
 						</button>
 
-						<button class="lego">
+						<button class="lego" id="circ-obj" onclick="add_object(this)">
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Circular Stage</p>
 						</button>
 
-						<button class="lego">
+						<button class="lego" id="stab-obj" onclick="add_object(this)">
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Stabilizer</p>
 						</button>
@@ -132,25 +112,51 @@
 			</div>
 		</div>
 
+		<!-- <div class="dialog dialog-right prop-dialog" id="work-env-dialog">
+			<div class="dialog-header">
+
+				<div class="left-header">
+					<button type="button" class="back-btn" onclick="nav_back(this.parentElement.parentElement.parentElement)">
+						<img src="./icons/back.svg" alt="Back Button">
+					</button>	
+					<h2>Work Environment</h2>
+				</div>
+
+				<div class="right-header">
+					<button type="button" class="x-btn" onclick="close_dlg(this.parentElement.parentElement.parentElement)">
+						<img src="./icons/x.svg" alt="Close Button">
+					</button>
+				</div>
+
+			</div>
+
+			<div class="prop-container">
+
+			</div>
+
+
+	
+		</div> -->
+
 
 	</div>
 
 
+
 	<!-- Footer Section ------------------------------------- -->
 
-	<div class="toolbar">
+	<div class="footer">
 
-		<button type="button" class="tool-btn" id="create-new-btn" onclick="create_clicked()">
-			<img src="./img/create.svg" alt="">
-			<!-- <img src="./img/add.png" alt=""> -->
+		<button type="button" class="tool-btn tool-btn-off" id="create-new-btn" onclick="toggle_tool(this)">
+			<img src="./icons/create.svg" alt="Create New Dialog">
 		</button>
 
-		<button type="button" class="tool-btn" id="measure-btn">
-			<img src="./img/measure.svg" alt="">	
+		<button type="button" class="tool-btn tool-btn-off" id="measure-btn" onclick="toggle_tool(this)">
+			<img src="./icons/measure.svg" alt="Measure Tool">	
 		</button>
 
-		<button type="button" class="tool-btn" id="instr-btn">
-			<img src="./img/instr.svg" alt="">			
+		<button type="button" class="tool-btn tool-btn-off" id="instr-btn" onclick="toggle_tool(this)">
+			<img src="./icons/instr.svg" alt="Instruction Tool">			
 		</button>
 
 	</div>

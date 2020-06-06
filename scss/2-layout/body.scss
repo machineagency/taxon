@@ -1,0 +1,31 @@
+body {
+	width: 100vw;
+	height: 100vh;
+	background: #F0F0F0; /* temporary */
+
+	display: grid;
+	grid-template-rows: 70px auto 100px;
+	grid-template-areas: 
+		"body-header"
+		"body-main"
+		"body-footer";
+}
+
+.header {
+   grid-area: body-header;
+   display: flex;
+   justify-content: center;
+}
+
+.main {
+	grid-area: body-main;
+	position: relative;
+}
+
+.footer {
+   grid-area: body-footer;
+   display: flex;
+   justify-content: center;
+   align-items: flex-end;
+   padding-bottom: 24px;
+}
