@@ -1,0 +1,55 @@
+.objectlist-container {
+   width: 280px;
+   height: fit-content;
+}
+
+.list-item:first-of-type .line {
+   display: none;
+}
+
+.list-item {
+   width: 100%;
+   padding: 16px 12px;
+   margin: 6px 0px;
+   border-radius: 10px;
+   text-align: left;
+
+   transition: all .15s cubic-bezier(.5,1,.5,1);
+
+   &:hover {
+      background: $gray-hover;
+      transition: all .3s cubic-bezier(.5,1,.5,1);
+   }
+
+   &:active {
+      background: $list-item-focus;
+      transform: scale(0.98);
+      transition: all .1s cubic-bezier(.5,1,.5,1);
+
+      p {
+         color: #444;
+         font-weight: 600;
+      }
+   }
+
+   &:focus {
+      background: #F4F2FF;
+      transition: all .1s cubic-bezier(.5,1,.5,1);
+
+      p {
+         color: #444;
+         font-weight: 600;
+      }
+   }
+}
+
+.line {
+   height: 1px;
+   width: calc(100% - 24px);
+   margin: 0 auto;
+   background: $divider-list;
+}
+
+.line:nth-child(1) {
+   background: $divider-main;
+}
