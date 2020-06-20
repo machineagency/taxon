@@ -15,7 +15,7 @@
 
 <body>
 
-	<!-- <div id="container"></div> -->
+    <div id="container"></div>
 
 	<!-- Header Section -------------------------------- -->
 
@@ -26,40 +26,40 @@
 				<button type="button" class="nav-btn" id="navbtn-leftmost">Workspace</button>
 				<button type="button" class="nav-btn" id="nav-button">Import</button>
 			</div>
-	
+
 			<div class="nav-mid">
 				<input type="text" name="filename" id="filename" value="Rube Goldberg Prototype 1">
 			</div>
-	
+
 			<div class="nav-right">
 				<button type="button" class="nav-btn" id="navbtn-rightmost">Compile</button>
 			</div>
-	
+
 		</div>
 	</div>
-	
 
 
-	<!-- Main Section ---------------------------------- -->
+
+	<!-- Main Section ------------------------------------>
 
 	<div class="main">
 
-		<!-- Left Dialog ---------- -->
+		<!-- Left Dialog ------------>
 
 		<div class="dialog dialog-left objectlist-container">
-			
+
 			<div class="dialog-header">
 				<h2>Objects</h2>
 			</div>
 
 			<div id="objectlist"></div>
-	
+
 		</div>
 
-		<!-- Right Dialog ---------- -->
+		<!-- Right Dialog ------------>
 
 		<div class="dialog dialog-right" id="create-dialog">
-			
+
 			<div class="dialog-header">
 				<h2>Create New</h2>
 			</div>
@@ -86,9 +86,9 @@
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Enclosure</p>
 						</button>
-	
+
 					</div>
-	
+
 					<div class="lego-right-col">
 
 						<button class="lego" id="motor-obj" onclick="add_object(this)">
@@ -108,7 +108,7 @@
 
 					</div>
 				</div>
-				
+
 			</div>
 		</div>
 
@@ -118,7 +118,7 @@
 				<div class="left-header">
 					<button type="button" class="back-btn" onclick="nav_back(this.parentElement.parentElement.parentElement)">
 						<img src="./icons/back.svg" alt="Back Button">
-					</button>	
+					</button>
 					<h2>Work Environment</h2>
 				</div>
 
@@ -135,7 +135,7 @@
 			</div>
 
 
-	
+
 		</div> -->
 
 
@@ -152,23 +152,23 @@
 		</button>
 
 		<button type="button" class="tool-btn tool-btn-off" id="measure-btn" onclick="toggle_tool(this)">
-			<img src="./icons/measure.svg" alt="Measure Tool">	
+			<img src="./icons/measure.svg" alt="Measure Tool">
 		</button>
 
 		<button type="button" class="tool-btn tool-btn-off" id="instr-btn" onclick="toggle_tool(this)">
-			<img src="./icons/instr.svg" alt="Instruction Tool">			
-		</button>
+			<img src="./icons/instr.svg" alt="Instruction Tool">
+        </button>
 
-	</div>
+    </div>
 
 <script src="./ui.js"></script>
-<!-- <script src="/assets/three.js"></script>
+<script src="/assets/three.js"></script>
 <script src="/assets/TransformControls.js"></script>
 <script src="/assets/OrbitControls.js"></script>
 <script src="/assets/STLLoader.js"></script>
 <script src="/assets/stats.min.js"></script>
 
-<script type="module" src="main.js"></script> -->
+<script type="module" src="main.js"></script>
 
 </body>
 
