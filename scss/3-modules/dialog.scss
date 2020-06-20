@@ -8,6 +8,8 @@
    border-radius: 20px;
    box-shadow: 0px 2px 10px rgba(0,0,0,0.05);
    @include transition(.5s);
+
+   pointer-events: all;
 }
 
 .dialog-left {

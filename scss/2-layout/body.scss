@@ -16,6 +16,7 @@ body {
    display: flex;
    justify-content: center;
    z-index: 10;
+   pointer-events: none;
 }
 
 #container {
@@ -28,8 +29,8 @@ body {
 .main {
 	grid-area: body-main;
 	position: relative;
+    z-index: 10;
     pointer-events: none;
-   z-index: 10;
 }
 
 .footer {
@@ -39,4 +40,5 @@ body {
    align-items: flex-end;
    padding-bottom: 24px;
    z-index: 10;
+   pointer-events: none;
 }
