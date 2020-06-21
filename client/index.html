@@ -52,19 +52,29 @@
 				<h2>Objects</h2>
 			</div>
 
-			<div id="objectlist"></div>
+			<div class="dialog-main" id="objectlist"></div>
 	
 		</div>
 
 		<!-- Right Dialog ---------- -->
 
+		<!-- Create Dialog -->
+
 		<div class="dialog dialog-right" id="create-dialog">
 			
 			<div class="dialog-header">
-				<h2>Create New</h2>
+				<div class="left-header">
+					<h2>Create New</h2>
+				</div>
+
+				<div class="right-header">
+					<button type="button" class="x-btn" onclick="close_dialog(this.parentElement.parentElement.parentElement)">
+						<img src="./icons/x.svg" alt="Close Button">
+					</button>
+				</div>
 			</div>
 
-			<div class="list">
+			<div class="dialog-main list">
 
 				<div class="line"></div>
 
@@ -112,7 +122,11 @@
 			</div>
 		</div>
 
-		<!-- <div class="dialog dialog-right prop-dialog" id="work-env-dialog">
+
+		<!-- Work Environment Property Dialog -->
+
+		<div class="dialog dialog-right prop-dialog" id="work-env-dialog">
+
 			<div class="dialog-header">
 
 				<div class="left-header">
@@ -123,21 +137,75 @@
 				</div>
 
 				<div class="right-header">
-					<button type="button" class="x-btn" onclick="close_dlg(this.parentElement.parentElement.parentElement)">
+					<button type="button" class="x-btn" onclick="close_dialog(this.parentElement.parentElement.parentElement)">
 						<img src="./icons/x.svg" alt="Close Button">
 					</button>
 				</div>
 
 			</div>
 
-			<div class="prop-container">
+			<div class="dialog-main prop-list">
+
+				<div class="line"></div>
+
+				<div class="dropdown-container prop-row">
+
+					<label class="dropdown-label">Type:</label>
+
+					<select name="work-env-type">
+						<option value="0">2-Dimensional</option>
+						<option value="1">3-Dimensional</option>
+						<option value="2">Custom Object</option>
+					</select>
+
+				</div>
+
+				<div class="prop-row">
+
+					<div class="dropdown-container prop-item-66">
+						<label class="dropdown-label">Shape:</label>
+						<select name="work-env-shape">
+							<option value="0">Rectangle</option>
+							<option value="1">Circle</option>
+							<option value="2">Triangle</option>
+						</select>
+					</div>
+
+					<div class="dropdown-container prop-item-33">
+						<label class="dropdown-label">Plane:</label>
+						<select name="work-env-shape">
+							<option value="0">XY</option>
+							<option value="1">YZ</option>
+							<option value="2">XZ</option>
+						</select>
+					</div>
+
+				</div>
+
+				<div class="prop-row">
+
+					<div class="dropdown-container prop-item-50">
+						<label class="dropdown-label">Length:</label>
+						<input class="prop-field" type="text">
+					</div>
+
+					<div class="dropdown-container prop-item-50">
+						<label class="dropdown-label">Width:</label>
+						<input class="prop-field" type="text">
+					</div>
+
+				</div>
+
+				<div class="line"></div>
 
 			</div>
 
+			<div class="dialog-footer">
+				<button type="button" class="prop-item-50 btn-secondary">Cancel</button>
+				<button type="button" class="prop-item-50 btn-primary">Save</button>
+			</div>
 
-	
-		</div> -->
-
+		</div>
 
 	</div>
 
@@ -147,7 +215,7 @@
 
 	<div class="footer">
 
-		<button type="button" class="tool-btn tool-btn-off" id="create-new-btn" onclick="toggle_tool(this)">
+		<button type="button" class="tool-btn tool-btn-off" id="create-btn" onclick="toggle_tool(this)">
 			<img src="./icons/create.svg" alt="Create New Dialog">
 		</button>
 

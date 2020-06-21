@@ -10,14 +10,15 @@ fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
 article, aside, canvas, details, embed, 
 figure, figcaption, footer, header, hgroup, 
-menu, nav, output, ruby, section, summary,
+menu, nav, output, ruby, section, summary, select,
 time, mark, audio, video {
 	margin: 0;
 	padding: 0;
 	border: 0;
 	font-size: 100%;
 	font-family: 'Inter', sans-serif;
-	vertical-align: baseline;
+   vertical-align: baseline;
+   box-sizing: border-box;
 }
 
 input, button {
@@ -26,7 +27,7 @@ input, button {
    
    &:hover {
       outline: none;
-      cursor: pointer;
+      // cursor: pointer;
    }
 
    &:focus {

@@ -3,13 +3,10 @@
    height: fit-content;
 }
 
-.list-item:first-of-type .line {
-   display: none;
-}
-
 .list-item {
    width: 100%;
    padding: 16px 12px;
+   padding: 16px 8px;
    margin: 6px 0px;
    border-radius: 10px;
    text-align: left;
@@ -46,10 +43,11 @@
 .line {
    height: 1px;
    width: calc(100% - 24px);
+   width: 100%;
    margin: 0 auto;
    background: $divider-list;
-}
-
-.line:nth-child(1) {
-   background: $divider-main;
+   
+   &:nth-child(1) {
+      background: $divider-main;
+   }
 }

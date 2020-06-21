@@ -13,7 +13,7 @@ let tool_off = (btn, dialog) => {
 
 /* GLOBAL DOM ELEMENTS  --------------------- */
 
-let create_btn = by_id("create-new-btn");
+let create_btn = by_id("create-btn");
 let measure_btn = by_id("measure-btn");
 let instr_btn = by_id("instr-btn");
 
@@ -23,7 +23,7 @@ let create_dlg = by_id("create-dialog");
 let measure_dlg = by_id("measure-dialog");
 let instr_dlg = by_id("instr-dialog");
 
-let work_env_dlg = by_id("");
+let work_env_dlg = by_id("work-env-dialog");
 
 let lego_db = {
    "work-env-obj" : 0,
@@ -39,7 +39,7 @@ let lego_db = {
 function toggle_tool(btn) {
    let classes = btn.classList;
    let dialog_id = btn.id.replace("btn","dialog");
-   let dialog = document.getElementById(dialog_id);
+   let dialog = by_id(dialog_id);
 
    if ( classes.contains("tool-btn-on") ) {
       classes.replace("tool-btn-on", "tool-btn-off");
@@ -50,7 +50,7 @@ function toggle_tool(btn) {
       css_display_on(dialog);
 
       switch(btn.id) {
-         case "create-new-btn":
+         case "create-btn":
             tool_off(measure_btn, measure_dlg);
             tool_off(instr_btn, instr_dlg);
             break;
@@ -71,8 +71,14 @@ function toggle_tool(btn) {
 function add_object(obj) {
 
    // Swtich statement for creating object using three.js
+   switch(obj.id) {
+      case "work-env-obj":
+         css_display_on(work_env_dlg);
+         css_display_off(create_dlg);
+         break;
+   }
 
-   let divider = document.createElement("div")
+   let divider = document.createElement("div");
    divider.classList.add("line");
 
    let item = document.createElement("button");
@@ -86,6 +92,7 @@ function add_object(obj) {
 
    obj_list.appendChild(divider);
    obj_list.appendChild(item);
+   
 }
 
 function open_obj_property(lego) {
@@ -97,4 +104,14 @@ function open_obj_property(lego) {
 function nav_back(current) {
    css_display_off(current);
    css_display_on(create_dlg);
+}
+
+function close_dialog(obj) {
+   let btn = obj.id.replace("dialog","btn");
+   
+   switch(obj.id) {
+      case "create-dialog":
+         toggle_tool(create_btn);
+         break;
+   }
 }

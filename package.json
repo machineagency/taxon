@@ -23,5 +23,8 @@
     "path": "^0.12.7",
     "python-shell": "^1.0.7",
     "three": "^0.100.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
   }
 }
