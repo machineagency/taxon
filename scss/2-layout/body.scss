@@ -15,11 +15,22 @@ body {
    grid-area: body-header;
    display: flex;
    justify-content: center;
+   z-index: 10;
+   pointer-events: none;
+}
+
+#container {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
 }
 
 .main {
 	grid-area: body-main;
 	position: relative;
+    z-index: 10;
+    pointer-events: none;
 }
 
 .footer {
@@ -28,4 +39,6 @@ body {
    justify-content: center;
    align-items: flex-end;
    padding-bottom: 24px;
+   z-index: 10;
+   pointer-events: none;
 }

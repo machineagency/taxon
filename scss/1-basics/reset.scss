@@ -24,6 +24,8 @@ time, mark, audio, video {
 input, button {
 	background: none;
    border: none;
+
+   pointer-events: all;
    
    &:hover {
       outline: none;

@@ -91,6 +91,7 @@ class StrangeComponent {
     };
     constructor(name) {
         this.name = name;
+        this.geom = new THREE.Geometry();
         this.mesh = new THREE.Mesh();
     }
 
@@ -136,7 +137,21 @@ class WorkEnvelope extends StrangeComponent {
     }
 
     placeOnComponent(component) {
-        // TODO
+        component.geom.computeBoundingBox();
+        let bbox = component.geom.boundingBox;
+        let bmax = bbox.max;
+        let bmin = bbox.min;
+        let eps = 10;
+        let topPlanePts = [
+            new THREE.Vector3(bmax.x, bmax.y, bmax.z),
+            new THREE.Vector3(bmax.x, bmax.y - bmin.y, bmax.z),
+            new THREE.Vector3(bmax.x - bmin.y, bmax.y - bmin.y, bmax.z),
+            new THREE.Vector3(bmax.x - bmin.y, bmax.y, bmax.z)
+        ];
+        let centerPt = (topPlanePts[0].multiplyScalar(0.5))
+                            .add(topPlanePts[2].multiplyScalar(0.5));
+        centerPt.z += eps;
+        this.position = centerPt;
     }
 }
 
@@ -144,17 +159,41 @@ class Lego extends StrangeComponent {
     // TODO
 }
 
+let makeLoadStlPromise = (filepath, strangeScene) => {
+    let loadPromise = new Promise(resolve => {
+        let loader = new THREE.STLLoader();
+        let stlMesh;
+        return loader.load(filepath, (stlGeom) => {
+            let material = new THREE.MeshLambertMaterial({
+                color : BuildEnvironment.color
+            });
+            stlMesh = new THREE.Mesh(stlGeom, material);
+            stlMesh.scale.set(10, 10, 10);
+            stlMesh.isLoadedStl = true;
+            strangeScene.scene.add(stlMesh);
+            resolve(stlMesh);
+        }, undefined, (errorMsg) => {
+            console.log(errorMsg);
+        });
+    });
+    return loadPromise;
+};
+
+var myStl;
+
 function main() {
     let ss = new StrangeScene();
     let be = new BuildEnvironment();
     let we = new WorkEnvelope();
-    ss.addComponent(be);
-    ss.addComponent(we);
+    // ss.addComponent(be);
+    // ss.addComponent(we);
+    // we.placeOnComponent(be);
     let animate = () => {
         requestAnimationFrame(animate);
         ss.renderScene();
     };
     animate();
+    makeLoadStlPromise('assets/mesh.stl', ss);
 }
 
 main();

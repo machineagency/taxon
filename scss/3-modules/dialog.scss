@@ -8,6 +8,8 @@
    border-radius: 20px;
    box-shadow: 0px 2px 10px rgba(0,0,0,0.05);
    @include transition(.5s);
+
+   pointer-events: all;
 }
 
 .dialog-left {
@@ -137,4 +139,9 @@
       @include transition(.1s);
       // transition: all .1s cubic-bezier(.5,1,.5,1);
    }
+<<<<<<< HEAD
 }
+=======
+
+}
+>>>>>>> ac585f2895889ea5b778ba6cd36dd8a22ca419d9
