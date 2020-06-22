@@ -195,7 +195,8 @@ function main() {
         ss.renderScene();
     };
     animate();
+    return ss;
 }
 
-main();
+window.strangeScene = main();
 
