@@ -141,17 +141,19 @@ class WorkEnvelope extends StrangeComponent {
         let bbox = component.geom.boundingBox;
         let bmax = bbox.max;
         let bmin = bbox.min;
-        let eps = 10;
+        let eps = 1.5;
         let topPlanePts = [
             new THREE.Vector3(bmax.x, bmax.y, bmax.z),
             new THREE.Vector3(bmax.x, bmax.y - bmin.y, bmax.z),
             new THREE.Vector3(bmax.x - bmin.y, bmax.y - bmin.y, bmax.z),
             new THREE.Vector3(bmax.x - bmin.y, bmax.y, bmax.z)
         ];
-        let centerPt = (topPlanePts[0].multiplyScalar(0.5))
-                            .add(topPlanePts[2].multiplyScalar(0.5));
-        centerPt.z += eps;
-        this.position = centerPt;
+        // NOTE: +y is up in world coordinates, but +z is up in bbox coords
+        let centerPt = new THREE.Vector3();
+        centerPt.x = (bmax.x + bmin.x) / 2
+        centerPt.z = (bmax.y + bmin.y) / 2
+        centerPt.y = bmax.z + eps;
+        this.mesh.position.set(centerPt.x, centerPt.y, centerPt.z);
     }
 }
 
