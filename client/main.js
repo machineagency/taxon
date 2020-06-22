@@ -125,10 +125,8 @@ class StrangeComponent {
 
 class BuildEnvironment extends StrangeComponent {
     static color = 0xfefefe;
-    constructor(name) {
-        if (name === undefined) {
-            name = 'Build Environment';
-        }
+    constructor() {
+        name = 'BuildEnvironment';
         super(name);
         this.geom = BuildEnvironment.geometryFactories.buildEnvironment();
         this.material = new THREE.MeshLambertMaterial({
@@ -141,23 +139,32 @@ class BuildEnvironment extends StrangeComponent {
 
 class WorkEnvelope extends StrangeComponent {
     static color = 0x9d8dff;
-    constructor(name) {
-        if (name === undefined) {
-            name = 'WorkEnvelope';
+    static shapeNames = ['rectangle', 'cube', 'cylinder']
+
+    constructor(shapeName) {
+        if (!WorkEnvelope.shapeNames.includes(shapeName)) {
+            console.error(`Invalid shape ${shapeName}, defaulting to recangle.`);
+            shapeName = 'rectangle';
         }
+        name = 'WorkEnvelope';
         super(name);
-        this.geom = WorkEnvelope.geometryFactories.workEnvelope();
+        this.geom = WorkEnvelope.geometryFactories.workEnvelope(shapeName);
         this.material = new THREE.MeshLambertMaterial({
             color : WorkEnvelope.color,
             transparent : true,
             opacity : 0.5
         });
         this.mesh = new THREE.Mesh(this.geom, this.material);
-        this.rotateToXYPlane();
+        if (shapeName === 'rectangle') {
+            this.rotateToXYPlane();
+        }
     }
 
     placeOnComponent(component) {
         component.geom.computeBoundingBox();
+        this.geom.computeBoundingBox();
+        let thisHeight = this.geom.boundingBox.max.z
+                            - this.geom.boundingBox.min.z
         let bbox = component.geom.boundingBox;
         let bmax = bbox.max;
         let bmin = bbox.min;
@@ -172,7 +179,7 @@ class WorkEnvelope extends StrangeComponent {
         let centerPt = new THREE.Vector3();
         centerPt.x = (bmax.x + bmin.x) / 2
         centerPt.z = (bmax.y + bmin.y) / 2
-        centerPt.y = bmax.z + eps;
+        centerPt.y = bmax.z + thisHeight / 2 + eps;
         this.position = centerPt;
     }
 }
@@ -206,7 +213,7 @@ var myStl;
 function main() {
     let ss = new StrangeScene();
     let be = new BuildEnvironment();
-    let we = new WorkEnvelope();
+    let we = new WorkEnvelope('rectangle');
     ss.addComponent(be);
     ss.addComponent(we);
     we.placeOnComponent(be);
