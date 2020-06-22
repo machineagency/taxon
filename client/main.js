@@ -7,6 +7,7 @@ class StrangeScene {
         this.camera = this.initCamera(this.scene, false);
         this.renderer = this.initRenderer();
         this.controls = this.initControls(this.camera, this.renderer);
+        this.components = [];
     }
 
     initScene() {
@@ -73,6 +74,7 @@ class StrangeScene {
 
     addComponent(component) {
         this.scene.add(component.mesh);
+        this.components.push(component);
     }
 
 }
@@ -93,6 +95,14 @@ class StrangeComponent {
         this.name = name;
         this.geom = new THREE.Geometry();
         this.mesh = new THREE.Mesh();
+    }
+
+    get position() {
+        return this.mesh.position;
+    }
+
+    set position(newPos) {
+        this.mesh.position.set(newPos.x, newPos.y, newPos.z);
     }
 
     rotateToXYPlane() {
@@ -153,7 +163,7 @@ class WorkEnvelope extends StrangeComponent {
         centerPt.x = (bmax.x + bmin.x) / 2
         centerPt.z = (bmax.y + bmin.y) / 2
         centerPt.y = bmax.z + eps;
-        this.mesh.position.set(centerPt.x, centerPt.y, centerPt.z);
+        this.position = centerPt;
     }
 }
 
