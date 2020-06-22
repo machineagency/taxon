@@ -185,15 +185,14 @@ function main() {
     let ss = new StrangeScene();
     let be = new BuildEnvironment();
     let we = new WorkEnvelope();
-    // ss.addComponent(be);
-    // ss.addComponent(we);
-    // we.placeOnComponent(be);
+    ss.addComponent(be);
+    ss.addComponent(we);
+    we.placeOnComponent(be);
     let animate = () => {
         requestAnimationFrame(animate);
         ss.renderScene();
     };
     animate();
-    makeLoadStlPromise('assets/mesh.stl', ss);
 }
 
 main();
