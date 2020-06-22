@@ -89,7 +89,17 @@ class StrangeComponent {
         straightTool: () => new THREE.CylinderBufferGeometry(10, 10, 80, 10),
         connectionHandle: () => new THREE.SphereBufferGeometry(25, 32, 32),
         buildEnvironment: () => new THREE.BoxBufferGeometry(500, 500, 25, 2, 2, 2),
-        workEnvelope: () => new THREE.PlaneBufferGeometry(250, 250)
+        workEnvelope: (shape) => {
+            if (shape === 'rectangle' || shape === undefined) {
+                return new THREE.PlaneBufferGeometry(250, 250);
+            }
+            if (shape === 'cube') {
+                return new THREE.BoxBufferGeometry(250, 250, 250, 2, 2, 2);
+            }
+            if (shape === 'cylinder') {
+                return new THREE.CylinderBufferGeometry(125, 125, 250, 64);
+            }
+        }
     };
     constructor(name) {
         this.name = name;
