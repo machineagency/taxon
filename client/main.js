@@ -121,6 +121,37 @@ class StrangeComponent {
                                           -Math.PI / 2);
         this.mesh.quaternion.copy(rotateQuaternion);
     }
+
+    hide() {
+        this.mesh.visible = false;
+    }
+
+    unhide() {
+        this.mesh.visible = true;
+    }
+
+    placeOnComponent(component) {
+        component.geom.computeBoundingBox();
+        this.geom.computeBoundingBox();
+        let thisHeight = this.geom.boundingBox.max.z
+                            - this.geom.boundingBox.min.z
+        let bbox = component.geom.boundingBox;
+        let bmax = bbox.max;
+        let bmin = bbox.min;
+        let eps = 1.5;
+        let topPlanePts = [
+            new THREE.Vector3(bmax.x, bmax.y, bmax.z),
+            new THREE.Vector3(bmax.x, bmax.y - bmin.y, bmax.z),
+            new THREE.Vector3(bmax.x - bmin.y, bmax.y - bmin.y, bmax.z),
+            new THREE.Vector3(bmax.x - bmin.y, bmax.y, bmax.z)
+        ];
+        // NOTE: +y is up in world coordinates, but +z is up in bbox coords
+        let centerPt = new THREE.Vector3();
+        centerPt.x = (bmax.x + bmin.x) / 2
+        centerPt.z = (bmax.y + bmin.y) / 2
+        centerPt.y = bmax.z + thisHeight / 2 + eps;
+        this.position = centerPt;
+    }
 }
 
 class BuildEnvironment extends StrangeComponent {
@@ -158,29 +189,6 @@ class WorkEnvelope extends StrangeComponent {
         if (shapeName === 'rectangle') {
             this.rotateToXYPlane();
         }
-    }
-
-    placeOnComponent(component) {
-        component.geom.computeBoundingBox();
-        this.geom.computeBoundingBox();
-        let thisHeight = this.geom.boundingBox.max.z
-                            - this.geom.boundingBox.min.z
-        let bbox = component.geom.boundingBox;
-        let bmax = bbox.max;
-        let bmin = bbox.min;
-        let eps = 1.5;
-        let topPlanePts = [
-            new THREE.Vector3(bmax.x, bmax.y, bmax.z),
-            new THREE.Vector3(bmax.x, bmax.y - bmin.y, bmax.z),
-            new THREE.Vector3(bmax.x - bmin.y, bmax.y - bmin.y, bmax.z),
-            new THREE.Vector3(bmax.x - bmin.y, bmax.y, bmax.z)
-        ];
-        // NOTE: +y is up in world coordinates, but +z is up in bbox coords
-        let centerPt = new THREE.Vector3();
-        centerPt.x = (bmax.x + bmin.x) / 2
-        centerPt.z = (bmax.y + bmin.y) / 2
-        centerPt.y = bmax.z + thisHeight / 2 + eps;
-        this.position = centerPt;
     }
 }
 
