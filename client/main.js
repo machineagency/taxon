@@ -196,6 +196,21 @@ class Lego extends StrangeComponent {
     // TODO
 }
 
+class Tool extends Lego {
+    static color = 0xe44242;
+    constructor() {
+        name = 'Tool';
+        super(name);
+        this.geom = BuildEnvironment.geometryFactories.straightTool();
+        this.material = new THREE.MeshLambertMaterial({
+            color : Tool.color,
+            transparent : true,
+            opacity : 0.5
+        });
+        this.mesh = new THREE.Mesh(this.geom, this.material);
+    }
+}
+
 let makeLoadStlPromise = (filepath, strangeScene) => {
     let loadPromise = new Promise(resolve => {
         let loader = new THREE.STLLoader();
@@ -222,9 +237,12 @@ function main() {
     let ss = new StrangeScene();
     let be = new BuildEnvironment();
     let we = new WorkEnvelope('rectangle');
+    let tool = new Tool();
     ss.addComponent(be);
     ss.addComponent(we);
+    ss.addComponent(tool);
     we.placeOnComponent(be);
+    tool.placeOnComponent(be);
     let animate = () => {
         requestAnimationFrame(animate);
         ss.renderScene();
