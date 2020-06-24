@@ -244,7 +244,10 @@ function main() {
     we.placeOnComponent(be);
     tool.placeOnComponent(be);
     let animate = () => {
-        requestAnimationFrame(animate);
+        let maxFramerate = 20;
+        setTimeout(() => {
+            requestAnimationFrame(animate);
+        }, 1000 / maxFramerate);
         ss.renderScene();
     };
     animate();
