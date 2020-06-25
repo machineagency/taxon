@@ -317,8 +317,8 @@ class Tool extends Lego {
 }
 
 class LinearStage extends Lego {
-    static caseColor = 0xe44242;
-    static platformColor = 0xe44242;
+    static caseColor = 0xffed90;
+    static platformColor = 0xf99292;
     constructor(dimensions) {
         name = 'LinearStage';
         super(name, dimensions);
