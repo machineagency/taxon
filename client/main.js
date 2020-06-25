@@ -7,6 +7,7 @@ class StrangeScene {
         this.camera = this.initCamera(this.scene, false);
         this.renderer = this.initRenderer();
         this.controls = this.initControls(this.camera, this.renderer);
+        this.ruler = new Ruler();
         this.components = [];
     }
 
@@ -77,6 +78,33 @@ class StrangeScene {
         this.components.push(component);
     }
 
+    renderRuler() {
+        // TODO
+    }
+
+}
+
+class Ruler {
+    static lineMaterial = new THREE.LineBasicMaterial({
+        color: 0x4478ff,
+        lineWidth: 1
+    });
+    static dashedLineMaterial = new THREE.LineDashedMaterial({
+        color: 0x4478ff,
+        lineWidth: 1
+    });
+
+    constructor() {
+        this.geometries = [];
+        this.lines = [];
+        this.numbers = [];
+    }
+
+    displayForComponent(component) {
+    }
+
+    clearDisplay() {
+    }
 }
 
 class StrangeComponent {
