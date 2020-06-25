@@ -78,8 +78,8 @@ class StrangeScene {
         this.components.push(component);
     }
 
-    renderRuler() {
-        // TODO
+    renderRulerForComponent(component) {
+        this.ruler.displayInSceneForComponent(this, component)
     }
 
 }
@@ -87,11 +87,11 @@ class StrangeScene {
 class Ruler {
     static lineMaterial = new THREE.LineBasicMaterial({
         color: 0x4478ff,
-        lineWidth: 1
+        linewidth: 100
     });
     static dashedLineMaterial = new THREE.LineDashedMaterial({
         color: 0x4478ff,
-        lineWidth: 1
+        linewidth: 1
     });
 
     constructor() {
@@ -100,7 +100,20 @@ class Ruler {
         this.numbers = [];
     }
 
-    displayForComponent(component) {
+    displayInSceneForComponent(strangeScene, component) {
+        if (component instanceof LinearStage) {
+            this._displayForLinearStage(strangeScene, component);
+        }
+    }
+
+    _displayForLinearStage(strangeScene, stage) {
+        let lengthGeom = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0, 0, 0), new THREE.Vector3(500, 0, 500)
+        ]);
+        let lengthLine = new THREE.Line(lengthGeom, Ruler.lineMaterial);
+        this.geometries.push(lengthGeom);
+        this.lines.push(lengthLine);
+        strangeScene.scene.add(lengthLine);
     }
 
     clearDisplay() {
@@ -376,6 +389,7 @@ function main() {
     ss.addComponent(stage);
     we.placeOnComponent(be);
     stage.placeOnComponent(be);
+    ss.renderRulerForComponent(stage);
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
