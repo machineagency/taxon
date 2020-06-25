@@ -73,7 +73,7 @@ class StrangeScene {
     }
 
     addComponent(component) {
-        this.scene.add(component.mesh);
+        this.scene.add(component.assembly);
         this.components.push(component);
     }
 
@@ -81,8 +81,8 @@ class StrangeScene {
 
 class StrangeComponent {
     static geometryFactories = {
-        stageCase: () => new THREE.BoxBufferGeometry(200, 100, 1000, 2, 2, 2),
-        stagePlatform: () => new THREE.BoxBufferGeometry(200, 150, 200, 2, 2, 2),
+        stageCase: () => new THREE.BoxBufferGeometry(50, 25, 250, 2, 2, 2),
+        stagePlatform: () => new THREE.BoxBufferGeometry(50, 25, 50, 2, 2, 2),
         rotaryStageCase: () => new THREE.BoxBufferGeometry(150, 50, 150, 2, 2, 2),
         rotaryStagePlatform: () => new THREE.CylinderBufferGeometry(50, 50, 80, 10),
         angledTool: () => new THREE.CylinderBufferGeometry(10, 10, 80, 10),
@@ -105,6 +105,7 @@ class StrangeComponent {
         this.name = name;
         this.geom = new THREE.Geometry();
         this.mesh = new THREE.Mesh();
+        this.assembly = this.mesh;
     }
 
     get position() {
@@ -130,9 +131,17 @@ class StrangeComponent {
         this.mesh.visible = true;
     }
 
+    calcAssemblyBoundingBox() {
+        if (typeof this.assembly === THREE.Mesh) {
+            this.geom.computeBoundingBox();
+            return this.geom.boundingBox;
+        }
+    }
+
     placeOnComponent(component) {
         component.geom.computeBoundingBox();
         this.geom.computeBoundingBox();
+        let componentBbox = component.calcAssemblyBoundingBox();
         let thisHeight = this.geom.boundingBox.max.z
                             - this.geom.boundingBox.min.z
         let bbox = component.geom.boundingBox;
@@ -150,7 +159,8 @@ class StrangeComponent {
         centerPt.x = (bmax.x + bmin.x) / 2
         centerPt.z = (bmax.y + bmin.y) / 2
         centerPt.y = bmax.z + thisHeight / 2 + eps;
-        this.position = centerPt;
+        // this.position = centerPt;
+        this.assembly.position.set(centerPt.x, centerPt.y, centerPt.z);
     }
 }
 
@@ -164,6 +174,7 @@ class BuildEnvironment extends StrangeComponent {
             color : BuildEnvironment.color
         });
         this.mesh = new THREE.Mesh(this.geom, this.material);
+        this.assembly = this.mesh;
         this.rotateToXYPlane();
     }
 }
@@ -186,6 +197,7 @@ class WorkEnvelope extends StrangeComponent {
             opacity : 0.5
         });
         this.mesh = new THREE.Mesh(this.geom, this.material);
+        this.assembly = this.mesh;
         if (shapeName === 'rectangle') {
             this.rotateToXYPlane();
         }
@@ -198,6 +210,7 @@ class Lego extends StrangeComponent {
 
 class Tool extends Lego {
     static color = 0xe44242;
+    static defaultPosition = new THREE.Vector3(0, 100, 0);
     constructor() {
         name = 'Tool';
         super(name);
@@ -208,6 +221,36 @@ class Tool extends Lego {
             opacity : 0.5
         });
         this.mesh = new THREE.Mesh(this.geom, this.material);
+        this.assembly = this.mesh;
+        this.setPositionToDefault();
+    }
+    setPositionToDefault() {
+        this.mesh.position.set(Tool.defaultPosition.x,
+                               Tool.defaultPosition.y,
+                               Tool.defaultPosition.z)
+    }
+}
+
+class LinearStage extends Lego {
+    static caseColor = 0xe44242;
+    static platformColor = 0xe44242;
+    constructor() {
+        name = 'LinearStage';
+        super(name);
+        this.caseGeom = BuildEnvironment.geometryFactories.stageCase();
+        this.platformGeom = BuildEnvironment.geometryFactories.stagePlatform();
+        this.caseMaterial = new THREE.MeshLambertMaterial({
+            color : LinearStage.caseColor
+        });
+        this.platformMaterial = new THREE.MeshLambertMaterial({
+            color : LinearStage.platformColor
+        });
+        this.caseMesh = new THREE.Mesh(this.caseGeom, this.caseMaterial);
+        this.platformMesh = new THREE.Mesh(this.platformGeom, this.platformMaterial);
+        this.assembly = new THREE.Group();
+        this.assembly.add(this.caseMesh);
+        this.assembly.add(this.platformMesh);
+        this.platformMesh.position.setY(25);
     }
 }
 
@@ -238,11 +281,13 @@ function main() {
     let be = new BuildEnvironment();
     let we = new WorkEnvelope('rectangle');
     let tool = new Tool();
+    let stage = new LinearStage();
     ss.addComponent(be);
     ss.addComponent(we);
     ss.addComponent(tool);
+    ss.addComponent(stage);
     we.placeOnComponent(be);
-    tool.placeOnComponent(be);
+    stage.placeOnComponent(be);
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
