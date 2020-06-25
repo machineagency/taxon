@@ -73,7 +73,7 @@ class StrangeScene {
     }
 
     addComponent(component) {
-        this.scene.add(component.assembly);
+        this.scene.add(component.meshGroup);
         this.components.push(component);
     }
 
@@ -103,17 +103,17 @@ class StrangeComponent {
     };
     constructor(name) {
         this.name = name;
-        this.geom = new THREE.Geometry();
-        this.mesh = new THREE.Mesh();
-        this.assembly = this.mesh;
+        this.geometries = [];
+        this.meshGroup = new THREE.Group();
+        this.rotatedToPlane = false;
     }
 
     get position() {
-        return this.mesh.position;
+        return this.meshGroup.position;
     }
 
     set position(newPos) {
-        this.mesh.position.set(newPos.x, newPos.y, newPos.z);
+        this.meshGroup.position.set(newPos.x, newPos.y, newPos.z);
     }
 
     rotateToXYPlane() {
@@ -160,7 +160,7 @@ class StrangeComponent {
         centerPt.z = (bmax.y + bmin.y) / 2
         centerPt.y = bmax.z + thisHeight / 2 + eps;
         // this.position = centerPt;
-        this.assembly.position.set(centerPt.x, centerPt.y, centerPt.z);
+        this.meshGroup.position.set(centerPt.x, centerPt.y, centerPt.z);
     }
 }
 
@@ -169,12 +169,14 @@ class BuildEnvironment extends StrangeComponent {
     constructor() {
         name = 'BuildEnvironment';
         super(name);
-        this.geom = BuildEnvironment.geometryFactories.buildEnvironment();
-        this.material = new THREE.MeshLambertMaterial({
+        let geom = BuildEnvironment.geometryFactories.buildEnvironment();
+        let material = new THREE.MeshLambertMaterial({
             color : BuildEnvironment.color
         });
-        this.mesh = new THREE.Mesh(this.geom, this.material);
-        this.assembly = this.mesh;
+        this.mesh = new THREE.Mesh(geom, material);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.mesh);
+        this.geometries = [geom];
         this.rotateToXYPlane();
     }
 }
@@ -190,14 +192,16 @@ class WorkEnvelope extends StrangeComponent {
         }
         name = 'WorkEnvelope';
         super(name);
-        this.geom = WorkEnvelope.geometryFactories.workEnvelope(shapeName);
-        this.material = new THREE.MeshLambertMaterial({
+        let geom = WorkEnvelope.geometryFactories.workEnvelope(shapeName);
+        let material = new THREE.MeshLambertMaterial({
             color : WorkEnvelope.color,
             transparent : true,
             opacity : 0.5
         });
-        this.mesh = new THREE.Mesh(this.geom, this.material);
-        this.assembly = this.mesh;
+        this.mesh = new THREE.Mesh(geom, material);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.mesh);
+        this.geometries = [geom];
         if (shapeName === 'rectangle') {
             this.rotateToXYPlane();
         }
@@ -210,18 +214,20 @@ class Lego extends StrangeComponent {
 
 class Tool extends Lego {
     static color = 0xe44242;
-    static defaultPosition = new THREE.Vector3(0, 100, 0);
+    static defaultPosition = new THREE.Vector3(0, 150, 0);
     constructor() {
         name = 'Tool';
         super(name);
-        this.geom = BuildEnvironment.geometryFactories.straightTool();
-        this.material = new THREE.MeshLambertMaterial({
+        let geom = BuildEnvironment.geometryFactories.straightTool();
+        let material = new THREE.MeshLambertMaterial({
             color : Tool.color,
             transparent : true,
             opacity : 0.5
         });
-        this.mesh = new THREE.Mesh(this.geom, this.material);
-        this.assembly = this.mesh;
+        this.mesh = new THREE.Mesh(geom, material);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.mesh);
+        this.geometries = [geom];
         this.setPositionToDefault();
     }
     setPositionToDefault() {
@@ -247,10 +253,11 @@ class LinearStage extends Lego {
         });
         this.caseMesh = new THREE.Mesh(this.caseGeom, this.caseMaterial);
         this.platformMesh = new THREE.Mesh(this.platformGeom, this.platformMaterial);
-        this.assembly = new THREE.Group();
-        this.assembly.add(this.caseMesh);
-        this.assembly.add(this.platformMesh);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.caseMesh);
+        this.meshGroup.add(this.platformMesh);
         this.platformMesh.position.setY(25);
+        this.geometries = [this.caseGeom, this.platformGeom]
     }
 }
 
