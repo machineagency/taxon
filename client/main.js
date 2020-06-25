@@ -81,28 +81,44 @@ class StrangeScene {
 
 class StrangeComponent {
     static geometryFactories = {
-        stageCase: () => new THREE.BoxBufferGeometry(50, 25, 250, 2, 2, 2),
+        stageCase: (length) => new THREE.BoxBufferGeometry(50, 25, length, 2, 2, 2),
         stagePlatform: () => new THREE.BoxBufferGeometry(50, 25, 50, 2, 2, 2),
         rotaryStageCase: () => new THREE.BoxBufferGeometry(150, 50, 150, 2, 2, 2),
         rotaryStagePlatform: () => new THREE.CylinderBufferGeometry(50, 50, 80, 10),
-        angledTool: () => new THREE.CylinderBufferGeometry(10, 10, 80, 10),
-        straightTool: () => new THREE.CylinderBufferGeometry(5, 5, 50, 10),
+        tool: (dimensions) => {
+            if (dimensions.type === undefined) {
+                return new THREE.CylinderBufferGeometry(5, 5, 50, 10)
+            }
+            if (dimensions.type === 'pen') {
+                return new THREE.CylinderBufferGeometry(dimensions.radius,
+                        dimensions.radius, dimensions.height, 10)
+            }
+        },
         connectionHandle: () => new THREE.SphereBufferGeometry(25, 32, 32),
-        buildEnvironment: () => new THREE.BoxBufferGeometry(500, 500, 25, 2, 2, 2),
-        workEnvelope: (shape) => {
-            if (shape === 'rectangle' || shape === undefined) {
+        buildEnvironment: (dimensions) => new THREE.BoxBufferGeometry(
+                                             dimensions.length,
+                                             dimensions.width, 25, 2, 2, 2),
+        workEnvelope: (dimensions) => {
+            if (dimensions.shape === undefined) {
                 return new THREE.PlaneBufferGeometry(250, 250);
             }
-            if (shape === 'cube') {
-                return new THREE.BoxBufferGeometry(250, 250, 250, 2, 2, 2);
+            if (dimensions.shape === 'rectangle') {
+                return new THREE.PlaneBufferGeometry(dimensions.length,
+                                                     dimensions.width);
             }
-            if (shape === 'cylinder') {
-                return new THREE.CylinderBufferGeometry(125, 125, 250, 64);
+            if (dimensions.shape === 'cube') {
+                return new THREE.BoxBufferGeometry(dimensions.length,
+                    dimensions.width, dimensions.height, 2, 2, 2);
+            }
+            if (dimensions.shape === 'cylinder') {
+                return new THREE.CylinderBufferGeometry(dimensions.radius,
+                    dimensions.radius, dimensions.height, 64);
             }
         }
     };
-    constructor(name) {
+    constructor(name, dimensions) {
         this.name = name;
+        this.dimensions = dimensions;
         this.geometries = [];
         this.meshGroup = new THREE.Group();
         this.rotatedToPlane = false;
@@ -187,10 +203,11 @@ class StrangeComponent {
 
 class BuildEnvironment extends StrangeComponent {
     static color = 0xfefefe;
-    constructor() {
+    constructor(dimensions) {
         name = 'BuildEnvironment';
-        super(name);
-        let geom = BuildEnvironment.geometryFactories.buildEnvironment();
+        super(name, dimensions);
+        let geom = BuildEnvironment.geometryFactories
+                    .buildEnvironment(dimensions);
         let material = new THREE.MeshLambertMaterial({
             color : BuildEnvironment.color
         });
@@ -204,16 +221,16 @@ class BuildEnvironment extends StrangeComponent {
 
 class WorkEnvelope extends StrangeComponent {
     static color = 0x9d8dff;
-    static shapeNames = ['rectangle', 'cube', 'cylinder']
+    static shapes = ['rectangle', 'cube', 'cylinder']
 
-    constructor(shapeName) {
-        if (!WorkEnvelope.shapeNames.includes(shapeName)) {
-            console.error(`Invalid shape ${shapeName}, defaulting to recangle.`);
-            shapeName = 'rectangle';
+    constructor(dimensions) {
+        if (!WorkEnvelope.shapes.includes(dimensions.shape)) {
+            console.error(`Invalid shape ${shapeName}, defaulting to rectangle.`);
+            dimensions.shape = 'rectangle';
         }
         name = 'WorkEnvelope';
-        super(name);
-        let geom = WorkEnvelope.geometryFactories.workEnvelope(shapeName);
+        super(name, dimensions);
+        let geom = WorkEnvelope.geometryFactories.workEnvelope(dimensions);
         let material = new THREE.MeshLambertMaterial({
             color : WorkEnvelope.color,
             transparent : true,
@@ -223,7 +240,7 @@ class WorkEnvelope extends StrangeComponent {
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.mesh);
         this.geometries = [geom];
-        if (shapeName === 'rectangle') {
+        if (dimensions.shape === 'rectangle') {
             this.rotateToXYPlane();
         }
     }
@@ -236,10 +253,10 @@ class Lego extends StrangeComponent {
 class Tool extends Lego {
     static color = 0xe44242;
     static defaultPosition = new THREE.Vector3(0, 150, 0);
-    constructor() {
+    constructor(dimensions) {
         name = 'Tool';
-        super(name);
-        let geom = BuildEnvironment.geometryFactories.straightTool();
+        super(name, dimensions);
+        let geom = BuildEnvironment.geometryFactories.tool(dimensions);
         let material = new THREE.MeshLambertMaterial({
             color : Tool.color,
             transparent : true,
@@ -261,11 +278,13 @@ class Tool extends Lego {
 class LinearStage extends Lego {
     static caseColor = 0xe44242;
     static platformColor = 0xe44242;
-    constructor() {
+    constructor(dimensions) {
         name = 'LinearStage';
-        super(name);
-        this.caseGeom = BuildEnvironment.geometryFactories.stageCase();
-        this.platformGeom = BuildEnvironment.geometryFactories.stagePlatform();
+        super(name, dimensions);
+        this.caseGeom = BuildEnvironment.geometryFactories
+                                .stageCase(dimensions.length);
+        this.platformGeom = BuildEnvironment.geometryFactories
+                                .stagePlatform();
         this.caseMaterial = new THREE.MeshLambertMaterial({
             color : LinearStage.caseColor
         });
@@ -306,10 +325,23 @@ var myStl;
 
 function main() {
     let ss = new StrangeScene();
-    let be = new BuildEnvironment();
-    let we = new WorkEnvelope('rectangle');
-    let tool = new Tool();
-    let stage = new LinearStage();
+    let be = new BuildEnvironment({
+        length: 500,
+        width: 500
+    });
+    let we = new WorkEnvelope({
+        shape: 'rectangle',
+        length: 250,
+        width: 250
+    });
+    let tool = new Tool({
+        type: 'pen',
+        height: 50,
+        radius: 5
+    });
+    let stage = new LinearStage({
+        length: 250
+    });
     ss.addComponent(be);
     ss.addComponent(we);
     ss.addComponent(tool);
