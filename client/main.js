@@ -86,7 +86,7 @@ class StrangeComponent {
         rotaryStageCase: () => new THREE.BoxBufferGeometry(150, 50, 150, 2, 2, 2),
         rotaryStagePlatform: () => new THREE.CylinderBufferGeometry(50, 50, 80, 10),
         angledTool: () => new THREE.CylinderBufferGeometry(10, 10, 80, 10),
-        straightTool: () => new THREE.CylinderBufferGeometry(10, 10, 80, 10),
+        straightTool: () => new THREE.CylinderBufferGeometry(5, 5, 50, 10),
         connectionHandle: () => new THREE.SphereBufferGeometry(25, 32, 32),
         buildEnvironment: () => new THREE.BoxBufferGeometry(500, 500, 25, 2, 2, 2),
         workEnvelope: (shape) => {
@@ -121,32 +121,53 @@ class StrangeComponent {
         rotateQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0),
                                           -Math.PI / 2);
         this.mesh.quaternion.copy(rotateQuaternion);
+        // FIXME: remove this variable and just read the quaternion
+        this.rotatedToPlane = true;
     }
 
     hide() {
-        this.mesh.visible = false;
+        this.meshGroup.visible = false;
     }
 
     unhide() {
-        this.mesh.visible = true;
+        this.meshGroup.visible = true;
     }
 
-    calcAssemblyBoundingBox() {
-        if (typeof this.assembly === THREE.Mesh) {
-            this.geom.computeBoundingBox();
-            return this.geom.boundingBox;
-        }
+    computeComponentBoundingBox() {
+        let minPoint = new THREE.Vector3();
+        let maxPoint = new THREE.Vector3();
+        let minNormSoFar = 0;
+        let maxNormSoFar = 0;
+        this.geometries.forEach((geom, idx) => {
+            if (geom.boundingBox === null) {
+                geom.computeBoundingBox();
+            }
+            if (geom.boundingBox.min.length() > minNormSoFar) {
+                minPoint = geom.boundingBox.min;
+                minNormSoFar = geom.boundingBox.min.length();
+            }
+            if (geom.boundingBox.min.length() > maxNormSoFar) {
+                maxPoint = geom.boundingBox.max;
+                maxNormSoFar = geom.boundingBox.max.length();
+            }
+        });
+        let box = new THREE.Box3(minPoint, maxPoint);
+        this.boundingBox = box;
+        return box;
     }
 
     placeOnComponent(component) {
-        component.geom.computeBoundingBox();
-        this.geom.computeBoundingBox();
-        let componentBbox = component.calcAssemblyBoundingBox();
-        let thisHeight = this.geom.boundingBox.max.z
-                            - this.geom.boundingBox.min.z
-        let bbox = component.geom.boundingBox;
-        let bmax = bbox.max;
-        let bmin = bbox.min;
+        let thisBbox = this.computeComponentBoundingBox();
+        let thisHeight;
+        if (this.rotatedToPlane) {
+            thisHeight = thisBbox.max.z - thisBbox.min.z;
+        }
+        else {
+            thisHeight = thisBbox.max.y - thisBbox.min.y;
+        }
+        let componentBbox = component.computeComponentBoundingBox();
+        let bmax = componentBbox.max;
+        let bmin = componentBbox.min;
         let eps = 1.5;
         let topPlanePts = [
             new THREE.Vector3(bmax.x, bmax.y, bmax.z),
