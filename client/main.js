@@ -1,5 +1,12 @@
 'use strict';
 
+import * as THREE from './build/three.module.js';
+import { OrbitControls } from './build/OrbitControls.js';
+import { TransformControls } from './build/TransformControls.js';
+import { Line2 } from './build/lines/Line2.js';
+import { LineGeometry } from './build/lines/LineGeometry.js';
+import { LineMaterial } from './build/lines/LineMaterial.js';
+
 class StrangeScene {
     constructor() {
         this.domContainer = document.getElementById('container');
@@ -60,7 +67,7 @@ class StrangeScene {
     }
 
     initControls(camera, renderer) {
-        let controls = new THREE.OrbitControls(camera, renderer.domElement);
+        let controls = new OrbitControls(camera, renderer.domElement);
         controls.rotateSpeed = 1.0;
         controls.zoomSpeed = 0.8;
         controls.panSpeed = 0.8;
