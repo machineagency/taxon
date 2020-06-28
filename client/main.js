@@ -106,7 +106,7 @@ class StrangeScene {
 class Ruler {
     static lineMaterial = new LineMaterial({
         color: 0x4478ff,
-        linewidth: 0.005
+        linewidth: 0.0025
     });
 
     constructor() {
@@ -155,6 +155,28 @@ class Ruler {
         lineGroup.position.set(stage.position.x,
                                stage.position.y - yLength / 2,
                                stage.position.z);
+        let fontLoader = new THREE.FontLoader();
+        // TODO: put this in own function
+        fontLoader.load('build/fonts/inter_medium.json', (font) => {
+            let yToXQuat = new THREE.Quaternion();
+            let xToZQuat = new THREE.Quaternion();
+            yToXQuat.setFromAxisAngle(new THREE.Vector3(1, 0, 0),
+                                      -Math.PI / 2);
+            xToZQuat.setFromAxisAngle(new THREE.Vector3(0, 1, 0),
+                                      -Math.PI / 2);
+            let fontMaterial = new THREE.MeshBasicMaterial({
+                color: Ruler.lineMaterial.color
+            });
+            let fontGeom = new THREE.TextGeometry('hello world!', {
+                font: font,
+                size: 30,
+                height: 1
+            });
+            let fontMesh = new THREE.Mesh(fontGeom, fontMaterial);
+            fontMesh.applyQuaternion(yToXQuat);
+            fontMesh.applyQuaternion(xToZQuat);
+            strangeScene.scene.add(fontMesh);
+        });
     }
 
     clearDisplay() {
