@@ -92,13 +92,9 @@ class StrangeScene {
 }
 
 class Ruler {
-    static lineMaterial = new THREE.LineBasicMaterial({
+    static lineMaterial = new LineMaterial({
         color: 0x4478ff,
-        linewidth: 100
-    });
-    static dashedLineMaterial = new THREE.LineDashedMaterial({
-        color: 0x4478ff,
-        linewidth: 1
+        linewidth: 0.01
     });
 
     constructor() {
@@ -114,11 +110,10 @@ class Ruler {
     }
 
     _displayForLinearStage(strangeScene, stage) {
-        let lengthGeom = new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(0, 0, 0), new THREE.Vector3(500, 0, 500)
-        ]);
-        let lengthLine = new THREE.Line(lengthGeom, Ruler.lineMaterial);
-        this.geometries.push(lengthGeom);
+        let lengthLineGeom = new LineGeometry();
+        lengthLineGeom.setPositions([0, 0, 0, 500, 0, 500]);
+        let lengthLine = new Line2(lengthLineGeom, Ruler.lineMaterial);
+        this.geometries.push(lengthLineGeom);
         this.lines.push(lengthLine);
         strangeScene.scene.add(lengthLine);
     }
