@@ -122,12 +122,28 @@ class Ruler {
     }
 
     _displayForLinearStage(strangeScene, stage) {
-        let lengthLineGeom = new LineGeometry();
-        lengthLineGeom.setPositions([0, 0, 0, 500, 0, 500]);
-        let lengthLine = new Line2(lengthLineGeom, Ruler.lineMaterial);
-        this.geometries.push(lengthLineGeom);
-        this.lines.push(lengthLine);
-        strangeScene.scene.add(lengthLine);
+        let bbox = stage.computeComponentBoundingBox();
+        let xLength = bbox.max.x - bbox.min.x;
+        let yLength = bbox.max.y - bbox.min.y;
+        let zLength = bbox.max.z - bbox.min.z;
+        let xLineGeom = new LineGeometry();
+        let yLineGeom = new LineGeometry();
+        let zLineGeom = new LineGeometry();
+        xLineGeom.setPositions([-xLength / 2, 0, 0, xLength / 2, 0, 0]);
+        yLineGeom.setPositions([0, -yLength / 2, 0, 0, yLength / 2, 0]);
+        zLineGeom.setPositions([0, 0, -zLength / 2, 0, 0, zLength / 2]);
+        let xLine = new Line2(xLineGeom, Ruler.lineMaterial);
+        let yLine = new Line2(yLineGeom, Ruler.lineMaterial);
+        let zLine = new Line2(zLineGeom, Ruler.lineMaterial);
+        this.geometries.push(xLineGeom);
+        this.geometries.push(yLineGeom);
+        this.geometries.push(zLineGeom);
+        this.lines.push(xLine);
+        this.lines.push(yLine);
+        this.lines.push(zLine);
+        strangeScene.scene.add(xLine);
+        strangeScene.scene.add(yLine);
+        strangeScene.scene.add(zLine);
     }
 
     clearDisplay() {
