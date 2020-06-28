@@ -89,6 +89,18 @@ class StrangeScene {
         this.ruler.displayInSceneForComponent(this, component)
     }
 
+    hideAllComponents() {
+        this.components.forEach((component) => {
+            component.hide();
+        });
+    }
+
+    showAllComponents() {
+        this.components.forEach((component) => {
+            component.unhide();
+        });
+    }
+
 }
 
 class Ruler {
