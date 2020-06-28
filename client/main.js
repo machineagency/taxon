@@ -106,7 +106,7 @@ class StrangeScene {
 class Ruler {
     static lineMaterial = new LineMaterial({
         color: 0x4478ff,
-        linewidth: 0.01
+        linewidth: 0.005
     });
 
     constructor() {
@@ -122,6 +122,7 @@ class Ruler {
     }
 
     _displayForLinearStage(strangeScene, stage) {
+        let offset = 10;
         let bbox = stage.computeComponentBoundingBox();
         let xLength = bbox.max.x - bbox.min.x;
         let yLength = bbox.max.y - bbox.min.y;
@@ -141,9 +142,19 @@ class Ruler {
         this.lines.push(xLine);
         this.lines.push(yLine);
         this.lines.push(zLine);
-        strangeScene.scene.add(xLine);
-        strangeScene.scene.add(yLine);
-        strangeScene.scene.add(zLine);
+        let lineGroup = new THREE.Group([xLine, yLine, zLine]);
+        lineGroup.add(xLine);
+        lineGroup.add(yLine);
+        lineGroup.add(zLine);
+        strangeScene.scene.add(lineGroup);
+        xLine.position.setZ(xLine.position.z + zLength / 2 + offset);
+        zLine.position.setX(zLine.position.x - xLength / 2 - offset);
+        yLine.position.setZ(yLine.position.z + zLength / 2 + offset);
+        yLine.position.setX(yLine.position.x - xLength / 2 - offset);
+        yLine.position.setY(yLine.position.y + yLength / 2);
+        lineGroup.position.set(stage.position.x,
+                               stage.position.y - yLength / 2,
+                               stage.position.z);
     }
 
     clearDisplay() {
@@ -420,6 +431,8 @@ function main() {
     we.placeOnComponent(be);
     stage.placeOnComponent(be);
     ss.renderRulerForComponent(stage);
+    ss.hideAllComponents();
+    stage.unhide();
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
