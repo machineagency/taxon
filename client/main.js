@@ -146,10 +146,11 @@ class Ruler {
         lineGroup.add(xLine);
         lineGroup.add(yLine);
         lineGroup.add(zLine);
+        lineGroup.applyQuaternion(stage.meshGroup.quaternion);
         strangeScene.scene.add(lineGroup);
         xLine.position.setZ(xLine.position.z + zLength / 2 + offset);
         zLine.position.setX(zLine.position.x - xLength / 2 - offset);
-        yLine.position.setZ(yLine.position.z + zLength / 2 + offset);
+        yLine.position.setZ(yLine.position.z + zLength / 2);
         yLine.position.setX(yLine.position.x - xLength / 2 - offset);
         yLine.position.setY(yLine.position.y + yLength / 2);
         lineGroup.position.set(stage.position.x,
@@ -167,15 +168,38 @@ class Ruler {
             let fontMaterial = new THREE.MeshBasicMaterial({
                 color: Ruler.lineMaterial.color
             });
-            let fontGeom = new THREE.TextGeometry('hello world!', {
+            let fontProps = {
                 font: font,
-                size: 30,
-                height: 1
-            });
-            let fontMesh = new THREE.Mesh(fontGeom, fontMaterial);
-            fontMesh.applyQuaternion(yToXQuat);
-            fontMesh.applyQuaternion(xToZQuat);
-            strangeScene.scene.add(fontMesh);
+                size: 12,
+                height: 0
+            };
+            let xLengthFontGeom = new THREE.TextGeometry(`${xLength}`, fontProps);
+            let zLengthFontGeom = new THREE.TextGeometry(`${zLength}`, fontProps);
+            let yLengthFontGeom = new THREE.TextGeometry(`${yLength}`, fontProps);
+            let xFontMesh = new THREE.Mesh(xLengthFontGeom, fontMaterial);
+            let zFontMesh = new THREE.Mesh(zLengthFontGeom, fontMaterial);
+            let yFontMesh = new THREE.Mesh(yLengthFontGeom, fontMaterial);
+            let fontMeshGroup = new THREE.Group();
+            fontMeshGroup.add(xFontMesh);
+            fontMeshGroup.add(zFontMesh);
+            fontMeshGroup.add(yFontMesh);
+            xFontMesh.applyQuaternion(yToXQuat);
+            zFontMesh.applyQuaternion(yToXQuat);
+            zFontMesh.applyQuaternion(xToZQuat);
+            yFontMesh.applyQuaternion(xToZQuat);
+            zFontMesh.position.set(zLine.position.x - offset * 2,
+                                   zLine.position.y,
+                                   zLine.position.z);
+            xFontMesh.position.set(xLine.position.x,
+                                   xLine.position.y,
+                                   xLine.position.z + offset * 2);
+            yFontMesh.position.set(yLine.position.x,
+                                   yLine.position.y + offset,
+                                   yLine.position.z + offset);
+            // TODO: make accessor method for quaternion
+            fontMeshGroup.applyQuaternion(stage.meshGroup.quaternion);
+            fontMeshGroup.applyQuaternion(stage.meshGroup.quaternion);
+            strangeScene.scene.add(fontMeshGroup);
         });
     }
 
@@ -240,7 +264,7 @@ class StrangeComponent {
         let rotateQuaternion = new THREE.Quaternion();
         rotateQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0),
                                           -Math.PI / 2);
-        this.mesh.quaternion.copy(rotateQuaternion);
+        this.meshGroup.quaternion.copy(rotateQuaternion);
         // FIXME: remove this variable and just read the quaternion
         this.rotatedToPlane = true;
     }
