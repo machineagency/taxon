@@ -256,8 +256,16 @@ class StrangeComponent {
         return this.meshGroup.position;
     }
 
+    get quaternion() {
+        return this.meshGroup.quaternion;
+    }
+
     set position(newPos) {
         this.meshGroup.position.set(newPos.x, newPos.y, newPos.z);
+    }
+
+    set quaternion(newQuat) {
+        this.meshGroup.quaternion.set(newQuat.x, newQuat.y, newQuat.z, newQuat.w);
     }
 
     rotateToXYPlane() {
