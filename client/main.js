@@ -268,6 +268,13 @@ class StrangeComponent {
         this.meshGroup.quaternion.set(newQuat.x, newQuat.y, newQuat.z, newQuat.w);
     }
 
+    movePosition(deltaX, deltaY, deltaZ) {
+        let currPos = this.position;
+        currPos.setX(currPos.x + deltaX);
+        currPos.setY(currPos.y + deltaY);
+        currPos.setZ(currPos.z + deltaZ);
+    }
+
     rotateToXYPlane() {
         let rotateQuaternion = new THREE.Quaternion();
         rotateQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0),
@@ -475,18 +482,24 @@ function main() {
         height: 50,
         radius: 5
     });
-    let stage = new LinearStage({
+    let stageA = new LinearStage({
+        length: 250
+    });
+    let stageB = new LinearStage({
         length: 250
     });
     ss.addComponent(be);
     ss.addComponent(we);
     ss.addComponent(tool);
-    ss.addComponent(stage);
+    ss.addComponent(stageA);
+    ss.addComponent(stageB);
     we.placeOnComponent(be);
-    stage.placeOnComponent(be);
-    ss.renderRulerForComponent(stage);
-    ss.hideAllComponents();
-    stage.unhide();
+    stageA.placeOnComponent(be);
+    stageB.placeOnComponent(be);
+    stageA.movePosition(-125, 0, 0);
+    stageB.movePosition(125, 0, 0);
+    // ss.renderRulerForComponent(stageA);
+    // ss.renderRulerForComponent(stageB);
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
