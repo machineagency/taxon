@@ -510,8 +510,6 @@ let makeLoadStlPromise = (filepath, strangeScene) => {
     return loadPromise;
 };
 
-var myStl;
-
 function main() {
     let ss = new StrangeScene();
     let be = new BuildEnvironment(ss, {
@@ -539,8 +537,6 @@ function main() {
     stageB.placeOnComponent(be);
     stageA.movePosition(-125, 0, 0);
     stageB.movePosition(125, 0, 0);
-    // ss.renderRulerForComponent(stageA);
-    // ss.renderRulerForComponent(stageB);
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
