@@ -80,9 +80,12 @@ class StrangeScene {
         this.renderer.render(this.scene, this.camera);
     }
 
-    addComponent(component) {
-        this.scene.add(component.meshGroup);
-        this.components.push(component);
+    addComponentMeshGroup(meshGroup) {
+        this.scene.add(meshGroup);
+    }
+
+    removeComponentMeshGroup(meshGroup) {
+        this.scene.remove(meshGroup);
     }
 
     renderRulerForComponent(component) {
@@ -244,12 +247,14 @@ class StrangeComponent {
             }
         }
     };
-    constructor(name, dimensions) {
+    constructor(name, parentScene, dimensions) {
         this.name = name;
-        this.dimensions = dimensions;
+        this._dimensions = dimensions;
         this.geometries = [];
         this.meshGroup = new THREE.Group();
         this.rotatedToPlane = false;
+        this.parentScene = parentScene;
+        this.parentScene.components.push(this);
     }
 
     get position() {
@@ -260,12 +265,21 @@ class StrangeComponent {
         return this.meshGroup.quaternion;
     }
 
-    set position(newPos) {
-        this.meshGroup.position.set(newPos.x, newPos.y, newPos.z);
+    set position(xyzObj) {
+        this.meshGroup.position.set(xyzObj.x, xyzObj.y, xyzObj.z);
     }
 
     set quaternion(newQuat) {
         this.meshGroup.quaternion.set(newQuat.x, newQuat.y, newQuat.z, newQuat.w);
+    }
+
+    get dimensions() {
+        return this._dimensions;
+    }
+
+    set dimensions(newDims) {
+        this._dimensions = newDims;
+        this.renderDimensions();
     }
 
     movePosition(deltaX, deltaY, deltaZ) {
@@ -346,9 +360,9 @@ class StrangeComponent {
 
 class BuildEnvironment extends StrangeComponent {
     static color = 0xfefefe;
-    constructor(dimensions) {
+    constructor(parentScene, dimensions) {
         name = 'BuildEnvironment';
-        super(name, dimensions);
+        super(name, parentScene, dimensions);
         let geom = BuildEnvironment.geometryFactories
                     .buildEnvironment(dimensions);
         let material = new THREE.MeshLambertMaterial({
@@ -359,6 +373,7 @@ class BuildEnvironment extends StrangeComponent {
         this.meshGroup.add(this.mesh);
         this.geometries = [geom];
         this.rotateToXYPlane();
+        this.parentScene.addComponentMeshGroup(this.meshGroup);
     }
 }
 
@@ -366,13 +381,13 @@ class WorkEnvelope extends StrangeComponent {
     static color = 0x9d8dff;
     static shapes = ['rectangle', 'cube', 'cylinder']
 
-    constructor(dimensions) {
+    constructor(parentScene, dimensions) {
         if (!WorkEnvelope.shapes.includes(dimensions.shape)) {
             console.error(`Invalid shape ${shapeName}, defaulting to rectangle.`);
             dimensions.shape = 'rectangle';
         }
         name = 'WorkEnvelope';
-        super(name, dimensions);
+        super(name, parentScene, dimensions);
         let geom = WorkEnvelope.geometryFactories.workEnvelope(dimensions);
         let material = new THREE.MeshLambertMaterial({
             color : WorkEnvelope.color,
@@ -386,6 +401,7 @@ class WorkEnvelope extends StrangeComponent {
         if (dimensions.shape === 'rectangle') {
             this.rotateToXYPlane();
         }
+        this.parentScene.addComponentMeshGroup(this.meshGroup);
     }
 }
 
@@ -396,9 +412,9 @@ class Lego extends StrangeComponent {
 class Tool extends Lego {
     static color = 0xe44242;
     static defaultPosition = new THREE.Vector3(0, 150, 0);
-    constructor(dimensions) {
+    constructor(parentScene, dimensions) {
         name = 'Tool';
-        super(name, dimensions);
+        super(name, parentScene, dimensions);
         let geom = BuildEnvironment.geometryFactories.tool(dimensions);
         let material = new THREE.MeshLambertMaterial({
             color : Tool.color,
@@ -410,6 +426,7 @@ class Tool extends Lego {
         this.meshGroup.add(this.mesh);
         this.geometries = [geom];
         this.setPositionToDefault();
+        this.parentScene.addComponentMeshGroup(this.meshGroup);
     }
     setPositionToDefault() {
         this.mesh.position.set(Tool.defaultPosition.x,
@@ -421,11 +438,23 @@ class Tool extends Lego {
 class LinearStage extends Lego {
     static caseColor = 0xffed90;
     static platformColor = 0xf99292;
-    constructor(dimensions) {
+    constructor(parentScene, dimensions) {
         name = 'LinearStage';
-        super(name, dimensions);
+        super(name, parentScene, dimensions);
+        this.renderDimensions();
+    }
+
+    clearMeshesFromScene() {
+        if (this.meshGroup !== undefined && this.parentScene !== undefined) {
+            this.parentScene.removeComponentMeshGroup(this.meshGroup);
+        }
+    }
+
+    renderDimensions() {
+        this.clearMeshesFromScene();
+        console.log('Linear Stage render dims called.');
         this.caseGeom = BuildEnvironment.geometryFactories
-                                .stageCase(dimensions.length);
+                                .stageCase(this.dimensions.length);
         this.platformGeom = BuildEnvironment.geometryFactories
                                 .stagePlatform();
         this.caseMaterial = new THREE.MeshLambertMaterial({
@@ -435,12 +464,14 @@ class LinearStage extends Lego {
             color : LinearStage.platformColor
         });
         this.caseMesh = new THREE.Mesh(this.caseGeom, this.caseMaterial);
-        this.platformMesh = new THREE.Mesh(this.platformGeom, this.platformMaterial);
+        this.platformMesh = new THREE.Mesh(this.platformGeom,
+                                           this.platformMaterial);
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.caseMesh);
         this.meshGroup.add(this.platformMesh);
         this.platformMesh.position.setY(25);
         this.geometries = [this.caseGeom, this.platformGeom]
+        this.parentScene.addComponentMeshGroup(this.meshGroup);
     }
 }
 
@@ -468,31 +499,31 @@ var myStl;
 
 function main() {
     let ss = new StrangeScene();
-    let be = new BuildEnvironment({
+    let be = new BuildEnvironment(ss, {
         length: 500,
         width: 500
     });
-    let we = new WorkEnvelope({
+    let we = new WorkEnvelope(ss, {
         shape: 'rectangle',
         length: 250,
         width: 250
     });
-    let tool = new Tool({
+    let tool = new Tool(ss, {
         type: 'pen',
         height: 50,
         radius: 5
     });
-    let stageA = new LinearStage({
+    let stageA = new LinearStage(ss, {
         length: 250
     });
-    let stageB = new LinearStage({
+    let stageB = new LinearStage(ss, {
         length: 250
     });
-    ss.addComponent(be);
-    ss.addComponent(we);
-    ss.addComponent(tool);
-    ss.addComponent(stageA);
-    ss.addComponent(stageB);
+    // ss.addComponent(be);
+    // ss.addComponent(we);
+    // ss.addComponent(tool);
+    // ss.addComponent(stageA);
+    // ss.addComponent(stageB);
     we.placeOnComponent(be);
     stageA.placeOnComponent(be);
     stageB.placeOnComponent(be);
