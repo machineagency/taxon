@@ -306,6 +306,12 @@ class StrangeComponent {
         this.meshGroup.visible = true;
     }
 
+    clearMeshesFromScene() {
+        if (this.meshGroup !== undefined && this.parentScene !== undefined) {
+            this.parentScene.removeComponentMeshGroup(this.meshGroup);
+        }
+    }
+
     computeComponentBoundingBox() {
         let minPoint = new THREE.Vector3();
         let maxPoint = new THREE.Vector3();
@@ -363,8 +369,13 @@ class BuildEnvironment extends StrangeComponent {
     constructor(parentScene, dimensions) {
         name = 'BuildEnvironment';
         super(name, parentScene, dimensions);
+        this.renderDimensions();
+    }
+
+    renderDimensions() {
+        this.clearMeshesFromScene();
         let geom = BuildEnvironment.geometryFactories
-                    .buildEnvironment(dimensions);
+                    .buildEnvironment(this.dimensions);
         let material = new THREE.MeshLambertMaterial({
             color : BuildEnvironment.color
         });
@@ -388,7 +399,12 @@ class WorkEnvelope extends StrangeComponent {
         }
         name = 'WorkEnvelope';
         super(name, parentScene, dimensions);
-        let geom = WorkEnvelope.geometryFactories.workEnvelope(dimensions);
+        this.renderDimensions();
+    }
+
+    renderDimensions() {
+        this.clearMeshesFromScene();
+        let geom = WorkEnvelope.geometryFactories.workEnvelope(this.dimensions);
         let material = new THREE.MeshLambertMaterial({
             color : WorkEnvelope.color,
             transparent : true,
@@ -398,7 +414,7 @@ class WorkEnvelope extends StrangeComponent {
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.mesh);
         this.geometries = [geom];
-        if (dimensions.shape === 'rectangle') {
+        if (this.dimensions.shape === 'rectangle') {
             this.rotateToXYPlane();
         }
         this.parentScene.addComponentMeshGroup(this.meshGroup);
@@ -415,7 +431,12 @@ class Tool extends Lego {
     constructor(parentScene, dimensions) {
         name = 'Tool';
         super(name, parentScene, dimensions);
-        let geom = BuildEnvironment.geometryFactories.tool(dimensions);
+        this.renderDimensions();
+    }
+
+    renderDimensions() {
+        this.clearMeshesFromScene();
+        let geom = BuildEnvironment.geometryFactories.tool(this.dimensions);
         let material = new THREE.MeshLambertMaterial({
             color : Tool.color,
             transparent : true,
@@ -428,6 +449,7 @@ class Tool extends Lego {
         this.setPositionToDefault();
         this.parentScene.addComponentMeshGroup(this.meshGroup);
     }
+
     setPositionToDefault() {
         this.mesh.position.set(Tool.defaultPosition.x,
                                Tool.defaultPosition.y,
@@ -444,15 +466,8 @@ class LinearStage extends Lego {
         this.renderDimensions();
     }
 
-    clearMeshesFromScene() {
-        if (this.meshGroup !== undefined && this.parentScene !== undefined) {
-            this.parentScene.removeComponentMeshGroup(this.meshGroup);
-        }
-    }
-
     renderDimensions() {
         this.clearMeshesFromScene();
-        console.log('Linear Stage render dims called.');
         this.caseGeom = BuildEnvironment.geometryFactories
                                 .stageCase(this.dimensions.length);
         this.platformGeom = BuildEnvironment.geometryFactories
@@ -519,11 +534,6 @@ function main() {
     let stageB = new LinearStage(ss, {
         length: 250
     });
-    // ss.addComponent(be);
-    // ss.addComponent(we);
-    // ss.addComponent(tool);
-    // ss.addComponent(stageA);
-    // ss.addComponent(stageB);
     we.placeOnComponent(be);
     stageA.placeOnComponent(be);
     stageB.placeOnComponent(be);
