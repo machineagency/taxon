@@ -1,0 +1,47 @@
+.navbar {
+   // Dimensions
+	width: calc(100vw - 32px);
+   height: 54px;
+   // Styling
+   border-radius: 30px;
+	background: #242931;
+
+    pointer-events: all;
+}
+
+input[type=text]#filename {
+   width: 200px;
+   color: #EAEAEA;
+}
+
+.nav-btn {
+   /* Styling */
+	background: #494E57;
+	color: #EAEAEA;
+   
+   /* Sizing */
+	padding: 14px 15px 14px 15px;
+	border-radius: 6px;
+   margin: 6px;
+   
+   &:hover {
+      cursor: pointer;
+      background: #5C6370;
+   }
+
+   &:active {
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.6);
+   }
+}
+
+#navbtn-leftmost {
+   border-radius: 20px 6px 6px 20px;
+   padding: 14px 14px 14px 16px;
+	margin-right: 0;
+}
+
+#navbtn-rightmost {
+   border-radius: 6px 20px 20px 6px;
+   padding: 14px 16px 14px 14px;
+	margin-left: 0;
+}

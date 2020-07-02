@@ -1,20 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<title>Strange Machine</title>
-<meta charset="utf-8">
-<link rel="icon"
-      type="image/png"
-      href="img/favicon.png">
-<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-<link rel="stylesheet" href="style.css">
+	<title>Strange Machine</title>
+	<meta charset="utf-8">
+	<link rel="icon" type="image/png" href="img/favicon.png">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap"
+		rel="stylesheet">
+	<link rel="stylesheet" href="./main.css">
+
 </head>
+
 <body>
 
-<div id="container"></div>
+    <div id="container"></div>
+
+	<!-- Header Section -------------------------------- -->
+
+	<div class="header">
+		<div class="navbar">
+
+			<div class="nav-left">
+				<button type="button" class="nav-btn" id="navbtn-leftmost">Workspace</button>
+				<button type="button" class="nav-btn" id="nav-button">Import</button>
+			</div>
+
+			<div class="nav-mid">
+				<input type="text" name="filename" id="filename" value="Rube Goldberg Prototype 1">
+			</div>
+
+			<div class="nav-right">
+				<button type="button" class="nav-btn" id="navbtn-rightmost">Compile</button>
+			</div>
+
+		</div>
+	</div>
+
+
+
+	<!-- Main Section ------------------------------------>
+
+	<div class="main">
+
+		<!-- Left Dialog ------------>
+
+		<div class="dialog dialog-left objectlist-container">
+
+			<div class="dialog-header">
+				<h2>Objects</h2>
+			</div>
+
+			<div id="objectlist"></div>
+	
+		</div>
+
+		<!-- Right Dialog ------------>
+
+		<!-- Create Dialog -->
+
+		<div class="dialog dialog-right" id="create-dialog">
+
+			<div class="dialog-header">
+				<div class="left-header">
+					<h2>Create New</h2>
+				</div>
+
+				<div class="right-header">
+					<button type="button" class="x-btn" onclick="close_dialog(this.parentElement.parentElement.parentElement)">
+						<img src="./icons/x.svg" alt="Close Button">
+					</button>
+				</div>
+			</div>
+
+			<div class="dialog-main list">
+
+				<div class="line"></div>
+
+				<div class="lego-grid">
+
+					<div class="lego-left-col">
+
+						<button class="lego" id="work-env-obj" onclick="add_object(this)">
+							<img src="./img/block.png" alt="">
+							<p class="lego-desc">Work Environment</p>
+						</button>
+
+						<button class="lego" id="servo-obj" onclick="add_object(this)">
+							<img src="./img/block.png" alt="">
+							<p class="lego-desc">Servo</p>
+						</button>
+
+						<button class="lego" id="enclosure-obj" onclick="add_object(this)">
+							<img src="./img/block.png" alt="">
+							<p class="lego-desc">Enclosure</p>
+						</button>
+
+					</div>
+
+					<div class="lego-right-col">
+
+						<button class="lego" id="motor-obj" onclick="add_object(this)">
+							<img src="./img/block.png" alt="">
+							<p class="lego-desc">Motor Stage</p>
+						</button>
+
+						<button class="lego" id="circ-obj" onclick="add_object(this)">
+							<img src="./img/block.png" alt="">
+							<p class="lego-desc">Circular Stage</p>
+						</button>
+
+						<button class="lego" id="stab-obj" onclick="add_object(this)">
+							<img src="./img/block.png" alt="">
+							<p class="lego-desc">Stabilizer</p>
+						</button>
+
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+
+		<!-- Work Environment Property Dialog -->
+
+		<div class="dialog dialog-right prop-dialog" id="work-env-dialog">
+
+			<div class="dialog-header">
+
+				<div class="left-header">
+					<button type="button" class="back-btn" onclick="nav_back(this.parentElement.parentElement.parentElement)">
+						<img src="./icons/back.svg" alt="Back Button">
+					</button>
+					<h2>Work Environment</h2>
+				</div>
+
+				<div class="right-header">
+					<button type="button" class="x-btn" onclick="close_dialog(this.parentElement.parentElement.parentElement)">
+						<img src="./icons/x.svg" alt="Close Button">
+					</button>
+				</div>
+
+			</div>
+
+			<div class="dialog-main prop-list">
+
+				<div class="line"></div>
+
+				<div class="dropdown-container prop-row">
+
+					<label class="dropdown-label">Type:</label>
+
+					<select name="work-env-type">
+						<option value="0">2-Dimensional</option>
+						<option value="1">3-Dimensional</option>
+						<option value="2">Custom Object</option>
+					</select>
+
+				</div>
+
+				<div class="prop-row">
+
+					<div class="dropdown-container prop-item-66">
+						<label class="dropdown-label">Shape:</label>
+						<select name="work-env-shape">
+							<option value="0">Rectangle</option>
+							<option value="1">Circle</option>
+							<option value="2">Triangle</option>
+						</select>
+					</div>
+
+					<div class="dropdown-container prop-item-33">
+						<label class="dropdown-label">Plane:</label>
+						<select name="work-env-shape">
+							<option value="0">XY</option>
+							<option value="1">YZ</option>
+							<option value="2">XZ</option>
+						</select>
+					</div>
+
+				</div>
+
+				<div class="prop-row">
+
+					<div class="dropdown-container prop-item-50">
+						<label class="dropdown-label">Length:</label>
+						<input class="prop-field" type="text">
+					</div>
+
+					<div class="dropdown-container prop-item-50">
+						<label class="dropdown-label">Width:</label>
+						<input class="prop-field" type="text">
+					</div>
+
+				</div>
+
+				<div class="line"></div>
+
+			</div>
+
+			<div class="dialog-footer">
+				<button type="button" class="prop-item-50 btn-secondary">Cancel</button>
+				<button type="button" class="prop-item-50 btn-primary">Save</button>
+			</div>
+
+		</div>
+
+	</div>
+
+
+
+	<!-- Footer Section ------------------------------------- -->
+
+	<div class="footer">
+
+		<button type="button" class="tool-btn tool-btn-off" id="create-btn" onclick="toggle_tool(this)">
+			<img src="./icons/create.svg" alt="Create New Dialog">
+		</button>
+
+		<button type="button" class="tool-btn tool-btn-off" id="measure-btn" onclick="toggle_tool(this)">
+			<img src="./icons/measure.svg" alt="Measure Tool">
+		</button>
+
+		<button type="button" class="tool-btn tool-btn-off" id="instr-btn" onclick="toggle_tool(this)">
+			<img src="./icons/instr.svg" alt="Instruction Tool">
+        </button>
+
+    </div>
 
 <script type="module" src="main.js"></script>
 
 </body>
-</html>
 
+</html>

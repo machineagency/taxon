@@ -1,0 +1,88 @@
+.prop-list {
+   margin-bottom: 12px;
+
+   .line {
+      
+      margin-bottom: 16px;
+
+      &:last-of-type {
+         margin-bottom: 0;
+         margin-top: 20px;
+      }
+   }
+}
+
+.prop-row {
+   display: flex;
+   margin-top: 12px;
+}
+
+.dropdown-container {
+   display: flex;
+   align-items: center;
+}
+
+.prop-field, select {
+   border: 1px solid #CCC;
+   border-radius: 4px;
+   font-size: 16px;
+   padding: 12px;
+   width: 82px;
+}
+
+.dropdown-label {
+   color: $gray-label;
+   width: 64px;
+}
+
+select {
+   background-image: url("./icons/down_arrow.svg");
+   background-repeat: no-repeat;
+   background-position: right 12px top 50%, 0 0;
+   width: calc(100% - 64px);
+   
+   -moz-appearance: none;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+select:hover {
+   cursor: pointer;
+   box-shadow: inset 0px 0px 1px #000;
+}
+
+.prop-item-66 {
+   flex: 2 0 100px;
+   margin-right: 16px;
+}
+
+.prop-item-33 {
+   flex: 1 0 80px;
+}
+
+.prop-item-50 {
+   flex: 1 1 auto;
+
+   &:first-child {
+      margin-right: 16px;
+   }
+}
+
+.btn-primary {
+   background: $primary-btn;
+   border-radius: 6px;
+   padding: 16px;
+   font-size: 16;
+   font-weight: 500;
+   color: white;
+}
+
+.btn-secondary {
+   background: $gray-hover;
+   border-radius: 6px;
+   padding: 16px;
+   font-size: 16;
+   font-weight: 500;
+   color: #565656;
+   margin-right: 8px !important;
+}
