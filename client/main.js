@@ -451,7 +451,7 @@ class Tool extends Lego {
     }
 
     setPositionToDefault() {
-        this.mesh.position.set(Tool.defaultPosition.x,
+        this.meshGroup.position.set(Tool.defaultPosition.x,
                                Tool.defaultPosition.y,
                                Tool.defaultPosition.z)
     }
