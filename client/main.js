@@ -293,7 +293,25 @@ class StrangeComponent {
         let rotateQuaternion = new THREE.Quaternion();
         rotateQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0),
                                           -Math.PI / 2);
-        this.meshGroup.quaternion.copy(rotateQuaternion);
+        this.meshGroup.applyQuaternion(rotateQuaternion);
+        // FIXME: remove this variable and just read the quaternion
+        this.rotatedToPlane = true;
+    }
+
+    rotateOnXYPlane() {
+        let rotateQuaternion = new THREE.Quaternion();
+        rotateQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0),
+                                          -Math.PI / 2);
+        this.meshGroup.applyQuaternion(rotateQuaternion);
+        // FIXME: remove this variable and just read the quaternion
+        this.rotatedToPlane = true;
+    }
+
+    rotateOverXYPlane() {
+        let rotateQuaternion = new THREE.Quaternion();
+        rotateQuaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1),
+                                          -Math.PI / 2);
+        this.meshGroup.applyQuaternion(rotateQuaternion);
         // FIXME: remove this variable and just read the quaternion
         this.rotatedToPlane = true;
     }
@@ -532,11 +550,19 @@ function main() {
     let stageB = new LinearStage(ss, {
         length: 250
     });
+    let stageC = new LinearStage(ss, {
+        length: 300
+    });
     we.placeOnComponent(be);
     stageA.placeOnComponent(be);
     stageB.placeOnComponent(be);
     stageA.movePosition(-125, 0, 0);
     stageB.movePosition(125, 0, 0);
+    stageC.movePosition(0, 75, 0);
+    stageC.rotateOnXYPlane();
+    stageC.rotateToXYPlane();
+    stageC.rotateToXYPlane();
+    tool.movePosition(0, -125, 0);
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
