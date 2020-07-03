@@ -15,7 +15,6 @@ class StrangeScene {
         this.renderer = this.initRenderer();
         this.controls = this.initControls(this.camera, this.renderer);
         this.ruler = new Ruler();
-        this.components = [];
     }
 
     initScene() {
@@ -78,13 +77,18 @@ class StrangeScene {
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
     }
+}
 
-    addComponentMeshGroup(meshGroup) {
-        this.scene.add(meshGroup);
+class Machine {
+    constructor(name, parentScene) {
+        this.name = name;
+        this.parentScene = parentScene;
+        this.components = [];
+        parentScene.machine = this;
     }
 
-    removeComponentMeshGroup(meshGroup) {
-        this.scene.remove(meshGroup);
+    addComponent(component) {
+        this.components.push(component);
     }
 
     renderRulerForComponent(component) {
@@ -102,7 +106,6 @@ class StrangeScene {
             component.unhide();
         });
     }
-
 }
 
 class Ruler {
@@ -246,14 +249,15 @@ class StrangeComponent {
             }
         }
     };
-    constructor(name, parentScene, dimensions) {
+
+    constructor(name, parentMachine, dimensions) {
         this.name = name;
         this._dimensions = dimensions;
         this.geometries = [];
         this.meshGroup = new THREE.Group();
         this.rotatedToPlane = false;
-        this.parentScene = parentScene;
-        this.parentScene.components.push(this);
+        this.parentMachine = parentMachine;
+        this.parentMachine.addComponent(this);
     }
 
     get position() {
@@ -323,8 +327,12 @@ class StrangeComponent {
         this.meshGroup.visible = true;
     }
 
-    clearMeshesFromScene() {
-        if (this.meshGroup !== undefined && this.parentScene !== undefined) {
+    addMeshGroupToScene() {
+        this.parentMachine.parentScene.scene.add(this.meshGroup);
+    }
+
+    removeMeshGroupFromScene() {
+        if (this.meshGroup !== undefined) {
             this.parentScene.removeComponentMeshGroup(this.meshGroup);
         }
     }
@@ -376,21 +384,20 @@ class StrangeComponent {
         centerPt.x = (bmax.x + bmin.x) / 2
         centerPt.z = (bmax.y + bmin.y) / 2
         centerPt.y = bmax.z + thisHeight / 2 + eps;
-        // this.position = centerPt;
         this.meshGroup.position.set(centerPt.x, centerPt.y, centerPt.z);
     }
 }
 
 class BuildEnvironment extends StrangeComponent {
     static color = 0xfefefe;
-    constructor(parentScene, dimensions) {
+    constructor(parentMachine, dimensions) {
         name = 'BuildEnvironment';
-        super(name, parentScene, dimensions);
+        super(name, parentMachine, dimensions);
         this.renderDimensions();
     }
 
     renderDimensions() {
-        this.clearMeshesFromScene();
+        this.removeMeshGroupFromScene();
         let geom = BuildEnvironment.geometryFactories
                     .buildEnvironment(this.dimensions);
         let material = new THREE.MeshLambertMaterial({
@@ -401,7 +408,7 @@ class BuildEnvironment extends StrangeComponent {
         this.meshGroup.add(this.mesh);
         this.geometries = [geom];
         this.rotateToXYPlane();
-        this.parentScene.addComponentMeshGroup(this.meshGroup);
+        this.addMeshGroupToScene();
     }
 }
 
@@ -409,18 +416,18 @@ class WorkEnvelope extends StrangeComponent {
     static color = 0x9d8dff;
     static shapes = ['rectangle', 'cube', 'cylinder']
 
-    constructor(parentScene, dimensions) {
+    constructor(parentMachine, dimensions) {
         if (!WorkEnvelope.shapes.includes(dimensions.shape)) {
             console.error(`Invalid shape ${shapeName}, defaulting to rectangle.`);
             dimensions.shape = 'rectangle';
         }
         name = 'WorkEnvelope';
-        super(name, parentScene, dimensions);
+        super(name, parentMachine, dimensions);
         this.renderDimensions();
     }
 
     renderDimensions() {
-        this.clearMeshesFromScene();
+        this.removeMeshGroupFromScene();
         let geom = WorkEnvelope.geometryFactories.workEnvelope(this.dimensions);
         let material = new THREE.MeshLambertMaterial({
             color : WorkEnvelope.color,
@@ -434,7 +441,7 @@ class WorkEnvelope extends StrangeComponent {
         if (this.dimensions.shape === 'rectangle') {
             this.rotateToXYPlane();
         }
-        this.parentScene.addComponentMeshGroup(this.meshGroup);
+        this.addMeshGroupToScene();
     }
 }
 
@@ -445,14 +452,14 @@ class Lego extends StrangeComponent {
 class Tool extends Lego {
     static color = 0xe44242;
     static defaultPosition = new THREE.Vector3(0, 150, 0);
-    constructor(parentScene, dimensions) {
+    constructor(parentMachine, dimensions) {
         name = 'Tool';
-        super(name, parentScene, dimensions);
+        super(name, parentMachine, dimensions);
         this.renderDimensions();
     }
 
     renderDimensions() {
-        this.clearMeshesFromScene();
+        this.removeMeshGroupFromScene();
         let geom = BuildEnvironment.geometryFactories.tool(this.dimensions);
         let material = new THREE.MeshLambertMaterial({
             color : Tool.color,
@@ -464,7 +471,7 @@ class Tool extends Lego {
         this.meshGroup.add(this.mesh);
         this.geometries = [geom];
         this.setPositionToDefault();
-        this.parentScene.addComponentMeshGroup(this.meshGroup);
+        this.addMeshGroupToScene();
     }
 
     setPositionToDefault() {
@@ -477,14 +484,14 @@ class Tool extends Lego {
 class LinearStage extends Lego {
     static caseColor = 0xffed90;
     static platformColor = 0xf99292;
-    constructor(parentScene, dimensions) {
+    constructor(parentMachine, dimensions) {
         name = 'LinearStage';
-        super(name, parentScene, dimensions);
+        super(name, parentMachine, dimensions);
         this.renderDimensions();
     }
 
     renderDimensions() {
-        this.clearMeshesFromScene();
+        this.removeMeshGroupFromScene();
         this.caseGeom = BuildEnvironment.geometryFactories
                                 .stageCase(this.dimensions.length);
         this.platformGeom = BuildEnvironment.geometryFactories
@@ -503,7 +510,7 @@ class LinearStage extends Lego {
         this.meshGroup.add(this.platformMesh);
         this.platformMesh.position.setY(25);
         this.geometries = [this.caseGeom, this.platformGeom]
-        this.parentScene.addComponentMeshGroup(this.meshGroup);
+        this.addMeshGroupToScene();
     }
 }
 
@@ -529,27 +536,28 @@ let makeLoadStlPromise = (filepath, strangeScene) => {
 
 function main() {
     let ss = new StrangeScene();
-    let be = new BuildEnvironment(ss, {
+    let machine = new Machine('MyPlotter', ss);
+    let be = new BuildEnvironment(machine, {
         length: 500,
         width: 500
     });
-    let we = new WorkEnvelope(ss, {
+    let we = new WorkEnvelope(machine, {
         shape: 'rectangle',
         length: 250,
         width: 250
     });
-    let tool = new Tool(ss, {
+    let tool = new Tool(machine, {
         type: 'pen',
         height: 50,
         radius: 5
     });
-    let stageA = new LinearStage(ss, {
+    let stageA = new LinearStage(machine, {
         length: 250
     });
-    let stageB = new LinearStage(ss, {
+    let stageB = new LinearStage(machine, {
         length: 250
     });
-    let stageC = new LinearStage(ss, {
+    let stageC = new LinearStage(machine, {
         length: 300
     });
     we.placeOnComponent(be);
