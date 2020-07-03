@@ -11,7 +11,7 @@ class StrangeScene {
     constructor() {
         this.domContainer = document.getElementById('container');
         this.scene = this.initScene();
-        this.camera = this.initCamera(this.scene, false);
+        this.camera = this.initCamera(this.scene, true);
         this.renderer = this.initRenderer();
         this.controls = this.initControls(this.camera, this.renderer);
         this.ruler = new Ruler();
@@ -29,7 +29,6 @@ class StrangeScene {
         scene.add(topDirectionalLight);
         scene.add(leftDirectionalLight);
         scene.add(rightDirectionalLight);
-        scene.add(new THREE.GridHelper(2000, 100, 'red', 0x444444));
         return scene;
     }
 
