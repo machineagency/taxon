@@ -142,6 +142,35 @@ class Machine {
             stageC.rotateToXYPlane();
             stageC.rotateToXYPlane();
             tool.movePosition(0, -125, 0);
+        },
+        axidraw: () => {
+            let be = new BuildEnvironment(this, {
+                length: 500,
+                width: 500
+            });
+            let we = new WorkEnvelope(this, {
+                shape: 'rectangle',
+                length: 250,
+                width: 250
+            });
+            let tool = new Tool(this, {
+                type: 'pen',
+                height: 50,
+                radius: 5
+            });
+            let stageTop= new LinearStage(this, {
+                length: 250
+            });
+            let stageBottom = new LinearStage(this, {
+                length: 250
+            });
+            we.placeOnComponent(be);
+            stageBottom.placeOnComponent(be);
+            stageTop.movePosition(0, 76.5, 0);
+            stageTop.rotateOverXYPlane();
+            stageTop.rotateOverXYPlane();
+            stageTop.rotateOnXYPlane();
+            tool.movePosition(-125, -76.5, 0)
         }
     };
 }
@@ -575,7 +604,7 @@ let makeLoadStlPromise = (filepath, strangeScene) => {
 function main() {
     let ss = new StrangeScene();
     let machine = new Machine('MyPlotter', ss);
-    machine.presetLoaders.xyPlotter();
+    machine.presetLoaders.axidraw();
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
