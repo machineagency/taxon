@@ -106,6 +106,44 @@ class Machine {
             component.unhide();
         });
     }
+
+    presetLoaders = {
+        xyPlotter: () => {
+            let be = new BuildEnvironment(this, {
+                length: 500,
+                width: 500
+            });
+            let we = new WorkEnvelope(this, {
+                shape: 'rectangle',
+                length: 250,
+                width: 250
+            });
+            let tool = new Tool(this, {
+                type: 'pen',
+                height: 50,
+                radius: 5
+            });
+            let stageA = new LinearStage(this, {
+                length: 250
+            });
+            let stageB = new LinearStage(this, {
+                length: 250
+            });
+            let stageC = new LinearStage(this, {
+                length: 300
+            });
+            we.placeOnComponent(be);
+            stageA.placeOnComponent(be);
+            stageB.placeOnComponent(be);
+            stageA.movePosition(-125, 0, 0);
+            stageB.movePosition(125, 0, 0);
+            stageC.movePosition(0, 75, 0);
+            stageC.rotateOnXYPlane();
+            stageC.rotateToXYPlane();
+            stageC.rotateToXYPlane();
+            tool.movePosition(0, -125, 0);
+        }
+    };
 }
 
 class Ruler {
@@ -332,7 +370,7 @@ class StrangeComponent {
     }
 
     removeMeshGroupFromScene() {
-        if (this.meshGroup !== undefined) {
+        if (this.meshGroup !== undefined && this.parentScene !== undefined) {
             this.parentScene.removeComponentMeshGroup(this.meshGroup);
         }
     }
@@ -537,39 +575,7 @@ let makeLoadStlPromise = (filepath, strangeScene) => {
 function main() {
     let ss = new StrangeScene();
     let machine = new Machine('MyPlotter', ss);
-    let be = new BuildEnvironment(machine, {
-        length: 500,
-        width: 500
-    });
-    let we = new WorkEnvelope(machine, {
-        shape: 'rectangle',
-        length: 250,
-        width: 250
-    });
-    let tool = new Tool(machine, {
-        type: 'pen',
-        height: 50,
-        radius: 5
-    });
-    let stageA = new LinearStage(machine, {
-        length: 250
-    });
-    let stageB = new LinearStage(machine, {
-        length: 250
-    });
-    let stageC = new LinearStage(machine, {
-        length: 300
-    });
-    we.placeOnComponent(be);
-    stageA.placeOnComponent(be);
-    stageB.placeOnComponent(be);
-    stageA.movePosition(-125, 0, 0);
-    stageB.movePosition(125, 0, 0);
-    stageC.movePosition(0, 75, 0);
-    stageC.rotateOnXYPlane();
-    stageC.rotateToXYPlane();
-    stageC.rotateToXYPlane();
-    tool.movePosition(0, -125, 0);
+    machine.presetLoaders.xyPlotter();
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
