@@ -107,6 +107,10 @@ class Machine {
         });
     }
 
+    removeCurrentComponents() {
+        // TODO for swapping presets
+    }
+
     presetLoaders = {
         xyPlotter: () => {
             let be = new BuildEnvironment(this, {
