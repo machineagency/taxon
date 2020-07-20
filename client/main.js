@@ -162,7 +162,8 @@ class Machine {
                 height: 50,
                 radius: 5
             });
-            let stageTop= new LinearStage(this, {
+            let toolAssembly = new ToolAssembly(this, {});
+            let stageTop = new LinearStage(this, {
                 length: 250
             });
             let stageBottom = new LinearStage(this, {
@@ -174,7 +175,8 @@ class Machine {
             stageTop.rotateOverXYPlane();
             stageTop.rotateOverXYPlane();
             stageTop.rotateOnXYPlane();
-            tool.movePosition(-125, -76.5, 0)
+            tool.movePosition(-131, -76.5, 0)
+            toolAssembly.movePosition(-131, -73.5, 0)
         }
     };
 }
@@ -298,6 +300,7 @@ class StrangeComponent {
                         dimensions.radius, dimensions.height, 10)
             }
         },
+        toolAssembly: (dimensions) => new THREE.BoxBufferGeometry(12.5, 25, 50, 2, 2, 2),
         connectionHandle: () => new THREE.SphereBufferGeometry(25, 32, 32),
         buildEnvironment: (dimensions) => new THREE.BoxBufferGeometry(
                                              dimensions.length,
@@ -536,6 +539,37 @@ class Tool extends Lego {
             color : Tool.color,
             transparent : true,
             opacity : 0.5
+        });
+        this.mesh = new THREE.Mesh(geom, material);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.mesh);
+        this.geometries = [geom];
+        this.setPositionToDefault();
+        this.addMeshGroupToScene();
+    }
+
+    setPositionToDefault() {
+        this.meshGroup.position.set(Tool.defaultPosition.x,
+                               Tool.defaultPosition.y,
+                               Tool.defaultPosition.z)
+    }
+}
+
+class ToolAssembly extends Lego {
+    static color = 0xf36f6f;
+    static defaultPosition = new THREE.Vector3(0, 150, 0);
+    constructor(parentMachine, dimensions) {
+        name = 'ToolAssembly';
+        super(name, parentMachine, dimensions);
+        this.renderDimensions();
+    }
+
+    renderDimensions() {
+        this.removeMeshGroupFromScene();
+        let geom = BuildEnvironment.geometryFactories
+                                   .toolAssembly(this.dimensions);
+        let material = new THREE.MeshLambertMaterial({
+            color : Tool.color
         });
         this.mesh = new THREE.Mesh(geom, material);
         this.meshGroup = new THREE.Group();
