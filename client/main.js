@@ -180,6 +180,7 @@ class Machine {
                 length: 250
             });
             we.placeOnComponent(be);
+            we.movePosition(-100, 0, 0);
             stageBottom.placeOnComponent(be);
             stageTop.movePosition(0, 76.5, 0);
             stageTop.rotateOverXYPlane();
