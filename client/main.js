@@ -73,6 +73,10 @@ class StrangeScene {
         return controls;
     }
 
+    removeFromScene(sceneObj) {
+        this.scene.remove(sceneObj);
+    }
+
     renderScene() {
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
@@ -108,11 +112,15 @@ class Machine {
     }
 
     removeCurrentComponents() {
-        // TODO for swapping presets
+        this.components.forEach((component, index) => {
+            component.removeMeshGroupFromScene();
+        });
+        this.components = [];
     }
 
     presetLoaders = {
         xyPlotter: () => {
+            this.removeCurrentComponents();
             let be = new BuildEnvironment(this, {
                 length: 500,
                 width: 500
@@ -146,8 +154,10 @@ class Machine {
             stageC.rotateToXYPlane();
             stageC.rotateToXYPlane();
             tool.movePosition(0, -125, 0);
+            return this;
         },
         axidraw: () => {
+            this.removeCurrentComponents();
             let be = new BuildEnvironment(this, {
                 length: 500,
                 width: 500
@@ -177,6 +187,7 @@ class Machine {
             stageTop.rotateOnXYPlane();
             tool.movePosition(-131, -76.5, 0)
             toolAssembly.movePosition(-131, -73.5, 0)
+            return this;
         }
     };
 }
@@ -406,8 +417,11 @@ class StrangeComponent {
     }
 
     removeMeshGroupFromScene() {
-        if (this.meshGroup !== undefined && this.parentScene !== undefined) {
-            this.parentScene.removeComponentMeshGroup(this.meshGroup);
+        if (this.parentMachine !== undefined) {
+            this.parentMachine.parentScene.removeFromScene(this.meshGroup);
+        }
+        else if (this.parentScene !== undefined) {
+            this.parentScene.removeFromScene(this.meshGroup);
         }
     }
 
