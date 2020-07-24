@@ -20,14 +20,16 @@ class StrangeScene {
     initScene() {
         let scene = new THREE.Scene();
         scene.background = new THREE.Color(0xf5f6f8);
-        let topDirectionalLight = new THREE.DirectionalLight(0xffffff, 1.00);
-        let leftDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
-        let rightDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.50);
+        let topDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
+        let leftDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.50);
+        let rightDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.25);
+        let ambientLight = new THREE.AmbientLight(0x404040);
         leftDirectionalLight.position.set(-1.0, 0.0, 0.0);
         rightDirectionalLight.position.set(0.0, 0.0, 1.0);
         scene.add(topDirectionalLight);
         scene.add(leftDirectionalLight);
         scene.add(rightDirectionalLight);
+        scene.add(ambientLight);
         return scene;
     }
 
