@@ -442,6 +442,18 @@ class StrangeComponent {
         this.renderDimensions();
     }
 
+    get width() {
+        return this._dimensions.width;
+    }
+
+    get height() {
+        return this._dimensions.height;
+    }
+
+    get length() {
+        return this._dimensions.length;
+    }
+
     movePosition(deltaX, deltaY, deltaZ) {
         let currPos = this.position;
         currPos.setX(currPos.x + deltaX);
@@ -574,7 +586,7 @@ class BuildEnvironment extends StrangeComponent {
 
 class WorkEnvelope extends StrangeComponent {
     static color = 0x9d8dff;
-    static shapes = ['rectangle', 'cube', 'cylinder']
+    static shapes = ['rectangle', 'cube', 'cylinder'];
 
     constructor(parentMachine, dimensions) {
         if (!WorkEnvelope.shapes.includes(dimensions.shape)) {
