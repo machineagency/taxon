@@ -254,7 +254,7 @@ class Machine {
             s1.placeOnComponent(be);
             this.setConnection({
                 componentA: s0,
-                faceA: '+x',
+                faceA: '+z',
                 componentB: s1,
                 faceB: '-x'
             });
@@ -486,6 +486,22 @@ class StrangeComponent {
         this.meshGroup.applyQuaternion(rotateQuaternion);
         // FIXME: remove this variable and just read the quaternion
         this.rotatedToPlane = true;
+    }
+
+    rotateOverAxis(axisName, radians) {
+        let axis;
+        let rotateQuaternion = new THREE.Quaternion();
+        if (axisName === 'x') {
+            axis = new THREE.Vector3(1, 0, 0);
+        }
+        if (axisName === 'y') {
+            axis = new THREE.Vector3(0, 1, 0);
+        }
+        if (axisName === 'z') {
+            axis = new THREE.Vector3(0, 0, 1);
+        }
+        rotateQuaternion.setFromAxisAngle(axis, radians);
+        this.meshGroup.applyQuaternion(rotateQuaternion);
     }
 
     hide() {
