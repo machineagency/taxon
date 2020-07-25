@@ -90,6 +90,7 @@ class Machine {
         this.name = name;
         this.parentScene = parentScene;
         this.components = [];
+        this.connections = [];
         parentScene.machine = this;
     }
 
@@ -136,30 +137,63 @@ class Machine {
      * }
      */
     setConnection(connectionObj) {
-        let faceVectors = {
-            '+x' : new THREE.Vector3(+1, 0, 0),
-            '-x' : new THREE.Vector3(-1, 0, 0),
-            '+y' : new THREE.Vector3(0, +1, 0),
-            '-y' : new THREE.Vector3(0, -1, 0),
-            '+z' : new THREE.Vector3(0, 0, +1),
-            '-z' : new THREE.Vector3(0, 0, -1),
-        };
-        let faceDims = {
-            '+x' : 'width',
-            '-x' : 'width',
-            '+y' : 'height',
-            '-y' : 'height',
-            '+z' : 'length',
-            '-z' : 'length'
-        };
+        // TODO: currently only works for rotations in x, z dimensions
+        // TODO: point offsets e.g. "left" except w.r.t. dimensions
         let { componentA, faceA, componentB, faceB } = connectionObj;
-        let dimA = componentA.dimensions[faceDims[faceA]] / 2;
-        let dimB = componentB.dimensions[faceDims[faceB]] / 2;
-        let vA = faceVectors[faceA].multiplyScalar(dimA);
-        let vB = faceVectors[faceB].multiplyScalar(dimB);
-        let vAB = new THREE.Vector3().addVectors(vA, vB.negate());
-        let cBNew = new THREE.Vector3().addVectors(componentA.position, vAB)
-        componentB.position = cBNew;
+        let facePairsToRadians = {
+            // Same dimension, same sign
+            '+x,+x' : Math.PI,
+            '+z,+z' : Math.PI,
+            '-x,-x' : Math.PI,
+            '-z,-z' : Math.PI,
+            // Same dimension, different signs
+            '+x,-x' : 0,
+            '+z,-z' : 0,
+            '-x,+x' : 0,
+            '-z,+z' : 0,
+            // XZ -> +pi / 2 * product of signs
+            '+x,+z' : +Math.PI / 2,
+            '+x,-z' : -Math.PI / 2,
+            '-x,+z' : -Math.PI / 2,
+            '-x,-z' : +Math.PI / 2,
+            // ZX -> -pi / 2 * product of signs
+            '+z,+x' : -Math.PI / 2,
+            '+z,-x' : +Math.PI / 2,
+            '-z,+x' : +Math.PI / 2,
+            '-z,-x' : -Math.PI / 2
+        };
+        let vFactory = (x, y, z) => {
+            return () => {
+                return new THREE.Vector3(x, y, z).multiplyScalar(0.5);
+            }
+        };
+        let facePairsToTranslationVectorFn = {
+            // Translation dimension is dim(A), operand is sign(A)
+            '+x,+x' : vFactory(+componentA.width + componentB.width, 0, 0),
+            '+x,-x' : vFactory(+componentA.width + componentB.width, 0, 0),
+            '-x,+x' : vFactory(-componentA.width - componentB.width, 0, 0),
+            '-x,-x' : vFactory(-componentA.width - componentB.width, 0, 0),
+            '+z,+z' : vFactory(0, 0, +componentA.length + componentA.length),
+            '+z,-z' : vFactory(0, 0, +componentA.length + componentA.length),
+            '-z,+z' : vFactory(0, 0, -componentA.length - componentA.length),
+            '-z,-z' : vFactory(0, 0, -componentA.length - componentA.length),
+            '+x,+z' : vFactory(+componentA.width + componentB.length, 0, 0),
+            '+x,-z' : vFactory(+componentA.width + componentB.length, 0, 0),
+            '-x,+z' : vFactory(-componentA.width - componentB.length, 0, 0),
+            '-x,-z' : vFactory(-componentA.width - componentB.length, 0, 0),
+            '+z,+x' : vFactory(0, 0, +componentA.length + componentB.width),
+            '+z,-x' : vFactory(0, 0, +componentA.length + componentB.width),
+            '-z,+x' : vFactory(0, 0, -componentA.length - componentB.width),
+            '-z,-x' : vFactory(0, 0, -componentA.length - componentB.width),
+        };
+        let fStr = [faceA, faceB].join();
+        let newBPos = (new THREE.Vector3()).copy(componentB.position);
+        let translationVector = facePairsToTranslationVectorFn[fStr]();
+        newBPos.add(translationVector);
+        componentB.rotateOverAxis('y', facePairsToRadians[fStr]);
+        componentB.position = newBPos;
+        this.connections.push(connectionObj);
+        return this;
     }
 
     presetLoaders = {
