@@ -93,6 +93,7 @@ class Machine {
         parentScene.machine = this;
     }
 
+    // TODO: make this.components a THREE.Group for repositioning
     addComponent(component) {
         this.components.push(component);
     }
@@ -118,6 +119,47 @@ class Machine {
             component.removeMeshGroupFromScene();
         });
         this.components = [];
+    }
+
+    /**
+     * Connects two components such that the center point on a face of some
+     * componentB becomes fixed to the center of the face of componentA.
+     * For now, we only support center connections, but later will support
+     * connections at either end.
+     *
+     * connectionObj should be of the form:
+     * {
+     *      componentA: Component,
+     *      faceA: String in { '+x', '-x', '+y', ... , '-z' },
+     *      componentB: Component,
+     *      faceB: String in { '+x', '-x', '+y', ... , '-z' }
+     * }
+     */
+    setConnection(connectionObj) {
+        let faceVectors = {
+            '+x' : new THREE.Vector3(+1, 0, 0),
+            '-x' : new THREE.Vector3(-1, 0, 0),
+            '+y' : new THREE.Vector3(0, +1, 0),
+            '-y' : new THREE.Vector3(0, -1, 0),
+            '+z' : new THREE.Vector3(0, 0, +1),
+            '-z' : new THREE.Vector3(0, 0, -1),
+        };
+        let faceDims = {
+            '+x' : 'width',
+            '-x' : 'width',
+            '+y' : 'height',
+            '-y' : 'height',
+            '+z' : 'length',
+            '-z' : 'length'
+        };
+        let { componentA, faceA, componentB, faceB } = connectionObj;
+        let dimA = componentA.dimensions[faceDims[faceA]] / 2;
+        let dimB = componentB.dimensions[faceDims[faceB]] / 2;
+        let vA = faceVectors[faceA].multiplyScalar(dimA);
+        let vB = faceVectors[faceB].multiplyScalar(dimB);
+        let vAB = new THREE.Vector3().addVectors(vA, vB.negate());
+        let cBNew = new THREE.Vector3().addVectors(componentA.position, vAB)
+        componentB.position = cBNew;
     }
 
     presetLoaders = {
@@ -190,6 +232,32 @@ class Machine {
             stageTop.rotateOnXYPlane();
             tool.movePosition(-131, -76.5, 0)
             toolAssembly.movePosition(-131, -73.5, 0)
+            return this;
+        },
+        connectionSandbox: () => {
+            this.removeCurrentComponents();
+            let be = new BuildEnvironment(this, {
+                length: 500,
+                width: 500
+            });
+            let s0 = new LinearStage(this, {
+                width: 50,
+                height: 25,
+                length: 250
+            });
+            let s1 = new LinearStage(this, {
+                width: 50,
+                height: 25,
+                length: 250
+            });
+            s0.placeOnComponent(be);
+            s1.placeOnComponent(be);
+            this.setConnection({
+                componentA: s0,
+                faceA: '+x',
+                componentB: s1,
+                faceB: '-x'
+            });
             return this;
         }
     };
@@ -301,7 +369,8 @@ class Ruler {
 
 class StrangeComponent {
     static geometryFactories = {
-        stageCase: (length) => new THREE.BoxBufferGeometry(50, 25, length, 2, 2, 2),
+        stageCase: (d) =>
+            new THREE.BoxBufferGeometry(d.width, d.height, d.length, 2, 2, 2),
         stagePlatform: () => new THREE.BoxBufferGeometry(50, 25, 50, 2, 2, 2),
         rotaryStageCase: () => new THREE.BoxBufferGeometry(150, 50, 150, 2, 2, 2),
         rotaryStagePlatform: () => new THREE.CylinderBufferGeometry(50, 50, 80, 10),
@@ -615,7 +684,7 @@ class LinearStage extends Lego {
     renderDimensions() {
         this.removeMeshGroupFromScene();
         this.caseGeom = BuildEnvironment.geometryFactories
-                                .stageCase(this.dimensions.length);
+                                .stageCase(this.dimensions);
         this.platformGeom = BuildEnvironment.geometryFactories
                                 .stagePlatform();
         this.caseMaterial = new THREE.MeshLambertMaterial({
@@ -659,7 +728,7 @@ let makeLoadStlPromise = (filepath, strangeScene) => {
 function main() {
     let ss = new StrangeScene();
     let machine = new Machine('MyPlotter', ss);
-    machine.presetLoaders.axidraw();
+    machine.presetLoaders.connectionSandbox();
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
