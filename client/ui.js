@@ -1,39 +1,3 @@
-/* HELPER FUNCTIONS ------------------------- */
-
-let by_id = (id) => document.getElementById(id);
-
-let css_display_off = (obj) => { if (obj != null) return obj.style.display = "none" }
-let css_display_on = (obj) => { if (obj != null) return obj.style.display = "block" }
-
-let tool_off = (btn, dialog) => {
-   btn.classList.replace("tool-btn-on", "tool-btn-off");
-   css_display_off(dialog);
-}
-
-
-/* GLOBAL DOM ELEMENTS  --------------------- */
-
-let create_btn = by_id("create-btn");
-let measure_btn = by_id("measure-btn");
-let instr_btn = by_id("instr-btn");
-
-let obj_list = by_id("objectlist");
-
-let create_dlg = by_id("create-dialog");
-let measure_dlg = by_id("measure-dialog");
-let instr_dlg = by_id("instr-dialog");
-
-let work_env_dlg = by_id("work-env-dialog");
-
-let lego_db = {
-   "work-env-obj" : 0,
-   "servo-obj" : 0,
-   "enclosre-obj" : 0,
-   "motor-obj" : 0,
-   "circ-obj" : 0,
-   "stab-obj" : 0
-}
-
 /* FUNCTIONS ------------------------------- */
 
 function toggle_tool(btn) {
@@ -68,19 +32,28 @@ function toggle_tool(btn) {
    }
 }
 
-function add_object(obj) {
+function select_object(obj) {
+   dialog.updateFields(obj.id, true);
+   dialog.showDialog();
+   css_display_off(create_dlg);
 
    // Swtich statement for creating object using three.js
-   switch(obj.id) {
-      case "work-env-obj":
-         css_display_on(work_env_dlg);
-         css_display_off(create_dlg);
-         break;
-   }
-
+   // switch(obj.id) {
+   //    case "work-env-obj":
+   //       dialog.updateFields("work-env-obj");
+   //       dialog.showDialog();
+   //       css_display_off(create_dlg);
+   //       break;
+   //    case "motor-obj":
+   //       dialog.updateFields("motor-obj");
+   //       dialog.showDialog();
+   //       css_display_off(create_dlg);
+   //       break;
+   // }
+   
    let divider = document.createElement("div");
    divider.classList.add("line");
-
+ 
    let item = document.createElement("button");
    item.classList.add("list-item");
    item.type = "button";
@@ -92,13 +65,10 @@ function add_object(obj) {
 
    obj_list.appendChild(divider);
    obj_list.appendChild(item);
-   
 }
 
 function open_obj_property(lego) {
-
    // switch 
-
 }
 
 function nav_back(current) {
@@ -111,7 +81,50 @@ function close_dialog(obj) {
    
    switch(obj.id) {
       case "create-dialog":
-         toggle_tool(create_btn);
+         tool_off(create_btn, create_dlg);
+         break;
+
+      case "work-env-dialog":
+         tool_off(create_btn, work_env_dlg);
+         // Delete object from object list
          break;
    }
 }
+
+
+
+// main_ui.appendChild();
+
+
+// `<div class="dialog dialog-right prop-dialog" id="work-env-dialog">
+
+//    <div class="dialog-header">
+
+//       <div class="left-header">
+//          <button type="button" class="back-btn" onclick="nav_back(this.parentElement.parentElement.parentElement)">
+//             <img src="./icons/back.svg" alt="Back Button">
+//          </button>
+//          <h2 id="dialog-title">Work Environment</h2>
+//       </div>
+
+//       <div class="right-header">
+//          <button type="button" class="x-btn" onclick="close_dialog(this.parentElement.parentElement.parentElement)">
+//             <img src="./icons/x.svg" alt="Close Button">
+//          </button>
+//       </div>
+
+//    </div>
+
+//    <div class="line" id="dialog-topline"></div>
+
+//    <div class="dialog-main prop-list">
+      
+//    </div>
+
+//    <div class="line"></div>
+
+//    <div class="dialog-footer">
+//       <button type="button" class="prop-item-50 btn-secondary">Cancel</button>
+//       <button type="button" class="prop-item-50 btn-primary">Save</button>
+//    </div>
+// </div> `

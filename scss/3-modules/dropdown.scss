@@ -1,20 +1,11 @@
 .prop-list {
-   margin-bottom: 12px;
-
-   .line {
-      
-      margin-bottom: 16px;
-
-      &:last-of-type {
-         margin-bottom: 0;
-         margin-top: 20px;
-      }
-   }
+   margin-bottom: 16px;
 }
 
 .prop-row {
    display: flex;
    margin-top: 12px;
+   justify-content: space-between;
 }
 
 .dropdown-container {
@@ -22,24 +13,31 @@
    align-items: center;
 }
 
+.dropdown-label {
+   // width: 72px;
+   flex: 0 0 72px;
+   font-size: 15px;
+   color: $gray-label;
+}
+
 .prop-field, select {
    border: 1px solid #CCC;
    border-radius: 4px;
-   font-size: 16px;
    padding: 12px;
-   width: 82px;
+
+   text-align: right;
 }
 
-.dropdown-label {
-   color: $gray-label;
-   width: 64px;
+input.prop-field {
+   width: 45%;
 }
 
 select {
+   flex: 1 1 auto;
+
    background-image: url("./icons/down_arrow.svg");
    background-repeat: no-repeat;
-   background-position: right 12px top 50%, 0 0;
-   width: calc(100% - 64px);
+   background-position: right 12px top 50%, 0, 0;
    
    -moz-appearance: none;
 	-webkit-appearance: none;
@@ -57,32 +55,37 @@ select:hover {
 }
 
 .prop-item-33 {
-   flex: 1 0 80px;
-}
-
-.prop-item-50 {
    flex: 1 1 auto;
+   margin-right: 10px;
 
-   &:first-child {
-      margin-right: 16px;
+   &:last-child {
+      margin-right: 0;
+   }
+
+   .dropdown-label {
+      flex: 1 2 auto;
+      margin-right: 4px;
+   }
+
+   .prop-field {
+      width: 67%;
    }
 }
 
-.btn-primary {
-   background: $primary-btn;
-   border-radius: 6px;
-   padding: 16px;
-   font-size: 16;
-   font-weight: 500;
-   color: white;
+.prop-item-50 {
+   display: flex;
+   justify-content: space-between;
+   flex: 1 1 50%;
+
+   &:first-child {
+      margin-right: 12px;
+   }
 }
 
-.btn-secondary {
-   background: $gray-hover;
+.dialog-btn {
    border-radius: 6px;
-   padding: 16px;
-   font-size: 16;
+   padding: 16px 20px;
+   font-size: 15px;
    font-weight: 500;
-   color: #565656;
-   margin-right: 8px !important;
+   justify-content: center;
 }

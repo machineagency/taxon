@@ -1,0 +1,43 @@
+.line {
+   height: 1px;
+   width: 100%;
+   margin: 0 auto;
+   background: $divider-list;
+
+   &:first-of-type {
+      background: $divider-main;
+   }
+}
+
+#topline {
+   background: $divider-main;
+}
+
+.back-btn {
+   height: 28px;
+   width: 28px;
+   background: $gray-hover;
+   border-radius: 24px;
+
+   img {
+      margin-top: 1px;
+      margin-right: 2px;
+   }
+}
+
+.x-btn {
+   height: 14px;
+   width: 14px;
+   padding: 0;
+}
+
+.btn-primary {
+   background: $primary-btn;
+   color: white;
+}
+
+.btn-secondary {
+   background: $gray-hover;
+   color: #565656;
+   margin-right: 8px !important; // might need to move this somewhere else
+}

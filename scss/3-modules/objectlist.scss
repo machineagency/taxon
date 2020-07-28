@@ -39,15 +39,3 @@
       }
    }
 }
-
-.line {
-   height: 1px;
-   width: calc(100% - 24px);
-   width: 100%;
-   margin: 0 auto;
-   background: $divider-list;
-   
-   &:nth-child(1) {
-      background: $divider-main;
-   }
-}

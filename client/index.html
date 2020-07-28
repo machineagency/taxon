@@ -15,7 +15,9 @@
 
 <body>
 
-    <div id="container"></div>
+	<!-- THREE.js -------------------------------- -->
+
+	<div id="container"></div>
 
 	<!-- Header Section -------------------------------- -->
 
@@ -42,7 +44,7 @@
 
 	<!-- Main Section ------------------------------------>
 
-	<div class="main">
+	<div class="main" id="main">
 
 		<!-- Left Dialog ------------>
 
@@ -52,13 +54,8 @@
 				<h2>Objects</h2>
 			</div>
 
-<<<<<<< HEAD
 			<div class="dialog-main" id="objectlist"></div>
 	
-=======
-			<div id="objectlist"></div>
-
->>>>>>> ac585f2895889ea5b778ba6cd36dd8a22ca419d9
 		</div>
 
 		<!-- Right Dialog ------------>
@@ -79,25 +76,25 @@
 				</div>
 			</div>
 
-			<div class="dialog-main list">
+			<div class="line" id="topline"></div>
 
-				<div class="line"></div>
+			<div class="dialog-main list">
 
 				<div class="lego-grid">
 
 					<div class="lego-left-col">
 
-						<button class="lego" id="work-env-obj" onclick="add_object(this)">
+						<button class="lego" id="work-env-obj" onclick="select_object(this)">
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Work Environment</p>
 						</button>
 
-						<button class="lego" id="servo-obj" onclick="add_object(this)">
+						<button class="lego" id="servo-obj" onclick="select_object(this)">
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Servo</p>
 						</button>
 
-						<button class="lego" id="enclosure-obj" onclick="add_object(this)">
+						<button class="lego" id="enclosure-obj" onclick="select_object(this)">
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Enclosure</p>
 						</button>
@@ -106,17 +103,17 @@
 
 					<div class="lego-right-col">
 
-						<button class="lego" id="motor-obj" onclick="add_object(this)">
+						<button class="lego" id="motor-obj" onclick="select_object(this)">
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Motor Stage</p>
 						</button>
 
-						<button class="lego" id="circ-obj" onclick="add_object(this)">
+						<button class="lego" id="circ-obj" onclick="select_object(this)">
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Circular Stage</p>
 						</button>
 
-						<button class="lego" id="stab-obj" onclick="add_object(this)">
+						<button class="lego" id="stab-obj" onclick="select_object(this)">
 							<img src="./img/block.png" alt="">
 							<p class="lego-desc">Stabilizer</p>
 						</button>
@@ -130,7 +127,7 @@
 
 		<!-- Work Environment Property Dialog -->
 
-		<div class="dialog dialog-right prop-dialog" id="work-env-dialog">
+		<!-- <div class="dialog dialog-right prop-dialog" id="work-env-dialog">
 
 			<div class="dialog-header">
 
@@ -138,7 +135,7 @@
 					<button type="button" class="back-btn" onclick="nav_back(this.parentElement.parentElement.parentElement)">
 						<img src="./icons/back.svg" alt="Back Button">
 					</button>
-					<h2>Work Environment</h2>
+					<h2 id="dialog-title">Work Environment</h2>
 				</div>
 
 				<div class="right-header">
@@ -149,9 +146,9 @@
 
 			</div>
 
-			<div class="dialog-main prop-list">
+			<div class="line" id="topline"></div>
 
-				<div class="line"></div>
+			<div class="dialog-main prop-list" id="prop-list">
 
 				<div class="dropdown-container prop-row">
 
@@ -201,19 +198,18 @@
 
 				</div>
 
-				<div class="line"></div>
-
 			</div>
+
+			<div class="line"></div>
 
 			<div class="dialog-footer">
 				<button type="button" class="prop-item-50 btn-secondary">Cancel</button>
 				<button type="button" class="prop-item-50 btn-primary">Save</button>
 			</div>
 
-		</div>
+		</div> -->
 
 	</div>
-
 
 
 	<!-- Footer Section ------------------------------------- -->
@@ -234,14 +230,16 @@
 
     </div>
 
+<script src="/assets/dialog.js"></script>
+<script src="./var.js"></script>
 <script src="./ui.js"></script>
-<script src="/assets/three.js"></script>
+<!-- <script src="/assets/three.js"></script>
 <script src="/assets/TransformControls.js"></script>
 <script src="/assets/OrbitControls.js"></script>
 <script src="/assets/STLLoader.js"></script>
 <script src="/assets/stats.min.js"></script>
 
-<script type="module" src="main.js"></script>
+<script type="module" src="main.js"></script> -->
 
 </body>
 

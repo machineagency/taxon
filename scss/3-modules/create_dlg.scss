@@ -1,0 +1,60 @@
+#create-dialog {
+   display: none;
+   width: 420px;
+   // height: 488px;
+}
+
+.lego-grid {
+   display: grid;
+   height: inherit;
+   grid-template-columns: 50% 50%;
+   grid-template-areas: "left-col right-col";
+   // padding: 0px 12px;
+   margin-bottom: 16px;
+}
+
+.lego-left-col {
+   grid-area: left-col;
+   padding-right: 8px;
+}
+
+
+.lego-right-col {
+   grid-area: right-col;
+   padding-left: 8px;
+}
+
+.lego {
+   width: 100%;
+   height: 120px;
+   margin-top: 16px;
+
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+
+   background: #F0F0F0;
+   border-radius: 6px;
+   @include transition(.2s);
+
+   img {
+      width: 100px;
+      margin-bottom: 16px;
+   }
+
+   &:first-of-type {
+      margin-top: 4px;
+   }
+
+   &:hover {
+      background: #EAEAEA;
+      transform: scale(1.01);
+      @include transition(.1s);
+   }
+
+   &:active {
+      transform: scale(0.99);
+      @include transition(.1s);
+   }
+}

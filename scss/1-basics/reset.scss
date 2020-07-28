@@ -29,10 +29,14 @@ input, button {
    
    &:hover {
       outline: none;
-      // cursor: pointer;
+      cursor: pointer;
    }
 
    &:focus {
       outline: none;
    }
+}
+
+input[type=text]:hover {
+   cursor: text;
 }
