@@ -181,10 +181,10 @@ class Machine {
             '+x,-z' : vFactory(+componentA.width + componentB.length, 0, 0),
             '-x,+z' : vFactory(-componentA.width - componentB.length, 0, 0),
             '-x,-z' : vFactory(-componentA.width - componentB.length, 0, 0),
-            '+z,+x' : vFactory(0, 0, +componentA.length + componentB.width),
-            '+z,-x' : vFactory(0, 0, +componentA.length + componentB.width),
-            '-z,+x' : vFactory(0, 0, -componentA.length - componentB.width),
-            '-z,-x' : vFactory(0, 0, -componentA.length - componentB.width),
+            '+z,+x' : vFactory(0, 0, +componentA.width + componentB.length),
+            '+z,-x' : vFactory(0, 0, +componentA.width + componentB.length),
+            '-z,+x' : vFactory(0, 0, -componentA.width - componentB.length),
+            '-z,-x' : vFactory(0, 0, -componentA.width - componentB.length),
         };
         let fStr = [faceA, faceB].join();
         let newBPos = (new THREE.Vector3()).copy(componentB.position);
