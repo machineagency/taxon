@@ -141,7 +141,7 @@ class Machine {
         // TODO: point offsets e.g. "left" except w.r.t. dimensions
         // FIXME: if B is connected, propagate rotate-translate to any
         // connected components
-        let { componentA, faceA, componentB, faceB } = connectionObj;
+        let { componentA, faceA, componentB, faceB, end } = connectionObj;
         let facePairsToRadians = {
             // Same dimension, same sign
             '+x,+x' : Math.PI,
@@ -188,6 +188,11 @@ class Machine {
             '-z,+x' : vFactory(0, 0, -componentA.width - componentB.length),
             '-z,-x' : vFactory(0, 0, -componentA.width - componentB.length),
         };
+        let endOffsets = {
+            '+' : vFactory(0, 0, +(componentA.length - componentB.width)),
+            '0' : vFactory(0, 0, 0),
+            '-' : vFactory(0, 0, -(componentA.length - componentB.width)),
+        };
         let fStr = [faceA, faceB].join();
         let unitY = new THREE.Vector3(0, 1, 0);
         let unitZ = new THREE.Vector3(0, 0, 1);
@@ -203,6 +208,11 @@ class Machine {
         translationVector.applyAxisAngle(unitY, connectRotationRadians);
         let newBPos = (new THREE.Vector3()).copy(componentA.position);
         newBPos.add(translationVector);
+
+        // Apply end offset, itself rotated to match ComponentA's quaternion
+        let endOffset = endOffsets[end]();
+        endOffset.applyAxisAngle(unitY, cARadians);
+        newBPos.add(endOffset);
 
         componentB.quaternion = componentA.quaternion;
         componentB.rotateOverAxis('y', connectRotationRadians);
@@ -308,16 +318,18 @@ class Machine {
             s1.placeOnComponent(be);
             this.setConnection({
                 componentA: s0,
-                faceA: '-z',
+                faceA: '+z',
                 componentB: s1,
-                faceB: '-x'
+                faceB: '-x',
+                end: '-'
             });
-            this.setConnection({
-                componentA: s1,
-                faceA: '-x',
-                componentB: s2,
-                faceB: '+x'
-            });
+             this.setConnection({
+                 componentA: s1,
+                 faceA: '-x',
+                 componentB: s2,
+                 faceB: '+x',
+                 end: '0'
+             });
             return this;
         }
     };
