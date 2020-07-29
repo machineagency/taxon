@@ -138,9 +138,6 @@ class Machine {
      */
     setConnection(connectionObj) {
         // TODO: currently only works for rotations in x, z dimensions
-        // TODO: point offsets e.g. "left" except w.r.t. dimensions
-        // FIXME: if B is connected, propagate rotate-translate to any
-        // connected components
         let { componentA, faceA, componentB, faceB, end } = connectionObj;
         let facePairsToRadians = {
             // Same dimension, same sign
@@ -148,11 +145,15 @@ class Machine {
             '+z,+z' : Math.PI,
             '-x,-x' : Math.PI,
             '-z,-z' : Math.PI,
+            '+y,+y' : Math.PI,
+            '-y,-y' : Math.PI,
             // Same dimension, different signs
             '+x,-x' : 0,
             '+z,-z' : 0,
             '-x,+x' : 0,
             '-z,+z' : 0,
+            '+y,-y' : 0,
+            '-y,+y' : 0,
             // XZ -> +pi / 2 * product of signs
             '+x,+z' : +Math.PI / 2,
             '+x,-z' : -Math.PI / 2,
@@ -163,6 +164,10 @@ class Machine {
             '+z,-x' : +Math.PI / 2,
             '-z,+x' : +Math.PI / 2,
             '-z,-x' : -Math.PI / 2
+            // XY
+            // YX
+            // ZY
+            // YZ
         };
         let vFactory = (x, y, z) => {
             return () => {
@@ -187,6 +192,10 @@ class Machine {
             '+z,-x' : vFactory(0, 0, +componentA.width + componentB.length),
             '-z,+x' : vFactory(0, 0, -componentA.width - componentB.length),
             '-z,-x' : vFactory(0, 0, -componentA.width - componentB.length),
+            '+y,+y' : vFactory(0, +componentA.height + componentB.height, 0),
+            '+y,-y' : vFactory(0, +componentA.height + componentB.height, 0),
+            '-y,+y' : vFactory(0, -componentA.height - componentB.height, 0),
+            '-y,-y' : vFactory(0, -componentA.height - componentB.height, 0)
         };
         let endOffsets = {
             '+' : vFactory(0, 0, +(componentA.length - componentB.width)),
@@ -309,27 +318,27 @@ class Machine {
                 height: 25,
                 length: 200
             });
-            let s2 = new LinearStage(this, {
-                width: 50,
-                height: 25,
-                length: 150
-            });
+            // let s2 = new LinearStage(this, {
+            //     width: 50,
+            //     height: 25,
+            //     length: 150
+            // });
             s0.placeOnComponent(be);
             s1.placeOnComponent(be);
             this.setConnection({
                 componentA: s0,
-                faceA: '+z',
+                faceA: '+y',
                 componentB: s1,
-                faceB: '-x',
-                end: '-'
+                faceB: '-y',
+                end: '0'
             });
-             this.setConnection({
-                 componentA: s1,
-                 faceA: '-x',
-                 componentB: s2,
-                 faceB: '+x',
-                 end: '0'
-             });
+            // this.setConnection({
+            //     componentA: s1,
+            //     faceA: '-x',
+            //     componentB: s2,
+            //     faceB: '+x',
+            //     end: '0'
+            // });
             return this;
         }
     };
