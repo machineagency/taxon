@@ -169,38 +169,36 @@ class Machine {
             // ZY
             // YZ
         };
-        let vFactory = (x, y, z) => {
-            return () => {
-                return new THREE.Vector3(x, y, z).multiplyScalar(0.5);
+        let facePairsToTranslationVectorFn = (fStr) => {
+            // Translation dimension is dim(A)
+            // Distance is sign(A) * (cA.dim(A) + cB.dim(B))
+            let signA = fStr[0] === '-' ? -1 : +1;
+            let axisA = fStr[1];
+            let axisB = fStr[4];
+            let axisToDim = {
+                'x': 'width',
+                'y': 'height',
+                'z': 'length'
+            };
+            let dimA = axisToDim[axisA];
+            let dimB = axisToDim[axisB];
+            let transDist = signA * (componentA[dimA] + componentB[dimB]);
+            if (axisA === 'x') {
+                return new THREE.Vector3(transDist, 0, 0).multiplyScalar(0.5);
+            }
+            if (axisA === 'y') {
+                return new THREE.Vector3(0, transDist, 0).multiplyScalar(0.5);
+            }
+            if (axisA === 'z') {
+                return new THREE.Vector3(0, 0, transDist).multiplyScalar(0.5);
             }
         };
-        let facePairsToTranslationVectorFn = {
-            // Translation dimension is dim(A), operand is sign(A)
-            '+x,+x' : vFactory(+componentA.width + componentB.width, 0, 0),
-            '+x,-x' : vFactory(+componentA.width + componentB.width, 0, 0),
-            '-x,+x' : vFactory(-componentA.width - componentB.width, 0, 0),
-            '-x,-x' : vFactory(-componentA.width - componentB.width, 0, 0),
-            '+z,+z' : vFactory(0, 0, +componentA.length + componentB.length),
-            '+z,-z' : vFactory(0, 0, +componentA.length + componentB.length),
-            '-z,+z' : vFactory(0, 0, -componentA.length - componentB.length),
-            '-z,-z' : vFactory(0, 0, -componentA.length - componentB.length),
-            '+x,+z' : vFactory(+componentA.width + componentB.length, 0, 0),
-            '+x,-z' : vFactory(+componentA.width + componentB.length, 0, 0),
-            '-x,+z' : vFactory(-componentA.width - componentB.length, 0, 0),
-            '-x,-z' : vFactory(-componentA.width - componentB.length, 0, 0),
-            '+z,+x' : vFactory(0, 0, +componentA.width + componentB.length),
-            '+z,-x' : vFactory(0, 0, +componentA.width + componentB.length),
-            '-z,+x' : vFactory(0, 0, -componentA.width - componentB.length),
-            '-z,-x' : vFactory(0, 0, -componentA.width - componentB.length),
-            '+y,+y' : vFactory(0, +componentA.height + componentB.height, 0),
-            '+y,-y' : vFactory(0, +componentA.height + componentB.height, 0),
-            '-y,+y' : vFactory(0, -componentA.height - componentB.height, 0),
-            '-y,-y' : vFactory(0, -componentA.height - componentB.height, 0)
-        };
         let endOffsets = {
-            '+' : vFactory(0, 0, +(componentA.length - componentB.width)),
-            '0' : vFactory(0, 0, 0),
-            '-' : vFactory(0, 0, -(componentA.length - componentB.width)),
+            '+' : new THREE.Vector3(0, 0, +(componentA.length - componentB.width))
+                            .multiplyScalar(0.5),
+            '-' : new THREE.Vector3(0, 0, -(componentA.length - componentB.width))
+                            .multiplyScalar(0.5),
+            '0' : new THREE.Vector3(0, 0, 0),
         };
         let fStr = [faceA, faceB].join();
         let unitY = new THREE.Vector3(0, 1, 0);
@@ -209,7 +207,7 @@ class Machine {
 
         // Rotate translation vector to match ComponentA's quaternion
         let cARadians = unitZQuat.angleTo(componentA.quaternion);
-        let translationVector = facePairsToTranslationVectorFn[fStr]();
+        let translationVector = facePairsToTranslationVectorFn(fStr);
         translationVector.applyAxisAngle(unitY, cARadians);
 
         // Rotate translation vector according to table
@@ -219,7 +217,7 @@ class Machine {
         newBPos.add(translationVector);
 
         // Apply end offset, itself rotated to match ComponentA's quaternion
-        let endOffset = endOffsets[end]();
+        let endOffset = endOffsets[end];
         endOffset.applyAxisAngle(unitY, cARadians);
         newBPos.add(endOffset);
 
@@ -327,9 +325,9 @@ class Machine {
             s1.placeOnComponent(be);
             this.setConnection({
                 componentA: s0,
-                faceA: '+y',
+                faceA: '+x',
                 componentB: s1,
-                faceB: '-y',
+                faceB: '-z',
                 end: '0'
             });
             // this.setConnection({
