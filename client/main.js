@@ -139,7 +139,7 @@ class Machine {
     setConnection(connectionObj) {
         // TODO: currently only works for rotations in x, z dimensions
         let { componentA, faceA, componentB, faceB, end } = connectionObj;
-        let facePairsToRadians = {
+        let facePairsToRadiansOld = {
             // Same dimension, same sign
             '+x,+x' : Math.PI,
             '+z,+z' : Math.PI,
@@ -168,6 +168,38 @@ class Machine {
             // YX
             // ZY
             // YZ
+        };
+        let facePairsToRadians = (fStr) => {
+            let signA = fStr[0] === '-' ? -1 : +1;
+            let signB = fStr[3] === '-' ? -1 : +1;
+            let axisA = fStr[1];
+            let axisB = fStr[4];
+            // TODO
+        };
+        let facePairsToRotationAxis = (fStr) => {
+            let axisA = fStr[1];
+            let axisB = fStr[4];
+            if (axisA === 'x' && axisB === 'y'
+                || axisA === 'y' && axisB === 'x') {
+                return new THREE.Vector3(0, 0, 1);
+            }
+            if (axisA === 'x' && axisB === 'z'
+                || axisA === 'z' && axisB === 'x') {
+                return new THREE.Vector3(0, 1, 0);
+            }
+            if (axisA === 'y' && axisB === 'z'
+                || axisA === 'z' && axisB === 'y') {
+                return new THREE.Vector3(1, 0, 0);
+            }
+            if (axisA === 'x' && axisB === 'x') {
+                return new THREE.Vector3(0, 1, 0);
+            }
+            if (axisA === 'y' && axisB === 'y') {
+                return new THREE.Vector3(1, 0, 0);
+            }
+            if (axisA === 'z' && axisB === 'z') {
+                return new THREE.Vector3(0, 1, 0);
+            }
         };
         let facePairsToTranslationVectorFn = (fStr) => {
             // Translation dimension is dim(A)
@@ -206,19 +238,22 @@ class Machine {
         let unitZQuat = (new THREE.Quaternion()).setFromAxisAngle(unitZ, 0);
 
         // Rotate translation vector to match ComponentA's quaternion
+        // FIXME: can we still assume unitZ is the base? maybe
+        let rotationAxis = facePairsToRotationAxis(fStr);
+        console.log(rotationAxis);
         let cARadians = unitZQuat.angleTo(componentA.quaternion);
         let translationVector = facePairsToTranslationVectorFn(fStr);
-        translationVector.applyAxisAngle(unitY, cARadians);
+        translationVector.applyAxisAngle(rotationAxis, cARadians);
 
         // Rotate translation vector according to table
-        let connectRotationRadians = facePairsToRadians[fStr];
-        translationVector.applyAxisAngle(unitY, connectRotationRadians);
+        let connectRotationRadians = facePairsToRadiansOld[fStr];
+        translationVector.applyAxisAngle(rotationAxis, connectRotationRadians);
         let newBPos = (new THREE.Vector3()).copy(componentA.position);
         newBPos.add(translationVector);
 
         // Apply end offset, itself rotated to match ComponentA's quaternion
         let endOffset = endOffsets[end];
-        endOffset.applyAxisAngle(unitY, cARadians);
+        endOffset.applyAxisAngle(rotationAxis, cARadians);
         newBPos.add(endOffset);
 
         componentB.quaternion = componentA.quaternion;
