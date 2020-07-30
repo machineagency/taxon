@@ -137,44 +137,31 @@ class Machine {
      * }
      */
     setConnection(connectionObj) {
-        // TODO: currently only works for rotations in x, z dimensions
         let { componentA, faceA, componentB, faceB, end } = connectionObj;
-        let facePairsToRadiansOld = {
-            // Same dimension, same sign
-            '+x,+x' : Math.PI,
-            '+z,+z' : Math.PI,
-            '-x,-x' : Math.PI,
-            '-z,-z' : Math.PI,
-            '+y,+y' : Math.PI,
-            '-y,-y' : Math.PI,
-            // Same dimension, different signs
-            '+x,-x' : 0,
-            '+z,-z' : 0,
-            '-x,+x' : 0,
-            '-z,+z' : 0,
-            '+y,-y' : 0,
-            '-y,+y' : 0,
-            // XZ -> +pi / 2 * product of signs
-            '+x,+z' : +Math.PI / 2,
-            '+x,-z' : -Math.PI / 2,
-            '-x,+z' : -Math.PI / 2,
-            '-x,-z' : +Math.PI / 2,
-            // ZX -> -pi / 2 * product of signs
-            '+z,+x' : -Math.PI / 2,
-            '+z,-x' : +Math.PI / 2,
-            '-z,+x' : +Math.PI / 2,
-            '-z,-x' : -Math.PI / 2
-            // XY
-            // YX
-            // ZY
-            // YZ
-        };
         let facePairsToRadians = (fStr) => {
             let signA = fStr[0] === '-' ? -1 : +1;
             let signB = fStr[3] === '-' ? -1 : +1;
             let axisA = fStr[1];
             let axisB = fStr[4];
-            // TODO
+            if (axisA === axisB) {
+                if (signA === signB) {
+                    return Math.PI;
+                }
+                else {
+                    return 0;
+                }
+            }
+            else {
+                // FIXME: are these the ones we want? Check geometric intuition
+                if (axisA === 'x' && axisB === 'y' ||
+                    axisA === 'x' && axisB === 'z' ||
+                    axisA === 'y' && axisB === 'z') {
+                    return signA * signB * Math.PI / 2;
+                }
+                else {
+                    return -(signA * signB * Math.PI / 2);
+                }
+            }
         };
         let facePairsToRotationAxis = (fStr) => {
             let axisA = fStr[1];
@@ -225,6 +212,7 @@ class Machine {
                 return new THREE.Vector3(0, 0, transDist).multiplyScalar(0.5);
             }
         };
+        // FIXME: generalize offset for any rotation
         let endOffsets = {
             '+' : new THREE.Vector3(0, 0, +(componentA.length - componentB.width))
                             .multiplyScalar(0.5),
@@ -246,7 +234,7 @@ class Machine {
         translationVector.applyAxisAngle(rotationAxis, cARadians);
 
         // Rotate translation vector according to table
-        let connectRotationRadians = facePairsToRadiansOld[fStr];
+        let connectRotationRadians = facePairsToRadians(fStr);
         translationVector.applyAxisAngle(rotationAxis, connectRotationRadians);
         let newBPos = (new THREE.Vector3()).copy(componentA.position);
         newBPos.add(translationVector);
@@ -257,7 +245,7 @@ class Machine {
         newBPos.add(endOffset);
 
         componentB.quaternion = componentA.quaternion;
-        componentB.rotateOverAxis('y', connectRotationRadians);
+        componentB.rotateOverAxis(rotationAxis, connectRotationRadians);
         componentB.position = newBPos;
         this.connections.push(connectionObj);
         return this;
@@ -360,9 +348,9 @@ class Machine {
             s1.placeOnComponent(be);
             this.setConnection({
                 componentA: s0,
-                faceA: '+x',
+                faceA: '-x',
                 componentB: s1,
-                faceB: '-z',
+                faceB: '+y',
                 end: '0'
             });
             // this.setConnection({
@@ -602,18 +590,8 @@ class StrangeComponent {
         this.rotatedToPlane = true;
     }
 
-    rotateOverAxis(axisName, radians) {
-        let axis;
+    rotateOverAxis(axis, radians) {
         let rotateQuaternion = new THREE.Quaternion();
-        if (axisName === 'x') {
-            axis = new THREE.Vector3(1, 0, 0);
-        }
-        if (axisName === 'y') {
-            axis = new THREE.Vector3(0, 1, 0);
-        }
-        if (axisName === 'z') {
-            axis = new THREE.Vector3(0, 0, 1);
-        }
         rotateQuaternion.setFromAxisAngle(axis, radians);
         this.meshGroup.applyQuaternion(rotateQuaternion);
     }
