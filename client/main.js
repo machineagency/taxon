@@ -214,10 +214,8 @@ class Machine {
         };
         // FIXME: generalize offset for any rotation
         let endOffsets = {
-            '+' : new THREE.Vector3(0, 0, +(componentA.length - componentB.width))
-                            .multiplyScalar(0.5),
-            '-' : new THREE.Vector3(0, 0, -(componentA.length - componentB.width))
-                            .multiplyScalar(0.5),
+            '+' : new THREE.Vector3(0, 0, +(componentA.length / 2 - componentB.width)),
+            '-' : new THREE.Vector3(0, 0, -(componentA.length / 2 - componentB.width)),
             '0' : new THREE.Vector3(0, 0, 0),
         };
         // NOTE: reverse order faces otherwise connections are in backwards
@@ -235,14 +233,16 @@ class Machine {
         let newBPos = (new THREE.Vector3()).copy(componentA.position);
         newBPos.add(translationVector);
 
-        // Apply end offset, itself rotated to match ComponentA's quaternion
-        let endOffset = endOffsets[end];
-        endOffset.applyQuaternion(componentA.quaternion);
-        newBPos.add(endOffset);
-
+        // Apply rotation and translation (except for offset)
         componentB.quaternion = componentA.quaternion;
         componentB.rotateOverAxis(rotationAxis, connectRotationRadians);
         componentB.position = newBPos;
+
+        // Apply end offset, itself rotated to match ComponentB's quaternion
+        let endOffset = endOffsets[end];
+        endOffset.applyQuaternion(componentB.quaternion);
+        componentB.position = componentB.position.add(endOffset);
+
         this.connections.push(connectionObj);
         return this;
     }
@@ -344,16 +344,16 @@ class Machine {
             s1.placeOnComponent(be);
             this.setConnection({
                 componentA: s0,
-                faceA: '+x',
+                faceA: '-z',
                 componentB: s1,
-                faceB: '-z',
-                end: '0'
+                faceB: '+x',
+                end: '+'
             });
             this.setConnection({
                 componentA: s1,
-                faceA: '+z',
+                faceA: '+y',
                 componentB: s2,
-                faceB: '+y',
+                faceB: '+z',
                 end: '0'
             });
             return this;
