@@ -307,12 +307,12 @@ class Machine {
                 height: 25,
                 length: 50
             });
-            let stageTop = new LinearStage(this, {
+            let stageTop = new LinearStage('top', this, {
                 width: 250,
                 height: 25,
                 length: 50
             });
-            let stageBottom = new LinearStage(this, {
+            let stageBottom = new LinearStage('bottom', this, {
                 width: 50,
                 height: 25,
                 length: 250
@@ -799,7 +799,7 @@ class ToolAssembly extends Lego {
         this.material = new THREE.MeshLambertMaterial({
             color : Tool.color,
             transparent: true,
-            opacity: 0.5
+            opacity: 0.1
         });
         this.edgesMaterial = new THREE.LineBasicMaterial({
             color: 0x222222
@@ -825,8 +825,7 @@ class ToolAssembly extends Lego {
 class LinearStage extends Lego {
     static caseColor = 0x222222;
     static platformColor = 0xf99292;
-    constructor(parentMachine, dimensions) {
-        name = 'LinearStage';
+    constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
         this.renderDimensions();
     }
@@ -839,7 +838,7 @@ class LinearStage extends Lego {
         this.caseMaterial = new THREE.MeshLambertMaterial({
             color : LinearStage.caseColor,
             transparent: true,
-            opacity: 0.1
+            opacity: 0.05
         });
         this.edgesMaterial = new THREE.LineBasicMaterial({
             color: 0x222222
@@ -872,8 +871,10 @@ class Compiler {
         let progConnections = machine.connections.map((connection) => {
             return {
                 baseComponent: connection.componentA.id,
+                baseComponentName: connection.componentA.name,
                 baseComponentFace: connection.faceA,
                 addComponent: connection.componentB.id,
+                addComponentName: connection.componentB.name,
                 addComponentFace: connection.faceB,
                 addComponentEnd: connection.end
             }
