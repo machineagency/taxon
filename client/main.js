@@ -221,19 +221,14 @@ class Machine {
             '0' : new THREE.Vector3(0, 0, 0),
         };
         let fStr = [faceA, faceB].join();
-        let unitY = new THREE.Vector3(0, 1, 0);
-        let unitZ = new THREE.Vector3(0, 0, 1);
-        let unitZQuat = (new THREE.Quaternion()).setFromAxisAngle(unitZ, 0);
 
         // Rotate translation vector to match ComponentA's quaternion
-        // FIXME: can we still assume unitZ is the base? maybe
-        let rotationAxis = facePairsToRotationAxis(fStr);
-        console.log(rotationAxis);
-        let cARadians = unitZQuat.angleTo(componentA.quaternion);
+        // FIXME: try instead just setting componentB to A's pos and quat first
         let translationVector = facePairsToTranslationVectorFn(fStr);
-        translationVector.applyAxisAngle(rotationAxis, cARadians);
+        translationVector.applyQuaternion(componentA.quaternion);
 
         // Rotate translation vector according to table
+        let rotationAxis = facePairsToRotationAxis(fStr);
         let connectRotationRadians = facePairsToRadians(fStr);
         translationVector.applyAxisAngle(rotationAxis, connectRotationRadians);
         let newBPos = (new THREE.Vector3()).copy(componentA.position);
@@ -241,7 +236,7 @@ class Machine {
 
         // Apply end offset, itself rotated to match ComponentA's quaternion
         let endOffset = endOffsets[end];
-        endOffset.applyAxisAngle(rotationAxis, cARadians);
+        endOffset.applyQuaternion(componentA.quaternion);
         newBPos.add(endOffset);
 
         componentB.quaternion = componentA.quaternion;
@@ -339,27 +334,27 @@ class Machine {
                 height: 25,
                 length: 200
             });
-            // let s2 = new LinearStage(this, {
-            //     width: 50,
-            //     height: 25,
-            //     length: 150
-            // });
+            let s2 = new LinearStage(this, {
+                width: 50,
+                height: 25,
+                length: 150
+            });
             s0.placeOnComponent(be);
             s1.placeOnComponent(be);
             this.setConnection({
                 componentA: s0,
-                faceA: '-x',
+                faceA: '+x',
                 componentB: s1,
-                faceB: '+y',
+                faceB: '-z',
                 end: '0'
             });
-            // this.setConnection({
-            //     componentA: s1,
-            //     faceA: '-x',
-            //     componentB: s2,
-            //     faceB: '+x',
-            //     end: '0'
-            // });
+            this.setConnection({
+                componentA: s1,
+                faceA: '+y',
+                componentB: s2,
+                faceB: '+z',
+                end: '0'
+            });
             return this;
         }
     };
