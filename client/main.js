@@ -308,20 +308,34 @@ class Machine {
                 length: 50
             });
             let stageTop = new LinearStage(this, {
-                length: 250
+                width: 250,
+                height: 25,
+                length: 50
             });
             let stageBottom = new LinearStage(this, {
+                width: 50,
+                height: 25,
                 length: 250
             });
             we.placeOnComponent(be);
             we.movePosition(-100, 0, 0);
             stageBottom.placeOnComponent(be);
-            stageTop.movePosition(0, 76.5, 0);
-            stageTop.rotateOverXYPlane();
-            stageTop.rotateOverXYPlane();
-            stageTop.rotateOnXYPlane();
-            tool.movePosition(-131, -76.5, 0)
-            toolAssembly.movePosition(-131, -73.5, 0)
+            this.setConnection({
+                componentA: stageBottom,
+                faceA: '-y',
+                componentB: stageTop,
+                faceB: '+y',
+                end: '0'
+            });
+            this.setConnection({
+                componentA: stageTop,
+                faceA: '+x',
+                componentB: toolAssembly,
+                faceB: '-x',
+                end: '0'
+            });
+            // tool.movePosition(-131, -76.5, 0)
+            // toolAssembly.movePosition(-131, -73.5, 0)
             return this;
         },
         connectionSandbox: () => {
@@ -894,8 +908,8 @@ let makeLoadStlPromise = (filepath, strangeScene) => {
 
 function main() {
     let ss = new StrangeScene();
-    let machine = new Machine('MyPlotter', ss);
-    machine.presetLoaders.connectionSandbox();
+    let machine = new Machine('Axidraw', ss);
+    machine.presetLoaders.axidraw();
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
