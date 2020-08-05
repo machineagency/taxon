@@ -297,22 +297,22 @@ class Machine {
                 length: 250,
                 width: 250
             });
-            let tool = new Tool(this, {
+            let tool = new Tool('Sharpie', this, {
                 type: 'pen',
                 height: 50,
                 radius: 5
             });
-            let toolAssembly = new ToolAssembly(this, {
+            let toolAssembly = new ToolAssembly('Servo', this, {
                 width: 12.5,
                 height: 25,
                 length: 50
             });
-            let stageTop = new LinearStage('top', this, {
+            let stageTop = new LinearStage('Top', this, {
                 width: 250,
                 height: 25,
                 length: 50
             });
-            let stageBottom = new LinearStage('bottom', this, {
+            let stageBottom = new LinearStage('Bottom', this, {
                 width: 50,
                 height: 25,
                 length: 250
@@ -753,9 +753,9 @@ class Lego extends StrangeComponent {
 class Tool extends Lego {
     static color = 0xe44242;
     static defaultPosition = new THREE.Vector3(0, 150, 0);
-    constructor(parentMachine, dimensions) {
-        name = 'Tool';
+    constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
+        this.componentType = 'Tool';
         this.renderDimensions();
     }
 
@@ -785,9 +785,9 @@ class Tool extends Lego {
 class ToolAssembly extends Lego {
     static color = 0xf36f6f;
     static defaultPosition = new THREE.Vector3(0, 150, 0);
-    constructor(parentMachine, dimensions) {
-        name = 'ToolAssembly';
+    constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
+        this.componentType = 'ToolAssembly'
         this.renderDimensions();
     }
 
@@ -827,6 +827,7 @@ class LinearStage extends Lego {
     static platformColor = 0xf99292;
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
+        this.componentType = 'LinearStage';
         this.renderDimensions();
     }
 
