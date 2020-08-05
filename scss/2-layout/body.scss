@@ -4,7 +4,7 @@ body {
 	background: #F0F0F0; /* temporary */
 
 	display: grid;
-	grid-template-rows: 70px auto 100px;
+	grid-template-rows: 74px auto 100px;
 	grid-template-areas: 
 		"body-header"
 		"body-main"
@@ -17,6 +17,7 @@ body {
    justify-content: center;
    z-index: 10;
    pointer-events: none;
+   padding: 12px;
 }
 
 #container {

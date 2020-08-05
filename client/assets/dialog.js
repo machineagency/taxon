@@ -2,7 +2,7 @@ class Dialog {
 
    constructor() {
       this.dlg = document.createElement("div");
-      this.dlg.classList.add("dialog", "dialog-right", "prop-dialog");
+      this.dlg.classList.add("dialog", "dialog-right", "prop-dialog", "prop-dialog-md");
       this.dlg.setAttribute("id", "right-dialog");
       this.dlg.innerHTML =
          `<div class="dialog-header">
@@ -54,6 +54,26 @@ class Dialog {
       let json_obj = lego_prop[type];
       this.dlg.setAttribute( "id", type.replace("obj","dialog") );
       this.title.innerHTML = json_obj["Name"];
+
+      switch(json_obj["Width"]) {
+         case "small":
+            this.dlg.classList.remove("prop-dialog-md");
+            this.dlg.classList.remove("prop-dialog-lg");
+            this.dlg.classList.add("prop-dialog-sm");
+            break;
+         case "medium":
+            this.dlg.classList.remove("prop-dialog-sm");
+            this.dlg.classList.remove("prop-dialog-lg");
+            this.dlg.classList.add("prop-dialog-md");
+            break;
+         case "large":
+            this.dlg.classList.remove("prop-dialog-sm");
+            this.dlg.classList.remove("prop-dialog-md");
+            this.dlg.classList.add("prop-dialog-lg");
+            break;
+      }
+
+      console.log(this.dlg.classList)
 
       json_obj["Data"].forEach(prop_row => {
          

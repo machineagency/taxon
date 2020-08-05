@@ -45,37 +45,45 @@ h1 {
 }
 
 h2 {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 700;
-  line-height: 18px;
-  padding: 16px 0px;
+  line-height: 16px;
   color: #202020;
 }
 
 input[type=text] {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 400;
 }
 
 button {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 14px;
   font-weight: 600;
   letter-spacing: 0.2px;
 }
 
 p {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 400;
   line-height: 1;
+  letter-spacing: -0.2px;
   color: #6A6A6A;
+}
+
+label {
+  font-size: 14px;
+}
+
+select, option {
+  font-size: 14px;
 }
 
 .line {
   height: 1px;
   width: 100%;
   margin: 0 auto;
-  background: #D0D0D0;
+  background: #DADADA;
 }
 .line:first-of-type {
   background: #242424;
@@ -119,7 +127,7 @@ body {
   background: #F0F0F0;
   /* temporary */
   display: grid;
-  grid-template-rows: 70px auto 100px;
+  grid-template-rows: 74px auto 100px;
   grid-template-areas: "body-header" "body-main" "body-footer";
 }
 
@@ -129,6 +137,7 @@ body {
   justify-content: center;
   z-index: 10;
   pointer-events: none;
+  padding: 12px;
 }
 
 #container {
@@ -159,7 +168,6 @@ body {
   display: grid;
   grid-template-columns: [hc1] 360px [hc2] auto [hc3] 360px [hc4];
   grid-template-areas: "nav-left nav-mid nav-right";
-  margin-top: 16px;
 }
 
 .nav-left, .nav-mid, .nav-right {
@@ -187,9 +195,8 @@ body {
 
 .dialog {
   position: absolute;
-  margin-top: 16px;
   top: 0;
-  padding: 4px 12px;
+  padding: 6px;
   background: white;
   border-radius: 20px;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.05);
@@ -202,7 +209,7 @@ body {
 .dialog-left {
   left: 0;
   margin-left: 16px;
-  padding: 4px 8px;
+  padding: 6px;
 }
 
 .dialog-right {
@@ -210,26 +217,18 @@ body {
   margin-right: 16px;
 }
 .dialog-right .line {
-  width: calc(100% - 20px);
-  margin-bottom: 16px;
-}
-
-.dialog-header, .dialog-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 8px;
-}
-
-.dialog-header {
-  padding: 0px 12px;
+  width: calc(100% - 24px);
+  margin-bottom: 12px;
 }
 
 .prop-dialog {
-  width: 420px;
+  width: 384px;
   height: fit-content;
   padding: 0px 12px;
   padding-top: 4px;
+}
+.prop-dialog .dialog-header {
+  padding-left: 4px;
 }
 .prop-dialog .left-header {
   display: flex;
@@ -240,8 +239,31 @@ body {
   margin-right: 8px;
 }
 
-.dialog-main {
+.prop-dialog-sm {
+  width: 360px;
+}
+
+.prop-dialog-md {
+  width: 384px;
+}
+
+.prop-dialog-lg {
+  width: 412px;
+}
+
+.dialog-header, .dialog-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 0 8px;
+}
+
+.dialog-header {
+  padding: 12px;
+}
+
+.dialog-main {
+  padding: 0 12px;
 }
 
 .dialog-footer {
@@ -250,7 +272,8 @@ body {
 
 #create-dialog {
   display: none;
-  width: 420px;
+  width: 376px;
+  height: fit-content;
 }
 
 .lego-grid {
@@ -258,23 +281,23 @@ body {
   height: inherit;
   grid-template-columns: 50% 50%;
   grid-template-areas: "left-col right-col";
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .lego-left-col {
   grid-area: left-col;
-  padding-right: 8px;
+  padding-right: 6px;
 }
 
 .lego-right-col {
   grid-area: right-col;
-  padding-left: 8px;
+  padding-left: 6px;
 }
 
 .lego {
   width: 100%;
   height: 120px;
-  margin-top: 16px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -286,11 +309,11 @@ body {
   transition: all 0.2s cubic-bezier(0.5, 1, 0.5, 1);
 }
 .lego img {
-  width: 100px;
+  width: 108px;
   margin-bottom: 16px;
 }
 .lego:first-of-type {
-  margin-top: 4px;
+  margin-top: 0px;
 }
 .lego:hover {
   background: #EAEAEA;
@@ -311,10 +334,18 @@ body {
   height: fit-content;
 }
 
+.dialog-main#objectlist {
+  padding: 0px;
+}
+
+#objectlist .line {
+  width: calc(100% - 24px);
+  margin: 0px auto;
+}
+
 .list-item {
   width: 100%;
-  padding: 16px 12px;
-  padding: 16px 8px;
+  padding: 15px 12px;
   margin: 6px 0px;
   border-radius: 10px;
   text-align: left;
@@ -341,17 +372,20 @@ body {
   color: #444;
   font-weight: 600;
 }
+.list-item:last-child {
+  margin-bottom: 0px;
+}
 
 .navbar {
-  width: calc(100vw - 32px);
-  height: 54px;
+  height: 50px;
+  width: 100%;
   border-radius: 30px;
   background: #242931;
   pointer-events: all;
 }
 
 input[type=text]#filename {
-  font-size: 16px;
+  font-size: 15px;
   width: 200px;
   color: #EAEAEA;
   text-align: center;
@@ -360,11 +394,11 @@ input[type=text]#filename {
 .nav-btn {
   /* Styling */
   width: fit-content;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   background: #494E57;
   color: #EAEAEA;
   /* Sizing */
-  padding: 14px 15px 14px 15px;
+  padding: 12px 14px 12px 14px;
   border-radius: 6px;
   margin: 6px;
 }
@@ -378,13 +412,13 @@ input[type=text]#filename {
 
 #navbtn-leftmost {
   border-radius: 20px 6px 6px 20px;
-  padding: 14px 14px 14px 16px;
+  padding: 12px 14px 12px 16px;
   margin-right: 0;
 }
 
 #navbtn-rightmost {
   border-radius: 6px 20px 20px 6px;
-  padding: 14px 16px 14px 14px;
+  padding: 12px 16px 12px 14px;
   margin-left: 0;
 }
 
@@ -443,15 +477,15 @@ input[type=text]#filename {
 }
 
 .dropdown-label {
-  flex: 0 0 72px;
-  font-size: 15px;
+  flex: 0 0 48px;
+  margin-right: 2px;
   color: #888888;
 }
 
 .prop-field, select {
   border: 1px solid #CCC;
   border-radius: 4px;
-  padding: 12px;
+  padding: 12px 10px 12px 10px;
   text-align: right;
 }
 
@@ -481,7 +515,7 @@ select:hover {
 
 .prop-item-33 {
   flex: 1 1 auto;
-  margin-right: 10px;
+  margin-right: 8px;
 }
 .prop-item-33:last-child {
   margin-right: 0;

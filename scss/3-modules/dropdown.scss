@@ -14,16 +14,15 @@
 }
 
 .dropdown-label {
-   // width: 72px;
-   flex: 0 0 72px;
-   font-size: 15px;
+   flex: 0 0 48px;
+   margin-right: 2px;
    color: $gray-label;
 }
 
 .prop-field, select {
    border: 1px solid #CCC;
    border-radius: 4px;
-   padding: 12px;
+   padding: 12px 10px 12px 10px;
 
    text-align: right;
 }
@@ -56,7 +55,7 @@ select:hover {
 
 .prop-item-33 {
    flex: 1 1 auto;
-   margin-right: 10px;
+   margin-right: 8px;
 
    &:last-child {
       margin-right: 0;

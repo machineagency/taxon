@@ -5,28 +5,36 @@ h1 {
 }
 
 h2 {
-   font-size: 17px;
+   font-size: 15px;
    font-weight: 700;
-   line-height: 18px;
-   padding: 16px 0px;
+   line-height: 16px;
    color: #202020;
 }
 
 input[type=text] {
-   font-size: 15px;
+   font-size: 14px;
    font-weight: 400;
 }
 
 button {
-   font-size: 14px;
+   font-size: 13px;
 	line-height: 14px;
    font-weight: 600;
    letter-spacing: 0.2px;
 }
 
 p {
-   font-size: 15px;
+   font-size: 14px;
    font-weight: 400;
    line-height: 1;
+   letter-spacing: -0.2px;
    color: #6A6A6A;
+}
+
+label {
+   font-size: 14px;
+}
+
+select, option {
+   font-size: 14px;
 }

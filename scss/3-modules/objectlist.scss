@@ -3,10 +3,18 @@
    height: fit-content;
 }
 
+.dialog-main#objectlist {
+   padding: 0px;
+}
+
+#objectlist .line {
+   width: calc(100% - 24px);
+   margin: 0px auto;
+}
+
 .list-item {
    width: 100%;
-   padding: 16px 12px;
-   padding: 16px 8px;
+   padding: 15px 12px;
    margin: 6px 0px;
    border-radius: 10px;
    text-align: left;
@@ -37,5 +45,9 @@
          color: #444;
          font-weight: 600;
       }
+   }
+
+   &:last-child {
+      margin-bottom: 0px;
    }
 }

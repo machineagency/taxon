@@ -1,9 +1,8 @@
 .dialog {
    position: absolute;
-   margin-top: 16px; 
    top: 0;
 
-   padding: 4px 12px;
+   padding: 6px;
    background: rgb(255, 255, 255);
    border-radius: 20px;
    box-shadow: 0px 2px 10px rgba(0,0,0,0.05);
@@ -15,7 +14,7 @@
 .dialog-left {
    left: 0;
    margin-left: 16px;
-   padding: 4px 8px;
+   padding: 6px;
 }
 
 .dialog-right {
@@ -23,27 +22,20 @@
    margin-right: 16px;
 
    .line {
-      width: calc(100% - 20px);
-      margin-bottom: 16px;
+      width: calc(100% - 24px);
+      margin-bottom: 12px;
    }
 }
 
-.dialog-header, .dialog-footer {
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
-   padding: 0 8px;
-}
-
-.dialog-header {
-   padding: 0px 12px;
-}
-
 .prop-dialog {
-   width: 420px;
+   width: 384px;
    height: fit-content;
    padding: 0px 12px;
    padding-top: 4px;
+
+   .dialog-header {
+      padding-left: 4px;
+   }
 
    .left-header {
       display: flex;
@@ -57,11 +49,25 @@
    
 }
 
-.dialog-main {
-   // padding: 0 12px;
+.prop-dialog-sm { width: 360px }
+
+.prop-dialog-md { width: 384px }
+
+.prop-dialog-lg { width: 412px }
+
+.dialog-header, .dialog-footer {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
    padding: 0 8px;
-   // width: calc(100% - 16px);
-   // margin: 0px;
+}
+
+.dialog-header {
+   padding: 12px;
+}
+
+.dialog-main {
+   padding: 0 12px;
 }
 
 .dialog-footer {

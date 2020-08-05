@@ -62,9 +62,10 @@ JSON syntax:
 let lego_prop = {
    "work-env-obj" : {
       "Name" : "Work Environment",
+      "Width" : "small",
       "Data" : [
          [ { "Type": ["2D", "3D", "Custom"] }, { "Shape": ["Circle","Rectangle","Polygon", "Sphere", "Cylinder", "Box"] } ],
-         [ { "Plane": ["XY", "YZ", "XZ"] }, { "Direction": ["+", "-"] } ],
+         [ { "Plane": ["XY", "YZ", "XZ"] }, { "Direction&#8202": ["+", "-"] } ],
          [ { "Radius" : "n" }, {"Height" : "n" } ],
          [ { "X&#8202" : "n" }, { "Y&#8202" : "n" }, { "Z&#8202" : "n" } ]
       ]
@@ -72,6 +73,7 @@ let lego_prop = {
    
    "motor-obj" : {
       "Name" : "Motor Stage",
+      "Width" : "medium",
       "Data" : [
          [ { "Plane": ["XY", "YZ", "XZ"] }, { "Direction": ["+", "-"] } ],
          [ { "Length" : "n" }, { "Width" : "n" }, { "Height" : "n" }],

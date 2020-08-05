@@ -2,7 +2,7 @@
    display: grid;
    grid-template-columns: [hc1] 360px [hc2] auto [hc3] 360px [hc4];
    grid-template-areas: "nav-left nav-mid nav-right";
-   margin-top: 16px;
+   // margin-top: 12px;
 }
 
 .nav-left, .nav-mid, .nav-right {
