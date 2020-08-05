@@ -220,7 +220,9 @@ class Machine {
                             .multiplyScalar(0.5),
             '0' : new THREE.Vector3(0, 0, 0),
         };
-        let fStr = [faceA, faceB].join();
+        // NOTE: reverse order faces otherwise connections are in backwards
+        // configuration for some reason
+        let fStr = [faceB, faceA].join();
 
         // Rotate translation vector to match ComponentA's quaternion
         let translationVector = facePairsToTranslationVectorFn(fStr);
