@@ -153,7 +153,7 @@ class Machine {
             }
             else {
                 // FIXME: are these the ones we want? Check geometric intuition
-                if (axisA === 'x' && axisB === 'y' ||
+                if (axisA === 'y' && axisB === 'x' ||
                     axisA === 'x' && axisB === 'z' ||
                     axisA === 'y' && axisB === 'z') {
                     return signA * signB * Math.PI / 2;
@@ -168,7 +168,7 @@ class Machine {
             let axisB = fStr[4];
             if (axisA === 'x' && axisB === 'y'
                 || axisA === 'y' && axisB === 'x') {
-                return new THREE.Vector3(0, 0, 1);
+                return new THREE.Vector3(1, 0, 0);
             }
             if (axisA === 'x' && axisB === 'z'
                 || axisA === 'z' && axisB === 'x') {
@@ -176,7 +176,7 @@ class Machine {
             }
             if (axisA === 'y' && axisB === 'z'
                 || axisA === 'z' && axisB === 'y') {
-                return new THREE.Vector3(1, 0, 0);
+                return new THREE.Vector3(0, 0, 1);
             }
             if (axisA === 'x' && axisB === 'x') {
                 return new THREE.Vector3(0, 1, 0);
@@ -223,7 +223,6 @@ class Machine {
         let fStr = [faceA, faceB].join();
 
         // Rotate translation vector to match ComponentA's quaternion
-        // FIXME: try instead just setting componentB to A's pos and quat first
         let translationVector = facePairsToTranslationVectorFn(fStr);
         translationVector.applyQuaternion(componentA.quaternion);
 
@@ -350,9 +349,9 @@ class Machine {
             });
             this.setConnection({
                 componentA: s1,
-                faceA: '+y',
+                faceA: '+z',
                 componentB: s2,
-                faceB: '+z',
+                faceB: '+y',
                 end: '0'
             });
             return this;
