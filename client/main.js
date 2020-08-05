@@ -89,55 +89,57 @@ class Machine {
     constructor(name, parentScene) {
         this.name = name;
         this.parentScene = parentScene;
-        this.components = [];
+        this.buildEnvironment = null;
+        this.workEnvelope = null;
+        this.blocks = [];
         this.connections = [];
         parentScene.machine = this;
     }
 
     // TODO: make this.components a THREE.Group for repositioning
-    addComponent(component) {
-        this.components.push(component);
+    addBlock(component) {
+        this.blocks.push(component);
     }
 
     renderRulerForComponent(component) {
         this.ruler.displayInSceneForComponent(this, component)
     }
 
-    hideAllComponents() {
-        this.components.forEach((component) => {
-            component.hide();
+    hideAllBlocks() {
+        this.components.forEach((block) => {
+            block.hide();
         });
     }
 
-    showAllComponents() {
-        this.components.forEach((component) => {
-            component.unhide();
+    showAllBlocks() {
+        this.blocks.forEach((block) => {
+            block.unhide();
         });
     }
 
     removeCurrentComponents() {
-        this.components.forEach((component, index) => {
-            component.removeMeshGroupFromScene();
+        this.blocks.forEach((block, index) => {
+            block.removeMeshGroupFromScene();
         });
-        this.components = [];
+        this.blocks = [];
     }
 
     /**
      * Connects two components such that the center point on a face of some
-     * componentB becomes fixed to the center of the face of componentA.
+     * addBlock becomes fixed to the center of the face of baseBlock.
      * For now, we only support center connections, but later will support
      * connections at either end.
      *
      * connectionObj should be of the form:
      * {
-     *      componentA: Component,
+     *      baseBlock: Component,
      *      faceA: String in { '+x', '-x', '+y', ... , '-z' },
-     *      componentB: Component,
+     *      addBlock: Component,
      *      faceB: String in { '+x', '-x', '+y', ... , '-z' }
      * }
      */
     setConnection(connectionObj) {
-        let { componentA, faceA, componentB, faceB, end } = connectionObj;
+        let { baseBlock, faceA, addBlock, faceB, end } = connectionObj;
         let facePairsToRadians = (fStr) => {
             let signA = fStr[0] === '-' ? -1 : +1;
             let signB = fStr[3] === '-' ? -1 : +1;
@@ -202,7 +204,7 @@ class Machine {
             let dimA = axisToDim[axisA];
             let dimB = axisToDim[axisB];
             // NOTE: see reversal note below
-            let transDist = signA * (componentA[dimB] + componentB[dimA]) / 2;
+            let transDist = signA * (baseBlock[dimB] + addBlock[dimA]) / 2;
             if (axisA === 'x') {
                 return new THREE.Vector3(transDist, 0, 0);
             }
@@ -215,8 +217,8 @@ class Machine {
         };
         // FIXME: generalize offset for any rotation
         let endOffsets = {
-            '+' : new THREE.Vector3(0, 0, +(componentA.length / 2 - componentB.width)),
-            '-' : new THREE.Vector3(0, 0, -(componentA.length / 2 - componentB.width)),
+            '+' : new THREE.Vector3(0, 0, +(baseBlock.length / 2 - addBlock.width)),
+            '-' : new THREE.Vector3(0, 0, -(baseBlock.length / 2 - addBlock.width)),
             '0' : new THREE.Vector3(0, 0, 0),
         };
         // NOTE: reverse order faces otherwise connections are in backwards
@@ -225,24 +227,24 @@ class Machine {
 
         // Rotate translation vector to match ComponentA's quaternion
         let translationVector = facePairsToTranslationVectorFn(fStr);
-        translationVector.applyQuaternion(componentA.quaternion);
+        translationVector.applyQuaternion(baseBlock.quaternion);
 
         // Rotate translation vector according to table
         let rotationAxis = facePairsToRotationAxis(fStr);
         let connectRotationRadians = facePairsToRadians(fStr);
         translationVector.applyAxisAngle(rotationAxis, connectRotationRadians);
-        let newBPos = (new THREE.Vector3()).copy(componentA.position);
+        let newBPos = (new THREE.Vector3()).copy(baseBlock.position);
         newBPos.add(translationVector);
 
         // Apply rotation and translation (except for offset)
-        componentB.quaternion = componentA.quaternion;
-        componentB.rotateOverAxis(rotationAxis, connectRotationRadians);
-        componentB.position = newBPos;
+        addBlock.quaternion = baseBlock.quaternion;
+        addBlock.rotateOverAxis(rotationAxis, connectRotationRadians);
+        addBlock.position = newBPos;
 
         // Apply end offset, itself rotated to match ComponentB's quaternion
         let endOffset = endOffsets[end];
-        endOffset.applyQuaternion(componentB.quaternion);
-        componentB.position = componentB.position.add(endOffset);
+        endOffset.applyQuaternion(addBlock.quaternion);
+        addBlock.position = addBlock.position.add(endOffset);
 
         this.connections.push(connectionObj);
         return this;
@@ -321,21 +323,19 @@ class Machine {
             we.movePosition(-100, 0, 0);
             stageBottom.placeOnComponent(be);
             this.setConnection({
-                componentA: stageBottom,
+                baseBlock: stageBottom,
                 faceA: '-y',
-                componentB: stageTop,
+                addBlock: stageTop,
                 faceB: '+y',
                 end: '0'
             });
             this.setConnection({
-                componentA: stageTop,
+                baseBlock: stageTop,
                 faceA: '+x',
-                componentB: toolAssembly,
+                addBlock: toolAssembly,
                 faceB: '-x',
                 end: '0'
             });
-            // tool.movePosition(-131, -76.5, 0)
-            // toolAssembly.movePosition(-131, -73.5, 0)
             return this;
         },
         connectionSandbox: () => {
@@ -362,16 +362,16 @@ class Machine {
             s0.placeOnComponent(be);
             s1.placeOnComponent(be);
             this.setConnection({
-                componentA: s0,
+                baseBlock: s0,
                 faceA: '-z',
-                componentB: s1,
+                addBlock: s1,
                 faceB: '+x',
                 end: '+'
             });
             this.setConnection({
-                componentA: s1,
+                baseBlock: s1,
                 faceA: '+y',
-                componentB: s2,
+                addBlock: s2,
                 faceB: '-z',
                 end: '0'
             });
@@ -537,7 +537,6 @@ class StrangeComponent {
         this.meshGroup = new THREE.Group();
         this.rotatedToPlane = false;
         this.parentMachine = parentMachine;
-        this.parentMachine.addComponent(this);
     }
 
     get position() {
@@ -670,9 +669,9 @@ class StrangeComponent {
         else {
             thisHeight = thisBbox.max.y - thisBbox.min.y;
         }
-        let componentBbox = component.computeComponentBoundingBox();
-        let bmax = componentBbox.max;
-        let bmin = componentBbox.min;
+        let addBlockbox = component.computeComponentBoundingBox();
+        let bmax = addBlockbox.max;
+        let bmin = addBlockbox.min;
         let eps = 1.5;
         let topPlanePts = [
             new THREE.Vector3(bmax.x, bmax.y, bmax.z),
@@ -694,6 +693,8 @@ class BuildEnvironment extends StrangeComponent {
     constructor(parentMachine, dimensions) {
         name = 'BuildEnvironment';
         super(name, parentMachine, dimensions);
+        this.componentType = 'BuildEnvironment';
+        parentMachine.buildEnvironment = this;
         this.renderDimensions();
     }
 
@@ -724,6 +725,8 @@ class WorkEnvelope extends StrangeComponent {
         }
         name = 'WorkEnvelope';
         super(name, parentMachine, dimensions);
+        this.componentType = 'WorkEnvelope';
+        parentMachine.workEnvelope = this;
         this.renderDimensions();
     }
 
@@ -746,16 +749,17 @@ class WorkEnvelope extends StrangeComponent {
     }
 }
 
-class Lego extends StrangeComponent {
+class Block extends StrangeComponent {
     // TODO
 }
 
-class Tool extends Lego {
+class Tool extends Block {
     static color = 0xe44242;
     static defaultPosition = new THREE.Vector3(0, 150, 0);
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
         this.componentType = 'Tool';
+        parentMachine.addBlock(this);
         this.renderDimensions();
     }
 
@@ -782,12 +786,13 @@ class Tool extends Lego {
     }
 }
 
-class ToolAssembly extends Lego {
+class ToolAssembly extends Block {
     static color = 0xf36f6f;
     static defaultPosition = new THREE.Vector3(0, 150, 0);
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
         this.componentType = 'ToolAssembly'
+        parentMachine.addBlock(this);
         this.renderDimensions();
     }
 
@@ -822,12 +827,13 @@ class ToolAssembly extends Lego {
     }
 }
 
-class LinearStage extends Lego {
+class LinearStage extends Block {
     static caseColor = 0x222222;
     static platformColor = 0xf99292;
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
         this.componentType = 'LinearStage';
+        parentMachine.addBlock(this);
         this.renderDimensions();
     }
 
@@ -860,29 +866,39 @@ class Compiler {
     }
 
     compileMachine(machine) {
-        console.log(machine);
         let progObj = {};
-        let progComponents = machine.components.map((component) => {
+        let progBuildEnvironment = {
+            width: machine.buildEnvironment.width,
+            length: machine.buildEnvironment.length
+        };
+        let progWorkEnvelope = {
+            width: machine.workEnvelope.width,
+            length: machine.workEnvelope.length
+        };
+        let progBlocks = machine.blocks.map((block) => {
             return {
-                id: component.id,
-                name: component.name,
-                dimensions: component.dimensions
+                id: block.id,
+                name: block.name,
+                componentType: block.componentType,
+                dimensions: block.dimensions
             }
         });
         let progConnections = machine.connections.map((connection) => {
             return {
-                baseComponent: connection.componentA.id,
-                baseComponentName: connection.componentA.name,
-                baseComponentFace: connection.faceA,
-                addComponent: connection.componentB.id,
-                addComponentName: connection.componentB.name,
-                addComponentFace: connection.faceB,
-                addComponentEnd: connection.end
+                baseBlock: connection.baseBlock.id,
+                baseBlockName: connection.baseBlock.name,
+                baseBlockFace: connection.faceA,
+                addBlock: connection.addBlock.id,
+                addBlockName: connection.addBlock.name,
+                addBlockFace: connection.faceB,
+                addBlockEnd: connection.end
             }
         });
 
         progObj['name'] = machine['name'];
-        progObj['components'] = progComponents;
+        progObj['buildEnvironment'] = progBuildEnvironment;
+        progObj['workEnvelope'] = progWorkEnvelope;
+        progObj['blocks'] = progBlocks;
         progObj['connections'] = progConnections;
         return JSON.stringify(progObj);
     }
