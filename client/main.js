@@ -302,7 +302,11 @@ class Machine {
                 height: 50,
                 radius: 5
             });
-            let toolAssembly = new ToolAssembly(this, {});
+            let toolAssembly = new ToolAssembly(this, {
+                width: 12.5,
+                height: 25,
+                length: 50
+            });
             let stageTop = new LinearStage(this, {
                 length: 250
             });
@@ -482,7 +486,8 @@ class StrangeComponent {
                         dimensions.radius, dimensions.height, 10)
             }
         },
-        toolAssembly: (dimensions) => new THREE.BoxBufferGeometry(12.5, 25, 50, 2, 2, 2),
+        toolAssembly: (d) => new THREE.BoxBufferGeometry(d.width, d.height,
+                                    d.length, 2, 2, 2),
         connectionHandle: () => new THREE.SphereBufferGeometry(25, 32, 32),
         buildEnvironment: (dimensions) => new THREE.BoxBufferGeometry(
                                              dimensions.length,
@@ -774,15 +779,24 @@ class ToolAssembly extends Lego {
 
     renderDimensions() {
         this.removeMeshGroupFromScene();
-        let geom = BuildEnvironment.geometryFactories
+        this.geom = BuildEnvironment.geometryFactories
                                    .toolAssembly(this.dimensions);
-        let material = new THREE.MeshLambertMaterial({
-            color : Tool.color
+        this.edgesGeom = new THREE.EdgesGeometry(this.geom);
+        this.material = new THREE.MeshLambertMaterial({
+            color : Tool.color,
+            transparent: true,
+            opacity: 0.5
         });
-        this.mesh = new THREE.Mesh(geom, material);
+        this.edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x222222
+        });
+        this.mesh = new THREE.Mesh(this.geom, this.material);
+        this.wireSegments = new THREE.LineSegments(this.edgesGeom,
+                                this.edgesMaterial);
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.mesh);
-        this.geometries = [geom];
+        this.meshGroup.add(this.wireSegments);
+        this.geometries = [this.geom, this.edgesGeom];
         this.setPositionToDefault();
         this.addMeshGroupToScene();
     }
