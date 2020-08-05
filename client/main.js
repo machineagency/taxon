@@ -789,7 +789,7 @@ class ToolAssembly extends Lego {
 }
 
 class LinearStage extends Lego {
-    static caseColor = 0xffed90;
+    static caseColor = 0x222222;
     static platformColor = 0xf99292;
     constructor(parentMachine, dimensions) {
         name = 'LinearStage';
@@ -801,22 +801,22 @@ class LinearStage extends Lego {
         this.removeMeshGroupFromScene();
         this.caseGeom = BuildEnvironment.geometryFactories
                                 .stageCase(this.dimensions);
-        this.platformGeom = BuildEnvironment.geometryFactories
-                                .stagePlatform();
+        this.edgesGeom = new THREE.EdgesGeometry(this.caseGeom);
         this.caseMaterial = new THREE.MeshLambertMaterial({
-            color : LinearStage.caseColor
+            color : LinearStage.caseColor,
+            transparent: true,
+            opacity: 0.1
         });
-        this.platformMaterial = new THREE.MeshLambertMaterial({
-            color : LinearStage.platformColor
+        this.edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x222222
         });
         this.caseMesh = new THREE.Mesh(this.caseGeom, this.caseMaterial);
-        this.platformMesh = new THREE.Mesh(this.platformGeom,
-                                           this.platformMaterial);
+        this.wireSegments = new THREE.LineSegments(this.edgesGeom,
+                                this.edgesMaterial);
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.caseMesh);
-        this.meshGroup.add(this.platformMesh);
-        this.platformMesh.position.setY(25);
-        this.geometries = [this.caseGeom, this.platformGeom]
+        this.meshGroup.add(this.wireSegments);
+        this.geometries = [this.caseGeom, this.edgesGeom]
         this.addMeshGroupToScene();
     }
 }
