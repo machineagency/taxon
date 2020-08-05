@@ -201,15 +201,16 @@ class Machine {
             };
             let dimA = axisToDim[axisA];
             let dimB = axisToDim[axisB];
-            let transDist = signA * (componentA[dimA] + componentB[dimB]);
+            // NOTE: see reversal note below
+            let transDist = signA * (componentA[dimB] + componentB[dimA]) / 2;
             if (axisA === 'x') {
-                return new THREE.Vector3(transDist, 0, 0).multiplyScalar(0.5);
+                return new THREE.Vector3(transDist, 0, 0);
             }
             if (axisA === 'y') {
-                return new THREE.Vector3(0, transDist, 0).multiplyScalar(0.5);
+                return new THREE.Vector3(0, transDist, 0);
             }
             if (axisA === 'z') {
-                return new THREE.Vector3(0, 0, transDist).multiplyScalar(0.5);
+                return new THREE.Vector3(0, 0, transDist);
             }
         };
         // FIXME: generalize offset for any rotation
@@ -353,7 +354,7 @@ class Machine {
                 componentA: s1,
                 faceA: '+y',
                 componentB: s2,
-                faceB: '+z',
+                faceB: '-z',
                 end: '0'
             });
             return this;
