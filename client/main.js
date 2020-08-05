@@ -506,7 +506,12 @@ class StrangeComponent {
         }
     };
 
+    static makeId() {
+        return '_' + Math.random().toString(36).substr(2, 9);
+    }
+
     constructor(name, parentMachine, dimensions) {
+        this.id = StrangeComponent.makeId();
         this.name = name;
         this._dimensions = dimensions;
         this.geometries = [];
