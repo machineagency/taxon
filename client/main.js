@@ -827,6 +827,37 @@ class LinearStage extends Lego {
     }
 }
 
+class Compiler {
+    constructor() {
+    }
+
+    compileMachine(machine) {
+        console.log(machine);
+        let progObj = {};
+        let progComponents = machine.components.map((component) => {
+            return {
+                id: component.id,
+                name: component.name,
+                dimensions: component.dimensions
+            }
+        });
+        let progConnections = machine.connections.map((connection) => {
+            return {
+                baseComponent: connection.componentA.id,
+                baseComponentFace: connection.faceA,
+                addComponent: connection.componentB.id,
+                addComponentFace: connection.faceB,
+                addComponentEnd: connection.end
+            }
+        });
+
+        progObj['name'] = machine['name'];
+        progObj['components'] = progComponents;
+        progObj['connections'] = progConnections;
+        return JSON.stringify(progObj);
+    }
+}
+
 let makeLoadStlPromise = (filepath, strangeScene) => {
     let loadPromise = new Promise(resolve => {
         let loader = new THREE.STLLoader();
@@ -859,6 +890,9 @@ function main() {
         ss.renderScene();
     };
     animate();
+    let compiler = new Compiler();
+    let machineProg = compiler.compileMachine(machine);
+    console.log(machineProg);
     return ss;
 }
 
