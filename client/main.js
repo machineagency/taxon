@@ -317,12 +317,23 @@ class Machine {
             });
             let stageBottom = new LinearStage('Bottom', this, {
                 width: 50,
-                height: 25,
+                height: 50,
                 length: 250
+            });
+            let motorA = new Motor('MotorA', this, {
+                width: 50,
+                height: 50,
+                length: 50
+            });
+            let motorB = new Motor('MotorB', this, {
+                width: 50,
+                height: 50,
+                length: 50
             });
             we.placeOnComponent(be);
             we.movePosition(-100, 0, 0);
             stageBottom.placeOnComponent(be);
+            stageBottom.movePosition(50, 0, 0);
             this.setConnection({
                 baseBlock: stageBottom,
                 faceA: '-y',
@@ -335,6 +346,20 @@ class Machine {
                 faceA: '+x',
                 addBlock: toolAssembly,
                 faceB: '-x',
+                end: '0'
+            });
+            this.setConnection({
+                baseBlock: stageBottom,
+                faceA: '+z',
+                addBlock: motorA,
+                faceB: '-z',
+                end: '0'
+            });
+            this.setConnection({
+                baseBlock: stageBottom,
+                faceA: '-z',
+                addBlock: motorB,
+                faceB: '+z',
                 end: '0'
             });
             return this;
@@ -809,7 +834,7 @@ class ToolAssembly extends Block {
         this.material = new THREE.MeshLambertMaterial({
             color : Tool.color,
             transparent: true,
-            opacity: 0.1
+            opacity: 0.25
         });
         this.edgesMaterial = new THREE.LineBasicMaterial({
             color: 0x222222
@@ -834,7 +859,6 @@ class ToolAssembly extends Block {
 
 class LinearStage extends Block {
     static caseColor = 0x222222;
-    static platformColor = 0xf99292;
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
         this.componentType = 'LinearStage';
@@ -852,6 +876,40 @@ class LinearStage extends Block {
             color : LinearStage.caseColor,
             transparent: true,
             opacity: 0.05
+        });
+        this.edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x222222
+        });
+        this.caseMesh = new THREE.Mesh(this.caseGeom, this.caseMaterial);
+        this.wireSegments = new THREE.LineSegments(this.edgesGeom,
+                                this.edgesMaterial);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.caseMesh);
+        this.meshGroup.add(this.wireSegments);
+        this.geometries = [this.caseGeom, this.edgesGeom]
+        this.addMeshGroupToScene();
+    }
+}
+
+class Motor extends Block {
+    static color = 0xffed90;
+    constructor(name, parentMachine, dimensions) {
+        super(name, parentMachine, dimensions);
+        this.componentType = 'Motor';
+        this.baseBlock = true;
+        parentMachine.addBlock(this);
+        this.renderDimensions();
+    }
+
+    renderDimensions() {
+        this.removeMeshGroupFromScene();
+        this.caseGeom = BuildEnvironment.geometryFactories
+                                .stageCase(this.dimensions);
+        this.edgesGeom = new THREE.EdgesGeometry(this.caseGeom);
+        this.caseMaterial = new THREE.MeshLambertMaterial({
+            color : Motor.color,
+            transparent: true,
+            opacity: 0.5
         });
         this.edgesMaterial = new THREE.LineBasicMaterial({
             color: 0x222222
