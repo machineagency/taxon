@@ -832,9 +832,7 @@ class Tool extends Block {
         });
         let edgesGeom = new THREE.EdgesGeometry(bboxGeom);
         let material = new THREE.MeshLambertMaterial({
-            color : Tool.color,
-            transparent : true,
-            opacity : 0.5
+            color : Tool.color
         });
         let edgesMaterial = new THREE.LineBasicMaterial({
             color: 0x222222
