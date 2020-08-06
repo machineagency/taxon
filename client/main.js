@@ -390,10 +390,15 @@ class Machine {
                 length: 200 - 35,
                 width: 200 - 35
             });
-            let xBelt = new LinearStage('x belt', this, {
+            let platformBelt = new LinearStage('platform belt', this, {
                 width: 200 - 35,
                 height: 25,
                 length: 25
+            });
+            let carriageBelt = new LinearStage('carriage belt', this, {
+                width: 12.5,
+                height: 25,
+                length: 210
             });
             let lsA = new LinearStage('z leadscrew a', this, {
                 width: 10,
@@ -415,8 +420,8 @@ class Machine {
                 height: 35,
                 length: 35
             });
-            xBelt.placeOnComponent(be);
-            we.placeOnComponent(xBelt);
+            platformBelt.placeOnComponent(be);
+            we.placeOnComponent(platformBelt);
             lsMotorA.placeOnComponent(be);
             lsMotorB.placeOnComponent(be);
             lsMotorA.movePosition(100, 0, -100);
@@ -434,6 +439,25 @@ class Machine {
                 addBlock: lsB,
                 addBlockFace: '-y',
                 addBlockEnd: '0'
+            });
+            carriageBelt.placeOnComponent(be);
+            carriageBelt.movePosition(100 - 12.5/2 - 10/2, 50, 0);
+            let toolAssembly = new ToolAssembly('hotend', this, {
+                width: 12.5,
+                height: 25,
+                length: 25
+            });
+            this.setConnection({
+                baseBlock: carriageBelt,
+                baseBlockFace: '+x',
+                addBlock: toolAssembly,
+                addBlockFace: '-x',
+                addBlockEnd: '0'
+            });
+            let tool = new Tool('extruder', this, {
+                type: 'pen',
+                height: 25,
+                radius: 5
             });
             return this;
         },
@@ -762,7 +786,6 @@ class StrangeComponent {
     placeOnComponent(component) {
         let newPos = (new THREE.Vector3).copy(component.position);
         newPos.y += component.height / 2;
-        console.log(newPos);
         if (this.height !== undefined) {
             newPos.y += this.height / 2;
         }
