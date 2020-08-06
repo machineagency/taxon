@@ -379,6 +379,64 @@ class Machine {
             });
             return this;
         },
+        prusa: () => {
+            this.clearMachineFromScene();
+            let be = new BuildEnvironment(this, {
+                length: 500,
+                width: 500
+            });
+            let we = new WorkEnvelope(this, {
+                shape: 'rectangle',
+                length: 200 - 35,
+                width: 200 - 35
+            });
+            let xBelt = new LinearStage('x belt', this, {
+                width: 200 - 35,
+                height: 25,
+                length: 25
+            });
+            let lsA = new LinearStage('z leadscrew a', this, {
+                width: 10,
+                height: 150,
+                length: 10
+            });
+            let lsB = new LinearStage('z leadscrew b', this, {
+                width: 10,
+                height: 150,
+                length: 10
+            });
+            let lsMotorA = new Motor('leadscrew motor a', this, {
+                width: 35,
+                height: 35,
+                length: 35
+            });
+            let lsMotorB = new Motor('leadscrew motor b', this, {
+                width: 35,
+                height: 35,
+                length: 35
+            });
+            xBelt.placeOnComponent(be);
+            we.placeOnComponent(xBelt);
+            lsMotorA.placeOnComponent(be);
+            lsMotorB.placeOnComponent(be);
+            lsMotorA.movePosition(100, 0, -100);
+            lsMotorB.movePosition(100, 0, +100);
+            this.setConnection({
+                baseBlock: lsMotorA,
+                baseBlockFace: '-y',
+                addBlock: lsA,
+                addBlockFace: '-y',
+                addBlockEnd: '0'
+            });
+            this.setConnection({
+                baseBlock: lsMotorB,
+                baseBlockFace: '-y',
+                addBlock: lsB,
+                addBlockFace: '-y',
+                addBlockEnd: '0'
+            });
+            return this;
+        },
         connectionSandbox: () => {
             this.clearMachineFromScene();
             let be = new BuildEnvironment(this, {
@@ -1114,7 +1172,9 @@ function main() {
     let compiler = new Compiler();
     window.compiler = compiler;
     let axidrawProg = '{"name":"Axidraw","buildEnvironment":{"width":500,"length":500},"workEnvelope":{"shape":"rectangle","width":250,"length":250,"position":{"x":-100,"y":14,"z":0}},"motors":[{"id":"_8u1etwnzu","name":"MotorA","componentType":"Motor","dimensions":{"width":50,"height":50,"length":50},"kinematics":"hBot"},{"id":"_l8ie2ir94","name":"MotorB","componentType":"Motor","dimensions":{"width":50,"height":50,"length":50},"kinematics":"hBot"}],"blocks":[{"id":"_88emu97v2","name":"Sharpie","componentType":"Tool","dimensions":{"type":"pen","height":50,"radius":5}},{"id":"_b79dmf0u1","name":"Servo","componentType":"ToolAssembly","dimensions":{"width":12.5,"height":25,"length":50}},{"id":"_pl4vtjbkv","name":"Top","componentType":"LinearStage","dimensions":{"width":250,"height":25,"length":50}},{"id":"_ezquxn891","name":"Bottom","componentType":"LinearStage","dimensions":{"width":50,"height":50,"length":250},"position":{"x":50,"y":39,"z":0}}],"connections":[{"baseBlock":"_ezquxn891","baseBlockName":"Bottom","baseBlockFace":"-y","addBlock":"_pl4vtjbkv","addBlockName":"Top","addBlockFace":"+y","addBlockEnd":"0"},{"baseBlock":"_pl4vtjbkv","baseBlockName":"Top","baseBlockFace":"+x","addBlock":"_b79dmf0u1","addBlockName":"Servo","addBlockFace":"-x","addBlockEnd":"0"},{"baseBlock":"_ezquxn891","baseBlockName":"Bottom","baseBlockFace":"+z","addBlock":"_8u1etwnzu","addBlockName":"MotorA","addBlockFace":"-z","addBlockEnd":"0"},{"baseBlock":"_ezquxn891","baseBlockName":"Bottom","baseBlockFace":"-z","addBlock":"_l8ie2ir94","addBlockName":"MotorB","addBlockFace":"+z","addBlockEnd":"0"}]}';
-    let decompMachineProg = compiler.decompileIntoScene(ss, axidrawProg);
+    // let decompMachineProg = compiler.decompileIntoScene(ss, axidrawProg);
+    let machine = new Machine('Prusa', ss);
+    machine.presetLoaders.prusa();
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
