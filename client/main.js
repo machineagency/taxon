@@ -92,6 +92,7 @@ class Machine {
         this.buildEnvironment = null;
         this.workEnvelope = null;
         this.blocks = [];
+        this.motors = [];
         this.connections = [];
         parentScene.machine = this;
     }
@@ -101,27 +102,23 @@ class Machine {
         this.blocks.push(component);
     }
 
+    addMotor(motor) {
+        this.motors.push(motor);
+    }
+
     renderRulerForComponent(component) {
         this.ruler.displayInSceneForComponent(this, component)
-    }
-
-    hideAllBlocks() {
-        this.components.forEach((block) => {
-            block.hide();
-        });
-    }
-
-    showAllBlocks() {
-        this.blocks.forEach((block) => {
-            block.unhide();
-        });
     }
 
     removeCurrentComponents() {
         this.blocks.forEach((block, index) => {
             block.removeMeshGroupFromScene();
         });
+        this.motors.forEach((motor, index) => {
+            motor.removeMeshGroupFromScene();
+        });
         this.blocks = [];
+        this.motors = [];
     }
 
     /**
@@ -896,8 +893,8 @@ class Motor extends Block {
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
         this.componentType = 'Motor';
-        this.baseBlock = true;
-        parentMachine.addBlock(this);
+        this.baseBlock = false;
+        parentMachine.addMotor(this);
         this.renderDimensions();
     }
 
@@ -961,6 +958,17 @@ class Compiler {
             }
             return progBlock;
         });
+        let progMotors = machine.motors.map((motor) => {
+            let progMotor = {
+                id: motor.id,
+                name: motor.name,
+                componentType: motor.componentType,
+                dimensions: motor.dimensions,
+                // TODO: kinematics, motor designations, etc.
+                kinematics: 'hBot'
+            }
+            return progMotor;
+        });
         let progConnections = machine.connections.map((connection) => {
             return {
                 baseBlock: connection.baseBlock.id,
@@ -976,6 +984,7 @@ class Compiler {
         progObj['name'] = machine['name'];
         progObj['buildEnvironment'] = progBuildEnvironment;
         progObj['workEnvelope'] = progWorkEnvelope;
+        progObj['motors'] = progMotors;
         progObj['blocks'] = progBlocks;
         progObj['connections'] = progConnections;
         return JSON.stringify(progObj);
