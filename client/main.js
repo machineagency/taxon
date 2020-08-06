@@ -925,7 +925,7 @@ class Motor extends Block {
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
         this.componentType = 'Motor';
-        this.baseBlock = false;
+        this.baseBlock = true;
         parentMachine.addMotor(this);
         this.renderDimensions();
     }
