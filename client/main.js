@@ -966,9 +966,6 @@ class Motor extends Block {
 
 class Compiler {
 
-    // TODO: make a file loader and get rid of this super long line
-    static testProg = '{"name":"Axidraw","buildEnvironment":{"width":500,"length":500},"workEnvelope":{"shape":"rectangle","width":250,"length":250,"position":{"x":-100,"y":14,"z":0}},"motors":[{"id":"_8u1etwnzu","name":"MotorA","componentType":"Motor","dimensions":{"width":50,"height":50,"length":50},"kinematics":"hBot"},{"id":"_l8ie2ir94","name":"MotorB","componentType":"Motor","dimensions":{"width":50,"height":50,"length":50},"kinematics":"hBot"}],"blocks":[{"id":"_88emu97v2","name":"Sharpie","componentType":"Tool","dimensions":{"type":"pen","height":50,"radius":5}},{"id":"_b79dmf0u1","name":"Servo","componentType":"ToolAssembly","dimensions":{"width":12.5,"height":25,"length":50}},{"id":"_pl4vtjbkv","name":"Top","componentType":"LinearStage","dimensions":{"width":250,"height":25,"length":50}},{"id":"_ezquxn891","name":"Bottom","componentType":"LinearStage","dimensions":{"width":50,"height":50,"length":250},"position":{"x":50,"y":39,"z":0}}],"connections":[{"baseBlock":"_ezquxn891","baseBlockName":"Bottom","baseBlockFace":"-y","addBlock":"_pl4vtjbkv","addBlockName":"Top","addBlockFace":"+y","addBlockEnd":"0"},{"baseBlock":"_pl4vtjbkv","baseBlockName":"Top","baseBlockFace":"+x","addBlock":"_b79dmf0u1","addBlockName":"Servo","addBlockFace":"-x","addBlockEnd":"0"},{"baseBlock":"_ezquxn891","baseBlockName":"Bottom","baseBlockFace":"+z","addBlock":"_8u1etwnzu","addBlockName":"MotorA","addBlockFace":"-z","addBlockEnd":"0"},{"baseBlock":"_ezquxn891","baseBlockName":"Bottom","baseBlockFace":"-z","addBlock":"_l8ie2ir94","addBlockName":"MotorB","addBlockFace":"+z","addBlockEnd":"0"}]}';
-
     constructor() {
     }
 
@@ -1037,9 +1034,11 @@ class Compiler {
         return JSON.stringify(progObj);
     }
 
-    decompileIntoScene(strangeScene) {
-        strangeScene.machine.clearMachineFromScene();
-        let progObj = JSON.parse(Compiler.testProg);
+    decompileIntoScene(strangeScene, machineProg) {
+        if (strangeScene.machine !== undefined) {
+            strangeScene.machine.clearMachineFromScene();
+        }
+        let progObj = JSON.parse(machineProg);
         let machine = new Machine(progObj.name, strangeScene);
         let be = new BuildEnvironment(machine, {
             width: progObj.buildEnvironment.width,
@@ -1122,8 +1121,10 @@ let makeLoadStlPromise = (filepath, strangeScene) => {
 
 function main() {
     let ss = new StrangeScene();
-    let machine = new Machine('Axidraw', ss);
-    machine.presetLoaders.axidraw();
+    let compiler = new Compiler();
+    window.compiler = compiler;
+    let axidrawProg = '{"name":"Axidraw","buildEnvironment":{"width":500,"length":500},"workEnvelope":{"shape":"rectangle","width":250,"length":250,"position":{"x":-100,"y":14,"z":0}},"motors":[{"id":"_8u1etwnzu","name":"MotorA","componentType":"Motor","dimensions":{"width":50,"height":50,"length":50},"kinematics":"hBot"},{"id":"_l8ie2ir94","name":"MotorB","componentType":"Motor","dimensions":{"width":50,"height":50,"length":50},"kinematics":"hBot"}],"blocks":[{"id":"_88emu97v2","name":"Sharpie","componentType":"Tool","dimensions":{"type":"pen","height":50,"radius":5}},{"id":"_b79dmf0u1","name":"Servo","componentType":"ToolAssembly","dimensions":{"width":12.5,"height":25,"length":50}},{"id":"_pl4vtjbkv","name":"Top","componentType":"LinearStage","dimensions":{"width":250,"height":25,"length":50}},{"id":"_ezquxn891","name":"Bottom","componentType":"LinearStage","dimensions":{"width":50,"height":50,"length":250},"position":{"x":50,"y":39,"z":0}}],"connections":[{"baseBlock":"_ezquxn891","baseBlockName":"Bottom","baseBlockFace":"-y","addBlock":"_pl4vtjbkv","addBlockName":"Top","addBlockFace":"+y","addBlockEnd":"0"},{"baseBlock":"_pl4vtjbkv","baseBlockName":"Top","baseBlockFace":"+x","addBlock":"_b79dmf0u1","addBlockName":"Servo","addBlockFace":"-x","addBlockEnd":"0"},{"baseBlock":"_ezquxn891","baseBlockName":"Bottom","baseBlockFace":"+z","addBlock":"_8u1etwnzu","addBlockName":"MotorA","addBlockFace":"-z","addBlockEnd":"0"},{"baseBlock":"_ezquxn891","baseBlockName":"Bottom","baseBlockFace":"-z","addBlock":"_l8ie2ir94","addBlockName":"MotorB","addBlockFace":"+z","addBlockEnd":"0"}]}';
+    let decompMachineProg = compiler.decompileIntoScene(ss, axidrawProg);
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
@@ -1132,11 +1133,6 @@ function main() {
         ss.renderScene();
     };
     animate();
-    let compiler = new Compiler();
-    let machineProg = compiler.compileMachine(machine);
-    console.log(machineProg);
-    let decompMachineProg = compiler.decompileIntoScene(ss);
-    console.log(decompMachineProg);
     return ss;
 }
 
