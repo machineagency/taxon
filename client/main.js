@@ -246,6 +246,7 @@ class Machine {
         endOffset.applyQuaternion(addBlock.quaternion);
         addBlock.position = addBlock.position.add(endOffset);
 
+        addBlock.baseBlock = false;
         this.connections.push(connectionObj);
         return this;
     }
@@ -759,6 +760,9 @@ class Tool extends Block {
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
         this.componentType = 'Tool';
+        // NOTE: Tool objects are not base blocks because they are assumed
+        // to be "floating" and machine-independent for simulation purposes
+        this.baseBlock = false;
         parentMachine.addBlock(this);
         this.renderDimensions();
     }
@@ -791,7 +795,8 @@ class ToolAssembly extends Block {
     static defaultPosition = new THREE.Vector3(0, 150, 0);
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
-        this.componentType = 'ToolAssembly'
+        this.componentType = 'ToolAssembly';
+        this.baseBlock = true;
         parentMachine.addBlock(this);
         this.renderDimensions();
     }
@@ -833,6 +838,7 @@ class LinearStage extends Block {
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
         this.componentType = 'LinearStage';
+        this.baseBlock = true;
         parentMachine.addBlock(this);
         this.renderDimensions();
     }
@@ -868,20 +874,34 @@ class Compiler {
     compileMachine(machine) {
         let progObj = {};
         let progBuildEnvironment = {
+            shape: machine.buildEnvironment.shape,
             width: machine.buildEnvironment.width,
             length: machine.buildEnvironment.length
         };
         let progWorkEnvelope = {
             width: machine.workEnvelope.width,
-            length: machine.workEnvelope.length
+            length: machine.workEnvelope.length,
+            position: {
+                x: machine.workEnvelope.position.x,
+                y: machine.workEnvelope.position.y,
+                z: machine.workEnvelope.position.z
+            }
         };
         let progBlocks = machine.blocks.map((block) => {
-            return {
+            let progBlock = {
                 id: block.id,
                 name: block.name,
                 componentType: block.componentType,
                 dimensions: block.dimensions
             }
+            if (block.baseBlock) {
+                progBlock.position = {
+                    x: block.position.x,
+                    y: block.position.y,
+                    z: block.position.z
+                };
+            }
+            return progBlock;
         });
         let progConnections = machine.connections.map((connection) => {
             return {
