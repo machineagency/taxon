@@ -771,6 +771,19 @@ class WorkEnvelope extends StrangeComponent {
         this.renderDimensions();
     }
 
+    get shape() {
+        return this.dimensions.shape;
+    }
+
+    set shape(newShape) {
+        if (!WorkEnvelope.shapes.includes(newShape)) {
+            console.error(`Invalid shape ${newShape}.`);
+        }
+        else {
+            this.dimensions.shape = newShape;
+        }
+    }
+
     renderDimensions() {
         this.removeMeshGroupFromScene();
         let geom = WorkEnvelope.geometryFactories.workEnvelope(this.dimensions);
