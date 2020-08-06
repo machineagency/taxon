@@ -411,14 +411,24 @@ class Machine {
                 length: 10
             });
             let lsMotorA = new Motor('leadscrew motor a', this, {
-                width: 35,
-                height: 35,
-                length: 35
+                width: 25,
+                height: 25,
+                length: 25
             });
             let lsMotorB = new Motor('leadscrew motor b', this, {
-                width: 35,
-                height: 35,
-                length: 35
+                width: 25,
+                height: 25,
+                length: 25
+            });
+            let platformMotor = new Motor('platform belt motor', this, {
+                width: 25,
+                height: 25,
+                length: 25
+            });
+            let carriageMotor = new Motor('carriage belt motor', this, {
+                width: 25,
+                height: 25,
+                length: 25
             });
             platformBelt.placeOnComponent(be);
             we.placeOnComponent(platformBelt);
@@ -440,8 +450,22 @@ class Machine {
                 addBlockFace: '-y',
                 addBlockEnd: '0'
             });
+            this.setConnection({
+                baseBlock: platformBelt,
+                baseBlockFace: '+x',
+                addBlock: platformMotor,
+                addBlockFace: '-x',
+                addBlockEnd: '0'
+            });
             carriageBelt.placeOnComponent(be);
             carriageBelt.movePosition(100 - 12.5/2 - 10/2, 50, 0);
+            this.setConnection({
+                baseBlock: carriageBelt,
+                baseBlockFace: '+z',
+                addBlock: carriageMotor,
+                addBlockFace: '-x',
+                addBlockEnd: '0'
+            });
             let toolAssembly = new ToolAssembly('hotend', this, {
                 width: 12.5,
                 height: 25,
@@ -1074,13 +1098,21 @@ class Compiler {
             return progBlock;
         });
         let progMotors = machine.motors.map((motor) => {
+            // TODO: kinematics, motor designations, etc.
+            let kinematics = machine.name === 'Axidraw' ? 'hBot' : 'directDrive';
             let progMotor = {
                 id: motor.id,
                 name: motor.name,
                 componentType: motor.componentType,
                 dimensions: motor.dimensions,
-                // TODO: kinematics, motor designations, etc.
-                kinematics: 'hBot'
+                kinematics: kinematics
+            }
+            if (motor.baseBlock) {
+                progMotor.position = {
+                    x: motor.position.x,
+                    y: motor.position.y,
+                    z: motor.position.z
+                };
             }
             return progMotor;
         });
@@ -1132,6 +1164,12 @@ class Compiler {
                 length: motorData.dimensions.length,
             });
             motor.id = motorData.id;
+            if (motorData.position !== undefined) {
+                let position = new THREE.Vector3(motorData.position.x,
+                                            motorData.position.y,
+                                            motorData.position.z);
+                motor.position = position;
+            }
         });
         progObj.blocks.forEach((blockData) => {
             let CurrentBlockConstructor;
@@ -1205,6 +1243,7 @@ function main() {
         }, 1000 / maxFramerate);
         ss.renderScene();
     };
+    console.log(compiler.compileMachine(machine));
     animate();
     return ss;
 }
