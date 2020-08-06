@@ -792,15 +792,28 @@ class Tool extends Block {
     renderDimensions() {
         this.removeMeshGroupFromScene();
         let geom = BuildEnvironment.geometryFactories.tool(this.dimensions);
+        geom.computeBoundingBox();
+        let bbox = geom.boundingBox;
+        let bboxGeom = BuildEnvironment.geometryFactories.stageCase({
+            width: bbox.max.x - bbox.min.x,
+            height: bbox.max.y - bbox.min.y,
+            length: bbox.max.z - bbox.min.z
+        });
+        let edgesGeom = new THREE.EdgesGeometry(bboxGeom);
         let material = new THREE.MeshLambertMaterial({
             color : Tool.color,
             transparent : true,
             opacity : 0.5
         });
+        let edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x222222
+        });
         this.mesh = new THREE.Mesh(geom, material);
+        this.wireSegments = new THREE.LineSegments(edgesGeom, edgesMaterial);
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.mesh);
-        this.geometries = [geom];
+        this.meshGroup.add(this.wireSegments);
+        this.geometries = [geom, edgesGeom];
         this.setPositionToDefault();
         this.addMeshGroupToScene();
     }
