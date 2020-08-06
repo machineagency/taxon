@@ -1040,13 +1040,64 @@ class Compiler {
     }
 
     decompileIntoScene(strangeScene) {
+        strangeScene.machine.clearMachineFromScene();
         let progObj = JSON.parse(Compiler.testProg);
         let machine = new Machine(progObj.name, strangeScene);
-        machine.buildEnvironment = progObj.buildEnvironment;
-        machine.workEnvelope = progObj.workEnvelope;
-        machine.motors = progObj.motors;
-        machine.blocks = progObj.blocks;
-        machine.connections = progObj.connections;
+        let be = new BuildEnvironment(machine, {
+            width: progObj.buildEnvironment.width,
+            length: progObj.buildEnvironment.length
+        });
+        be.id = progObj.buildEnvironment.id;
+        let we = new WorkEnvelope(machine, {
+            shape: progObj.workEnvelope.shape,
+            width: progObj.workEnvelope.width,
+            length: progObj.workEnvelope.length
+        });
+        we.id = progObj.workEnvelope.id;
+        we.position = new THREE.Vector3(progObj.workEnvelope.position.x,
+                                        progObj.workEnvelope.position.y,
+                                        progObj.workEnvelope.position.z);
+        progObj.motors.forEach((motorData) => {
+            let motor = new Motor(motorData.name, machine, {
+                width: motorData.dimensions.width,
+                height: motorData.dimensions.height,
+                length: motorData.dimensions.length,
+            });
+            motor.id = motorData.id;
+        });
+        progObj.blocks.forEach((blockData) => {
+            let CurrentBlockConstructor;
+            if (blockData.componentType === 'Tool') {
+                CurrentBlockConstructor = Tool;
+            }
+            if (blockData.componentType === 'ToolAssembly') {
+                CurrentBlockConstructor = ToolAssembly;
+            }
+            if (blockData.componentType === 'LinearStage') {
+                CurrentBlockConstructor = LinearStage;
+            }
+            let block = new CurrentBlockConstructor(blockData.name, machine, {
+                width: blockData.dimensions.width,
+                height: blockData.dimensions.height,
+                length: blockData.dimensions.length,
+            });
+            block.id = blockData.id;
+            if (blockData.position !== undefined) {
+                let position = new THREE.Vector3(blockData.position.x,
+                                            blockData.position.y,
+                                            blockData.position.z);
+                block.position = position;
+            }
+        });
+        progObj.connections.forEach((connectionData) => {
+            machine.setConnection({
+                baseBlock: machine.findBlockWithId(connectionData.baseBlock),
+                baseBlockFace: connectionData.baseBlockFace,
+                addBlock: machine.findBlockWithId(connectionData.addBlock),
+                addBlockFace: connectionData.addBlockFace,
+                addBlockEnd: connectionData.addBlockEnd
+            });
+        });
         return machine;
     }
 }
