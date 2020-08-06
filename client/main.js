@@ -75,6 +75,10 @@ class StrangeScene {
         return controls;
     }
 
+    addSceneObjectDirectly(sceneObj) {
+        this.scene.add(sceneObj);
+    }
+
     removeFromScene(sceneObj) {
         this.scene.remove(sceneObj);
     }
@@ -89,8 +93,8 @@ class Machine {
     constructor(name, parentScene) {
         this.name = name;
         this.parentScene = parentScene;
-        this.buildEnvironment = null;
-        this.workEnvelope = null;
+        this.buildEnvironment = undefined;
+        this.workEnvelope = undefined;
         this.blocks = [];
         this.motors = [];
         this.connections = [];
@@ -106,11 +110,24 @@ class Machine {
         this.motors.push(motor);
     }
 
+    findBlockWithId(id) {
+        let motorsAndOtherBlocks = this.motors.concat(this.blocks);
+        return motorsAndOtherBlocks.find(block => block.id === id);
+    }
+
     renderRulerForComponent(component) {
         this.ruler.displayInSceneForComponent(this, component)
     }
 
-    removeCurrentComponents() {
+    clearMachineFromScene() {
+        if (this.buildEnvironment !== undefined) {
+            this.buildEnvironment.removeMeshGroupFromScene();
+            this.buildEnvironment = undefined;
+        }
+        if (this.workEnvelope !== undefined) {
+            this.workEnvelope.removeMeshGroupFromScene();
+            this.workEnvelope = undefined;
+        }
         this.blocks.forEach((block, index) => {
             block.removeMeshGroupFromScene();
         });
