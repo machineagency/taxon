@@ -1007,9 +1007,15 @@ class Compiler {
         return JSON.stringify(progObj);
     }
 
-    decompileToMachine() {
+    decompileIntoScene(strangeScene) {
         let progObj = JSON.parse(Compiler.testProg);
-        return progObj;
+        let machine = new Machine(progObj.name, strangeScene);
+        machine.buildEnvironment = progObj.buildEnvironment;
+        machine.workEnvelope = progObj.workEnvelope;
+        machine.motors = progObj.motors;
+        machine.blocks = progObj.blocks;
+        machine.connections = progObj.connections;
+        return machine;
     }
 }
 
@@ -1047,7 +1053,8 @@ function main() {
     animate();
     let compiler = new Compiler();
     let machineProg = compiler.compileMachine(machine);
-    let decompMachineProg = compiler.decompileToMachine();
+    let decompMachineProg = compiler.decompileIntoScene(ss);
+    console.log(machine);
     console.log(decompMachineProg);
     return ss;
 }
