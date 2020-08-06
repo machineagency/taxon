@@ -702,30 +702,16 @@ class StrangeComponent {
     }
 
     placeOnComponent(component) {
-        let thisBbox = this.computeComponentBoundingBox();
-        let thisHeight;
-        if (this.rotatedToPlane) {
-            thisHeight = thisBbox.max.z - thisBbox.min.z;
+        let newPos = (new THREE.Vector3).copy(component.position);
+        newPos.y += component.height / 2;
+        console.log(newPos);
+        if (this.height !== undefined) {
+            newPos.y += this.height / 2;
         }
-        else {
-            thisHeight = thisBbox.max.y - thisBbox.min.y;
-        }
-        let addBlockbox = component.computeComponentBoundingBox();
-        let bmax = addBlockbox.max;
-        let bmin = addBlockbox.min;
-        let eps = 1.5;
-        let topPlanePts = [
-            new THREE.Vector3(bmax.x, bmax.y, bmax.z),
-            new THREE.Vector3(bmax.x, bmax.y - bmin.y, bmax.z),
-            new THREE.Vector3(bmax.x - bmin.y, bmax.y - bmin.y, bmax.z),
-            new THREE.Vector3(bmax.x - bmin.y, bmax.y, bmax.z)
-        ];
-        // NOTE: +y is up in world coordinates, but +z is up in bbox coords
-        let centerPt = new THREE.Vector3();
-        centerPt.x = (bmax.x + bmin.x) / 2
-        centerPt.z = (bmax.y + bmin.y) / 2
-        centerPt.y = bmax.z + thisHeight / 2 + eps;
-        this.meshGroup.position.set(centerPt.x, centerPt.y, centerPt.z);
+        let eps = 0.1;
+        newPos.y += eps;
+        this.position = newPos;
+        return newPos;
     }
 }
 
@@ -737,6 +723,10 @@ class BuildEnvironment extends StrangeComponent {
         this.componentType = 'BuildEnvironment';
         parentMachine.buildEnvironment = this;
         this.renderDimensions();
+    }
+
+    get height() {
+        return 25;
     }
 
     renderDimensions() {
