@@ -936,6 +936,10 @@ class Motor extends Block {
 }
 
 class Compiler {
+
+    // TODO: make a file loader and get rid of this super long line
+    static testProg = '{"name":"Axidraw","buildEnvironment":{"width":500,"length":500},"workEnvelope":{"width":250,"length":250,"position":{"x":-100,"y":14,"z":0}},"motors":[{"id":"_xcu9t0pbi","name":"MotorA","componentType":"Motor","dimensions":{"width":50,"height":50,"length":50},"kinematics":"hBot"},{"id":"_oegwqe6vg","name":"MotorB","componentType":"Motor","dimensions":{"width":50,"height":50,"length":50},"kinematics":"hBot"}],"blocks":[{"id":"_nysxsv5n8","name":"Sharpie","componentType":"Tool","dimensions":{"type":"pen","height":50,"radius":5}},{"id":"_ow72qpfno","name":"Servo","componentType":"ToolAssembly","dimensions":{"width":12.5,"height":25,"length":50}},{"id":"_3nt6p5e5s","name":"Top","componentType":"LinearStage","dimensions":{"width":250,"height":25,"length":50}},{"id":"_d7zagt9u0","name":"Bottom","componentType":"LinearStage","dimensions":{"width":50,"height":50,"length":250},"position":{"x":50,"y":39,"z":0}}],"connections":[{"baseBlock":"_d7zagt9u0","baseBlockName":"Bottom","baseBlockFace":"-y","addBlock":"_3nt6p5e5s","addBlockName":"Top","addBlockFace":"+y","addBlockEnd":"0"},{"baseBlock":"_3nt6p5e5s","baseBlockName":"Top","baseBlockFace":"+x","addBlock":"_ow72qpfno","addBlockName":"Servo","addBlockFace":"-x","addBlockEnd":"0"},{"baseBlock":"_d7zagt9u0","baseBlockName":"Bottom","baseBlockFace":"+z","addBlock":"_xcu9t0pbi","addBlockName":"MotorA","addBlockFace":"-z","addBlockEnd":"0"},{"baseBlock":"_d7zagt9u0","baseBlockName":"Bottom","baseBlockFace":"-z","addBlock":"_oegwqe6vg","addBlockName":"MotorB","addBlockFace":"+z","addBlockEnd":"0"}]}'
+
     constructor() {
     }
 
@@ -1002,6 +1006,11 @@ class Compiler {
         progObj['connections'] = progConnections;
         return JSON.stringify(progObj);
     }
+
+    decompileToMachine() {
+        let progObj = JSON.parse(Compiler.testProg);
+        return progObj;
+    }
 }
 
 let makeLoadStlPromise = (filepath, strangeScene) => {
@@ -1038,7 +1047,8 @@ function main() {
     animate();
     let compiler = new Compiler();
     let machineProg = compiler.compileMachine(machine);
-    console.log(machineProg);
+    let decompMachineProg = compiler.decompileToMachine();
+    console.log(decompMachineProg);
     return ss;
 }
 
