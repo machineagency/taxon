@@ -147,13 +147,14 @@ class Machine {
      * connectionObj should be of the form:
      * {
      *      baseBlock: Component,
-     *      faceA: String in { '+x', '-x', '+y', ... , '-z' },
+     *      baseBlockFace: String in { '+x', '-x', '+y', ... , '-z' },
      *      addBlock: Component,
-     *      faceB: String in { '+x', '-x', '+y', ... , '-z' }
+     *      addBlockFace: String in { '+x', '-x', '+y', ... , '-z' }
      * }
      */
     setConnection(connectionObj) {
-        let { baseBlock, faceA, addBlock, faceB, end } = connectionObj;
+        let { baseBlock, baseBlockFace, addBlock, addBlockFace,
+                addBlockEnd } = connectionObj;
         let facePairsToRadians = (fStr) => {
             let signA = fStr[0] === '-' ? -1 : +1;
             let signB = fStr[3] === '-' ? -1 : +1;
@@ -237,7 +238,7 @@ class Machine {
         };
         // NOTE: reverse order faces otherwise connections are in backwards
         // configuration for some reason
-        let fStr = [faceB, faceA].join();
+        let fStr = [addBlockFace, baseBlockFace].join();
 
         // Rotate translation vector to match ComponentA's quaternion
         let translationVector = facePairsToTranslationVectorFn(fStr);
@@ -256,7 +257,7 @@ class Machine {
         addBlock.position = newBPos;
 
         // Apply end offset, itself rotated to match ComponentB's quaternion
-        let endOffset = endOffsets[end];
+        let endOffset = endOffsets[addBlockEnd];
         endOffset.applyQuaternion(addBlock.quaternion);
         addBlock.position = addBlock.position.add(endOffset);
 
@@ -267,7 +268,7 @@ class Machine {
 
     presetLoaders = {
         xyPlotter: () => {
-            this.removeCurrentComponents();
+            this.clearMachineFromScene();
             let be = new BuildEnvironment(this, {
                 length: 500,
                 width: 500
@@ -304,7 +305,7 @@ class Machine {
             return this;
         },
         axidraw: () => {
-            this.removeCurrentComponents();
+            this.clearMachineFromScene();
             let be = new BuildEnvironment(this, {
                 length: 500,
                 width: 500
@@ -350,36 +351,36 @@ class Machine {
             stageBottom.movePosition(50, 0, 0);
             this.setConnection({
                 baseBlock: stageBottom,
-                faceA: '-y',
+                baseBlockFace: '-y',
                 addBlock: stageTop,
-                faceB: '+y',
-                end: '0'
+                addBlockFace: '+y',
+                addBlockEnd: '0'
             });
             this.setConnection({
                 baseBlock: stageTop,
-                faceA: '+x',
+                baseBlockFace: '+x',
                 addBlock: toolAssembly,
-                faceB: '-x',
-                end: '0'
+                addBlockFace: '-x',
+                addBlockEnd: '0'
             });
             this.setConnection({
                 baseBlock: stageBottom,
-                faceA: '+z',
+                baseBlockFace: '+z',
                 addBlock: motorA,
-                faceB: '-z',
-                end: '0'
+                addBlockFace: '-z',
+                addBlockEnd: '0'
             });
             this.setConnection({
                 baseBlock: stageBottom,
-                faceA: '-z',
+                baseBlockFace: '-z',
                 addBlock: motorB,
-                faceB: '+z',
-                end: '0'
+                addBlockFace: '+z',
+                addBlockEnd: '0'
             });
             return this;
         },
         connectionSandbox: () => {
-            this.removeCurrentComponents();
+            this.clearMachineFromScene();
             let be = new BuildEnvironment(this, {
                 length: 500,
                 width: 500
@@ -403,17 +404,17 @@ class Machine {
             s1.placeOnComponent(be);
             this.setConnection({
                 baseBlock: s0,
-                faceA: '-z',
+                baseBlockFace: '-z',
                 addBlock: s1,
-                faceB: '+x',
-                end: '+'
+                addBlockFace: '+x',
+                addBlockEnd: '+'
             });
             this.setConnection({
                 baseBlock: s1,
-                faceA: '+y',
+                baseBlockFace: '+y',
                 addBlock: s2,
-                faceB: '-z',
-                end: '0'
+                addBlockFace: '-z',
+                addBlockEnd: '0'
             });
             return this;
         }
@@ -760,7 +761,7 @@ class WorkEnvelope extends StrangeComponent {
 
     constructor(parentMachine, dimensions) {
         if (!WorkEnvelope.shapes.includes(dimensions.shape)) {
-            console.error(`Invalid shape ${shapeName}, defaulting to rectangle.`);
+            console.error(`Invalid shape ${dimensions.shape}, defaulting to rectangle.`);
             dimensions.shape = 'rectangle';
         }
         name = 'WorkEnvelope';
@@ -1007,11 +1008,11 @@ class Compiler {
             return {
                 baseBlock: connection.baseBlock.id,
                 baseBlockName: connection.baseBlock.name,
-                baseBlockFace: connection.faceA,
+                baseBlockFace: connection.baseBlockFace,
                 addBlock: connection.addBlock.id,
                 addBlockName: connection.addBlock.name,
-                addBlockFace: connection.faceB,
-                addBlockEnd: connection.end
+                addBlockFace: connection.addBlockFace,
+                addBlockEnd: connection.addBlockEnd
             }
         });
 
@@ -1070,8 +1071,8 @@ function main() {
     animate();
     let compiler = new Compiler();
     let machineProg = compiler.compileMachine(machine);
+    console.log(machineProg);
     let decompMachineProg = compiler.decompileIntoScene(ss);
-    console.log(machine);
     console.log(decompMachineProg);
     return ss;
 }
