@@ -1247,5 +1247,6 @@ function main() {
     return ss;
 }
 
+// Test comment
 window.strangeScene = main();
 
