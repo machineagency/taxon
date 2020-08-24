@@ -176,7 +176,7 @@ class Machine {
      * }
      */
     setConnection(connectionObj) {
-        let { baseBlock, baseBlockFace, addBlock, addBlockFace,
+        let { baseBlock, baseBlockFace, baseBlockEnd, addBlock, addBlockFace,
                 addBlockEnd } = connectionObj;
         let facePairsToRadians = (fStr) => {
             let signA = fStr[0] === '-' ? -1 : +1;
@@ -248,17 +248,23 @@ class Machine {
                 return new THREE.Vector3(0, 0, transDist);
             }
         };
-        // FIXME: generalize offset for any rotation
-        let endOffsets = {
-            '+' : new THREE.Vector3(0, 0, +(baseBlock.length / 2 - addBlock.width)),
-            '-' : new THREE.Vector3(0, 0, -(baseBlock.length / 2 - addBlock.width)),
-            '0' : new THREE.Vector3(0, 0, 0),
+        let calcOffsetOnRefBlock = (refBlock, moveBlock, endAxis) => {
+            let point = (new THREE.Vector3());
+            if (endAxis === '0') {
+                return point;
+            }
+            let refOffset = this.__calcBlockDimVectorFromAxis(refBlock, endAxis);
+            let moveOffset = this.__calcBlockDimVectorFromAxis(moveBlock, endAxis);
+            point.add(refOffset.multiplyScalar(0.5));
+            point.add(moveOffset.multiplyScalar(-0.5));
+            return point;
         };
+
         // NOTE: reverse order faces otherwise connections are in backwards
         // configuration for some reason
         let fStr = [addBlockFace, baseBlockFace].join();
 
-        // Rotate translation vector to match ComponentA's quaternion
+        // Rotate translation vector to match baseBlock's quaternion
         let translationVector = facePairsToTranslationVectorFn(fStr);
         translationVector.applyQuaternion(baseBlock.quaternion);
 
@@ -274,10 +280,15 @@ class Machine {
         addBlock.rotateOverAxis(rotationAxis, connectRotationRadians);
         addBlock.position = newBPos;
 
-        // Apply end offset, itself rotated to match ComponentB's quaternion
-        let endOffset = endOffsets[addBlockEnd];
-        endOffset.applyQuaternion(addBlock.quaternion);
-        addBlock.position = addBlock.position.add(endOffset);
+        // Apply end offset, itself rotated to match addBlock's quaternion
+        let offsetAlongBase = calcOffsetOnRefBlock(baseBlock, addBlock,
+                                addBlockEnd);
+        let offsetAlongAdd = calcOffsetOnRefBlock(addBlock, baseBlock,
+                                baseBlockEnd);
+        offsetAlongBase.applyQuaternion(addBlock.quaternion);
+        offsetAlongAdd.applyQuaternion(addBlock.quaternion);
+        addBlock.position = addBlock.position.add(offsetAlongBase.negate());
+        addBlock.position = addBlock.position.add(offsetAlongAdd.negate());
 
         addBlock.baseBlock = false;
         this.connections.push(connectionObj);
@@ -370,13 +381,15 @@ class Machine {
             this.setConnection({
                 baseBlock: stageBottom,
                 baseBlockFace: '-y',
+                baseBlockEnd: '-x',
                 addBlock: stageTop,
                 addBlockFace: '+y',
-                addBlockEnd: '0'
+                addBlockEnd: '+z'
             });
             this.setConnection({
                 baseBlock: stageTop,
                 baseBlockFace: '+x',
+                baseBlockEnd: '0',
                 addBlock: toolAssembly,
                 addBlockFace: '-x',
                 addBlockEnd: '0'
@@ -384,6 +397,7 @@ class Machine {
             this.setConnection({
                 baseBlock: stageBottom,
                 baseBlockFace: '+z',
+                baseBlockEnd: '0',
                 addBlock: motorA,
                 addBlockFace: '-z',
                 addBlockEnd: '0'
@@ -391,6 +405,7 @@ class Machine {
             this.setConnection({
                 baseBlock: stageBottom,
                 baseBlockFace: '-z',
+                baseBlockEnd: '0',
                 addBlock: motorB,
                 addBlockFace: '+z',
                 addBlockEnd: '0'
@@ -457,6 +472,7 @@ class Machine {
             this.setConnection({
                 baseBlock: lsMotorA,
                 baseBlockFace: '-y',
+                baseBlockEnd: '0',
                 addBlock: lsA,
                 addBlockFace: '-y',
                 addBlockEnd: '0'
@@ -464,6 +480,7 @@ class Machine {
             this.setConnection({
                 baseBlock: lsMotorB,
                 baseBlockFace: '-y',
+                baseBlockEnd: '0',
                 addBlock: lsB,
                 addBlockFace: '-y',
                 addBlockEnd: '0'
@@ -471,15 +488,27 @@ class Machine {
             this.setConnection({
                 baseBlock: platformBelt,
                 baseBlockFace: '+x',
+                baseBlockEnd: '0',
                 addBlock: platformMotor,
                 addBlockFace: '-x',
                 addBlockEnd: '0'
             });
             carriageBelt.placeOnComponent(be);
-            carriageBelt.movePosition(100 - 12.5/2 - 10/2, 50, 0);
+            // carriageBelt.movePosition(100 - 12.5/2 - 10/2, 50, 0);
+            // TODO: current approach is to set two connections and
+            // infer that there is a parallel connection
+            this.setConnection({
+                baseBlock: lsA,
+                baseBlockFace: '+x',
+                baseBlockEnd: '0',
+                addBlock: carriageBelt,
+                addBlockFace: '-x',
+                addBlockEnd: '-'
+            });
             this.setConnection({
                 baseBlock: carriageBelt,
                 baseBlockFace: '+z',
+                baseBlockEnd: '0',
                 addBlock: carriageMotor,
                 addBlockFace: '-x',
                 addBlockEnd: '0'
@@ -492,6 +521,7 @@ class Machine {
             this.setConnection({
                 baseBlock: carriageBelt,
                 baseBlockFace: '+x',
+                baseBlockEnd: '0',
                 addBlock: toolAssembly,
                 addBlockFace: '-x',
                 addBlockEnd: '0'
