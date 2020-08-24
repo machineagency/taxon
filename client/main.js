@@ -106,6 +106,26 @@ class Machine {
         parentScene.machine = this;
     }
 
+    findParallelBlockGroups() {
+        let blocksByAddId = {};
+        this.connections.forEach((connection) => {
+            let addId = connection.addBlock.id;
+            if (blocksByAddId[addId] === undefined) {
+                blocksByAddId[addId] = [connection.baseBlock];
+            }
+            else {
+                blocksByAddId[addId].push(connection.baseBlock);
+            }
+        });
+        let parallelBlockGroups = [];
+        Object.keys(blocksByAddId).forEach((addId) => {
+            if (blocksByAddId[addId].length > 1) {
+                parallelBlockGroups.push(blocksByAddId[addId]);
+            }
+        });
+        return parallelBlockGroups
+    }
+
     __calcBlockDimVectorFromAxis(block, axis) {
         if (axis === '0') {
             return new THREE.Vector3(0, 0, 0);
@@ -505,6 +525,14 @@ class Machine {
                 addBlock: carriageBelt,
                 addBlockFace: '-x',
                 addBlockEnd: '-z'
+            });
+            this.setConnection({
+                baseBlock: lsB,
+                baseBlockFace: '+x',
+                baseBlockEnd: '0',
+                addBlock: carriageBelt,
+                addBlockFace: '-x',
+                addBlockEnd: '+z'
             });
             this.setConnection({
                 baseBlock: carriageBelt,
