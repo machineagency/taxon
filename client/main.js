@@ -1206,12 +1206,27 @@ class Compiler {
             }
         });
 
+        // NOTE: extras are for the reader's enjoyment only, as they are
+        // Generated from the "driving" properties. As a result, they don't
+        // need to be decompiled
+        let references = {};
+        references['parallelBlockGroups'] = machine.findParallelBlockGroups()
+                                        .map((blockGroupArr) => {
+            return blockGroupArr.map((block) => {
+                return {
+                    id: block.id,
+                    name: block.name
+                }
+            });
+        });
+
         progObj['name'] = machine['name'];
         progObj['buildEnvironment'] = progBuildEnvironment;
         progObj['workEnvelope'] = progWorkEnvelope;
         progObj['motors'] = progMotors;
         progObj['blocks'] = progBlocks;
         progObj['connections'] = progConnections;
+        progObj['references'] = references;
         return JSON.stringify(progObj);
     }
 
