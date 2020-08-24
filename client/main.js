@@ -286,7 +286,7 @@ class Machine {
                                 addBlockEnd);
         let offsetAlongAdd = calcOffsetOnRefBlock(addBlock, baseBlock,
                                 baseBlockEnd);
-        offsetAlongBase.applyQuaternion(addBlock.quaternion);
+        offsetAlongBase.applyQuaternion(baseBlock.quaternion);
         offsetAlongAdd.applyQuaternion(addBlock.quaternion);
         addBlock.position = addBlock.position.add(offsetAlongBase.negate());
         addBlock.position = addBlock.position.add(offsetAlongAdd.negate());
@@ -512,7 +512,7 @@ class Machine {
                 baseBlockEnd: '0',
                 addBlock: carriageMotor,
                 addBlockFace: '-x',
-                addBlockEnd: '0'
+                addBlockEnd: '+x'
             });
             let toolAssembly = new ToolAssembly('hotend', this, {
                 width: 12.5,
