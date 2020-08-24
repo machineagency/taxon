@@ -1170,6 +1170,7 @@ class Compiler {
                 baseBlock: connection.baseBlock.id,
                 baseBlockName: connection.baseBlock.name,
                 baseBlockFace: connection.baseBlockFace,
+                baseBlockEnd: connection.baseBlockEnd,
                 addBlock: connection.addBlock.id,
                 addBlockName: connection.addBlock.name,
                 addBlockFace: connection.addBlockFace,
@@ -1248,6 +1249,7 @@ class Compiler {
             machine.setConnection({
                 baseBlock: machine.findBlockWithId(connectionData.baseBlock),
                 baseBlockFace: connectionData.baseBlockFace,
+                baseBlockEnd: connectionData.baseBlockEnd,
                 addBlock: machine.findBlockWithId(connectionData.addBlock),
                 addBlockFace: connectionData.addBlockFace,
                 addBlockEnd: connectionData.addBlockEnd
