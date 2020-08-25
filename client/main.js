@@ -1191,6 +1191,29 @@ class Kinematics {
             this.__buildSubtree(baseNode);
         });
     }
+
+    findNodeWithBlockId(blockId) {
+        let dfs = (currNode, targetId) => {
+            if (currNode.block.id === targetId) {
+                return currNode;
+            }
+            let maybeResults = currNode.childNodes.map((childNode) => {
+                return dfs(childNode, targetId);
+            });
+            return maybeResults.find((result) => result !== undefined);
+        };
+        return dfs(this.rootKNode, blockId);
+    }
+
+    pathFromNodeToRoot(node) {
+        let traverse = (currNode, pathSoFar) => {
+            if (currNode.parentNode === undefined) {
+                return pathSoFar.concat(currNode);
+            }
+            return traverse(currNode.parentNode, pathSoFar.concat(currNode))
+        };
+        return traverse(node, []);
+    }
 }
 
 class KNode {
