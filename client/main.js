@@ -402,7 +402,7 @@ class Machine {
             this.setConnection({
                 baseBlock: stageBottom,
                 baseBlockFace: '-y',
-                baseBlockEnd: '-x',
+                baseBlockEnd: '+x',
                 addBlock: stageTop,
                 addBlockFace: '+y',
                 addBlockEnd: '+z'
@@ -559,6 +559,14 @@ class Machine {
                 type: 'pen',
                 height: 25,
                 radius: 5
+            });
+            this.setConnection({
+                baseBlock: toolAssembly,
+                baseBlockFace: '+x',
+                baseBlockEnd: '0',
+                addBlock: tool,
+                addBlockFace: '-x',
+                addBlockEnd: '0'
             });
             return this;
         },
@@ -1136,6 +1144,74 @@ class Motor extends Block {
     }
 }
 
+class Kinematics {
+
+    constructor() {
+        this.rootKNode = undefined;
+    }
+
+    buildTreeForMachine(machine) {
+        let toolBlock = machine.blocks.find((block) => {
+            return block.componentType === 'Tool'
+        });
+        if (toolBlock === undefined) {
+            console.error(`Can't find tool for machine ${machine.name}`);
+            return;
+        }
+        this.machine = machine;
+        this.rootKNode = new KNode(toolBlock);
+        this.__buildSubtree(this.rootKNode);
+    }
+
+    __buildSubtree(parentKNode) {
+        let currAddBlockId = parentKNode.block.id;
+        let baseBlockConnections = this.machine.connections.filter((conn) => {
+            return conn.addBlock.id === currAddBlockId;
+        });
+        if (baseBlockConnections.length === 0) {
+            return;
+        }
+        let baseBlocks = baseBlockConnections.map((conn) => {
+            return this.machine.findBlockWithId(conn.baseBlock.id);
+        });
+        let baseBlockNodes = baseBlocks.map((block) => {
+            return new KNode(block, parentKNode);
+        });
+        if (baseBlockNodes.length > 1) {
+            baseBlockNodes.forEach((baseBlockNode) => {
+                let parallels = baseBlockNodes.filter((block) => {
+                    return block.id !== baseBlockNode.id;
+                });
+                baseBlockNode.addParallelNodes(parallels);
+            });
+        }
+
+        parentKNode.addChildNodes(baseBlockNodes);
+        baseBlockNodes.forEach((baseNode) => {
+            this.__buildSubtree(baseNode);
+        });
+    }
+}
+
+class KNode {
+
+    constructor(block, parentNode) {
+        this.block = block;
+        this.parentNode = parentNode;
+        this.childNodes = [];
+        this.parallelNodes = [];
+    }
+
+    addChildNodes(childNodes) {
+        this.childNodes = this.childNodes.concat(childNodes);
+    }
+
+    addParallelNodes(parallelNodes) {
+        this.parallelNodes = this.parallelNodes.concat(parallelNodes);
+    }
+
+}
+
 class Compiler {
 
     constructor() {
@@ -1331,6 +1407,9 @@ function main() {
     // let decompMachineProg = compiler.decompileIntoScene(ss, prusaProg);
     let machine = new Machine('prusa', ss);
     machine.presetLoaders.prusa();
+    let kinematics = new Kinematics();
+    window.kinematics = kinematics;
+    kinematics.buildTreeForMachine(machine);
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
