@@ -1211,6 +1211,37 @@ class Kinematics {
         };
         return traverse(node, []);
     }
+
+    determineAxisNameForBlock(block) {
+        let dims;
+        if (block.quaternion.w !== 1) {
+            console.warn(`Determining axis for rotated block: ${block.name}.`);
+            let rotatedDimVect = new THREE.Vector3(block.dimensions.width,
+                                                   block.dimensions.height,
+                                                   block.dimensions.length)
+                                    .applyQuaternion(block.quaternion);
+            dims = {
+                width : rotatedDimVect.x,
+                height : rotatedDimVect.y,
+                length : rotatedDimVect.z,
+            };
+        }
+        else {
+            dims = block.dimensions;
+        }
+        let dimKeys = Object.keys(dims);
+        let dimValues = Object.values(dims);
+        let maxIdx = dimValues.reduce((maxIdxSoFar, val, currIdx, arr) => {
+            return val > arr[maxIdxSoFar] ? currIdx : maxIdxSoFar;
+        }, 0);
+        let maxDim = dimKeys[maxIdx];
+        let dimToAxisName = {
+            'width' : 'x',
+            'height' : 'y',
+            'length' : 'z'
+        };
+        return dimToAxisName[maxDim];
+    }
 }
 
 class KNode {
