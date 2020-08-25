@@ -1214,6 +1214,11 @@ class Kinematics {
 
     determineAxisNameForBlock(block) {
         let dims;
+        if (block.componentType === 'Tool'
+                || block.componentType === 'ToolAssembly'
+                || block.componentType === 'Motor') {
+            return '0';
+        }
         if (block.quaternion.w !== 1) {
             console.warn(`Determining axis for rotated block: ${block.name}.`);
             let rotatedDimVect = new THREE.Vector3(block.dimensions.width,
