@@ -495,7 +495,7 @@ class Machine {
                 baseBlockFace: '-y',
                 baseBlockEnd: '0',
                 addBlock: lsA,
-                addBlockFace: '-y',
+                addBlockFace: '+y',
                 addBlockEnd: '0'
             });
             this.setConnection({
@@ -503,7 +503,7 @@ class Machine {
                 baseBlockFace: '-y',
                 baseBlockEnd: '0',
                 addBlock: lsB,
-                addBlockFace: '-y',
+                addBlockFace: '+y',
                 addBlockEnd: '0'
             });
             this.setConnection({
@@ -515,16 +515,13 @@ class Machine {
                 addBlockEnd: '0'
             });
             carriageBelt.placeOnComponent(be);
-            // carriageBelt.movePosition(100 - 12.5/2 - 10/2, 50, 0);
-            // TODO: current approach is to set two connections and
-            // infer that there is a parallel connection
             this.setConnection({
                 baseBlock: lsA,
                 baseBlockFace: '+x',
                 baseBlockEnd: '0',
                 addBlock: carriageBelt,
                 addBlockFace: '-x',
-                addBlockEnd: '-z'
+                addBlockEnd: '+z'
             });
             this.setConnection({
                 baseBlock: lsB,
@@ -532,7 +529,7 @@ class Machine {
                 baseBlockEnd: '0',
                 addBlock: carriageBelt,
                 addBlockFace: '-x',
-                addBlockEnd: '+z'
+                addBlockEnd: '-z'
             });
             this.setConnection({
                 baseBlock: carriageBelt,
