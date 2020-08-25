@@ -1247,6 +1247,24 @@ class Kinematics {
         };
         return dimToAxisName[maxDim];
     }
+
+    determineMachineAxes() {
+        let axisBlockPairs = this.machine.blocks.map((block) => {
+            return [this.determineAxisNameForBlock(block), block];
+        });
+        let axisToBlock = {};
+        axisBlockPairs.forEach((axisBlockPair) => {
+            let axisName = axisBlockPair[0];
+            let block = axisBlockPair[1];
+            if (axisToBlock[axisName] === undefined) {
+                axisToBlock[axisName] = [block];
+            }
+            else {
+                axisToBlock[axisName].push(block);
+            }
+        });
+        return axisToBlock;
+    }
 }
 
 class KNode {
