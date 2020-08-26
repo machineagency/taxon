@@ -1302,6 +1302,7 @@ class Kinematics {
             let stage = drivenStages[0];
             let drivenStageNode = this.findNodeWithBlockId(stage.id);
             let path = this.pathFromNodeToRoot(drivenStageNode).slice(1);
+            let pathBlocks = path.map((node) => node.block);
             let pathBlockNames = path.map((node) => node.block.name);
             let parallelBlockNames = drivenStageNode.parallelNodes
                                         .map((node) => node.block.name);
@@ -1312,7 +1313,7 @@ class Kinematics {
             // can we just have the user provide a mapping between motor pulse
             // to tool movement? idk, what to infer or designate here...
             let sa = new StrangeAnimation();
-            sa.moveBlockOnAxisName(path[0].block, axisName, displacement);
+            sa.moveBlocksOnAxisName(pathBlocks, axisName, displacement);
         }
     }
 }
@@ -1342,25 +1343,31 @@ class StrangeAnimation {
         this.strangeScene = strangeScene;
     }
 
-    moveBlockOnAxisName(block, axisName, displacement) {
-        let newPos = (new THREE.Vector3()).copy(block.position);
-        if (axisName === 'x') {
-            newPos.x += displacement;
-        }
-        if (axisName === 'y') {
-            newPos.y += displacement;
-        }
-        if (axisName === 'z') {
-            newPos.z += displacement;
-        }
-        let mixerClipPair = this.makeMoveMixerClipPair(block, newPos);
-        let mixer = mixerClipPair[0];
-        this.strangeScene.mixers.push(mixer);
-        let clip = mixerClipPair[1];
-        let action = mixer.clipAction(clip);
-        action.loop = THREE.LoopOnce;
-        action.clampWhenFinished = true;
-        action.play();
+    moveBlocksOnAxisName(blocks, axisName, displacement) {
+        let actions = [];
+        blocks.forEach((block) => {
+            let newPos = (new THREE.Vector3()).copy(block.position);
+            if (axisName === 'x') {
+                newPos.x += displacement;
+            }
+            if (axisName === 'y') {
+                newPos.y += displacement;
+            }
+            if (axisName === 'z') {
+                newPos.z += displacement;
+            }
+            let mixerClipPair = this.makeMoveMixerClipPair(block, newPos);
+            let mixer = mixerClipPair[0];
+            this.strangeScene.mixers.push(mixer);
+            let clip = mixerClipPair[1];
+            let action = mixer.clipAction(clip);
+            action.loop = THREE.LoopOnce;
+            action.clampWhenFinished = true;
+            actions.push(action);
+        });
+        actions.forEach((action) => {
+            action.play();
+        });
     }
 
     makeMoveMixerClipPair(obj, newPos) {
