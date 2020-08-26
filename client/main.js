@@ -565,6 +565,10 @@ class Machine {
                 addBlockFace: '-x',
                 addBlockEnd: '0'
             });
+            platformBelt.setDrivingMotors([platformMotor]);
+            carriageBelt.setDrivingMotors([carriageMotor]);
+            lsA.setDrivingMotors([lsMotorA]);
+            lsB.setDrivingMotors([lsMotorB]);
             return this;
         },
         connectionSandbox: () => {
@@ -1078,9 +1082,17 @@ class LinearStage extends Block {
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
         this.componentType = 'LinearStage';
+        this.drivingMotors = [];
         this.baseBlock = true;
         parentMachine.addBlock(this);
         this.renderDimensions();
+    }
+
+    setDrivingMotors(motors) {
+        this.drivingMotors = motors;
+        motors.forEach((motor) => {
+            motor.addDrivenStage(this);
+        });
     }
 
     renderDimensions() {
@@ -1113,8 +1125,13 @@ class Motor extends Block {
         super(name, parentMachine, dimensions);
         this.componentType = 'Motor';
         this.baseBlock = true;
+        this.drivenStages = [];
         parentMachine.addMotor(this);
         this.renderDimensions();
+    }
+
+    addDrivenStage(stage) {
+        this.drivenStages.push(stage);
     }
 
     renderDimensions() {
@@ -1317,6 +1334,14 @@ class Compiler {
                 componentType: block.componentType,
                 dimensions: block.dimensions
             }
+            if (block.componentType === 'LinearStage') {
+                progBlock.drivingMotors = block.drivingMotors.map((motor) => {
+                    return {
+                        id: motor.id,
+                        name: name.id
+                    };
+                });
+            }
             if (block.baseBlock) {
                 progBlock.position = {
                     x: block.position.x,
@@ -1336,6 +1361,12 @@ class Compiler {
                 dimensions: motor.dimensions,
                 kinematics: kinematics
             }
+            progMotor.drivenStages = motor.drivenStages.map((stage) => {
+                return {
+                    id: stage.id,
+                    name: stage.name
+                };
+            });
             if (motor.baseBlock) {
                 progMotor.position = {
                     x: motor.position.x,
