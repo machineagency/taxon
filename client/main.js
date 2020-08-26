@@ -1358,6 +1358,8 @@ class StrangeAnimation {
         this.strangeScene.mixers.push(mixer);
         let clip = mixerClipPair[1];
         let action = mixer.clipAction(clip);
+        action.loop = THREE.LoopOnce;
+        action.clampWhenFinished = true;
         action.play();
     }
 
@@ -1377,7 +1379,7 @@ class StrangeAnimation {
             mixer.stopAllAction();
             let idx = this.strangeScene.mixers.indexOf(mixer);
             if (idx !== -1) {
-                mixers.splice(idx, 1);
+                this.strangeScene.mixers.splice(idx, 1);
             }
             obj.position.set(newPos.x, newPos.y, newPos.z);
         });
