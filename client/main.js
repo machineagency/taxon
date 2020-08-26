@@ -1372,6 +1372,22 @@ class Compiler {
             });
         });
 
+        let kinematics = new Kinematics();
+        kinematics.buildTreeForMachine(machine);
+        let axisBlockGroups = kinematics.determineMachineAxes();
+        let axisBlockGroupsReduced = {};
+        Object.keys(axisBlockGroups).forEach((axisName) => {
+            let blockGroup = axisBlockGroups[axisName];
+            let blockGroupReduced = blockGroup.map((block) => {
+                return {
+                    id: block.id,
+                    name: block.name
+                };
+            });
+            axisBlockGroupsReduced[axisName] = blockGroupReduced;
+        });
+        references['axes'] = axisBlockGroupsReduced;
+
         progObj['name'] = machine['name'];
         progObj['buildEnvironment'] = progBuildEnvironment;
         progObj['workEnvelope'] = progWorkEnvelope;
