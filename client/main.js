@@ -13,6 +13,8 @@ class StrangeScene {
         this.scene = this.initScene();
         this.camera = this.initCamera(this.scene, true);
         this.renderer = this.initRenderer();
+        this.clock = new THREE.Clock();
+        this.mixers = [];
         this.controls = this.initControls(this.camera, this.renderer);
         this.ruler = new Ruler();
     }
@@ -85,6 +87,10 @@ class StrangeScene {
 
     renderScene() {
         this.controls.update();
+        let deltaSeconds = this.clock.getDelta();
+        this.mixers.forEach((mixer) => {
+            mixer.update(deltaSeconds);
+        });
         this.renderer.render(this.scene, this.camera);
     }
 }
@@ -1288,6 +1294,7 @@ class Kinematics {
     turnMotorSteps(motor, steps) {
         // TODO: have step -> displacement conversion assigned in motor,
         // for now assume 1-to-1
+        let displacement = steps;
         let drivenStages = motor.drivenStages;
         // Examine kinematic type. E.g. HBot needs extra steps here.
         // Driven stages is 1 only in the direct drive case
@@ -1296,8 +1303,16 @@ class Kinematics {
             let drivenStageNode = this.findNodeWithBlockId(stage.id);
             let path = this.pathFromNodeToRoot(drivenStageNode).slice(1);
             let pathBlockNames = path.map((node) => node.block.name);
+            let parallelBlockNames = drivenStageNode.parallelNodes
+                                        .map((node) => node.block.name);
             let axisName = this.determineAxisNameForBlock(stage);
-            console.log(`Turning motor "${motor.name}" by ${steps} steps in the ${axisName} direction, also [${pathBlockNames}].`)
+            console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: parallel [${parallelBlockNames}] and chain [${pathBlockNames}].`)
+
+            // TODO: might not need to explicitly label "direct drive" or "hbot"
+            // can we just have the user provide a mapping between motor pulse
+            // to tool movement? idk, what to infer or designate here...
+            let sa = new StrangeAnimation();
+            sa.moveBlockOnAxisName(path[0].block, axisName, displacement);
         }
     }
 }
@@ -1319,6 +1334,60 @@ class KNode {
         this.parallelNodes = this.parallelNodes.concat(parallelNodes);
     }
 
+}
+
+class StrangeAnimation {
+
+    constructor(strageScene) {
+        this.strangeScene = strangeScene;
+    }
+
+    moveBlockOnAxisName(block, axisName, displacement) {
+        let newPos = (new THREE.Vector3()).copy(block.position);
+        if (axisName === 'x') {
+            newPos.x += displacement;
+        }
+        if (axisName === 'y') {
+            newPos.y += displacement;
+        }
+        if (axisName === 'z') {
+            newPos.z += displacement;
+        }
+        let mixerClipPair = this.makeMoveMixerClipPair(block, newPos);
+        let mixer = mixerClipPair[0];
+        this.strangeScene.mixers.push(mixer);
+        let clip = mixerClipPair[1];
+        let action = mixer.clipAction(clip);
+        action.play();
+    }
+
+    makeMoveMixerClipPair(obj, newPos) {
+        // TODO: check if an object is already being animated, if so, take existing
+        // KF into account and add it to the new mixer-action.
+        // Don't have time to currently implement this, so come back to it.
+        // mixers.forEach((mixer) => {
+        //     let mixerObj = mixer.getRoot();
+        //     if (mixerObj === obj) {
+        //         // TODO
+        //     }
+        // });
+
+        let mixer = new THREE.AnimationMixer(obj);
+        mixer.addEventListener('finished', (event) => {
+            mixer.stopAllAction();
+            let idx = this.strangeScene.mixers.indexOf(mixer);
+            if (idx !== -1) {
+                mixers.splice(idx, 1);
+            }
+            obj.position.set(newPos.x, newPos.y, newPos.z);
+        });
+        let currPos = obj.position;
+        let positionKF = new THREE.VectorKeyframeTrack('.position', [1,2],
+                            [currPos.x, currPos.y, currPos.z,
+                             newPos.x, newPos.y, newPos.z], THREE.InterpolateLinear);
+        let clip = new THREE.AnimationClip('Action', 2, [ positionKF ]);
+        return [mixer, clip];
+    };
 }
 
 class Compiler {
