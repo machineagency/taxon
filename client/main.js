@@ -1284,6 +1284,22 @@ class Kinematics {
         });
         return axisToBlock;
     }
+
+    turnMotorSteps(motor, steps) {
+        // TODO: have step -> displacement conversion assigned in motor,
+        // for now assume 1-to-1
+        let drivenStages = motor.drivenStages;
+        // Examine kinematic type. E.g. HBot needs extra steps here.
+        // Driven stages is 1 only in the direct drive case
+        if (drivenStages.length === 1) {
+            let stage = drivenStages[0];
+            let drivenStageNode = this.findNodeWithBlockId(stage.id);
+            let path = this.pathFromNodeToRoot(drivenStageNode).slice(1);
+            let pathBlockNames = path.map((node) => node.block.name);
+            let axisName = this.determineAxisNameForBlock(stage);
+            console.log(`Turning motor "${motor.name}" by ${steps} steps in the ${axisName} direction, also [${pathBlockNames}].`)
+        }
+    }
 }
 
 class KNode {
