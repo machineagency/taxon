@@ -1251,6 +1251,8 @@ class Kinematics {
     determineMachineAxes() {
         let axisBlockPairs = this.machine.blocks.map((block) => {
             return [this.determineAxisNameForBlock(block), block];
+        }).filter((axisBlockPair) => {
+            return axisBlockPair[0] !== '0';
         });
         let axisToBlock = {};
         axisBlockPairs.forEach((axisBlockPair) => {
