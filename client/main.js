@@ -1166,8 +1166,10 @@ class Motor extends Block {
 
 class Kinematics {
 
-    constructor() {
+    constructor(strangeScene) {
         this.rootKNode = undefined;
+        this.strangeScene = strangeScene;
+        this.strangeAnimator = new StrangeAnimator(strangeScene);
     }
 
     buildTreeForMachine(machine) {
@@ -1181,6 +1183,8 @@ class Kinematics {
         this.machine = machine;
         this.rootKNode = new KNode(toolBlock);
         this.__buildSubtree(this.rootKNode);
+        // FIXME: build subtrees for anything not connected to root
+        // e.g. the platform belt on the prusa
     }
 
     __buildSubtree(parentKNode) {
@@ -1291,7 +1295,16 @@ class Kinematics {
         return axisToBlock;
     }
 
-    turnMotorSteps(motor, steps) {
+    turnMotors(motorIdToSteps) {
+        Object.keys(motorIdToSteps).forEach((motorId) => {
+            let motor = this.strangeScene.machine.findBlockWithId(motorId);
+            let steps = motorIdToSteps[motorId];
+            this.__turnMotorSteps(motor, steps);
+        });
+        this.strangeAnimator.animateToBlockEndPositions();
+    }
+
+    __turnMotorSteps(motor, steps) {
         // TODO: have step -> displacement conversion assigned in motor,
         // for now assume 1-to-1
         let displacement = steps;
@@ -1312,11 +1325,8 @@ class Kinematics {
             // TODO: might not need to explicitly label "direct drive" or "hbot"
             // can we just have the user provide a mapping between motor pulse
             // to tool movement? idk, what to infer or designate here...
-            let sa = new StrangeAnimation();
-            sa.setMoveBlocksOnAxisName(pathBlocks, axisName, displacement);
-            // Test a simultaneous move
-            sa.setMoveBlocksOnAxisName([pathBlocks[1]], 'z', displacement / 2);
-            sa.animateToBlockEndPositions();
+            this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
+                                                         displacement);
         }
     }
 }
@@ -1340,11 +1350,12 @@ class KNode {
 
 }
 
-class StrangeAnimation {
+class StrangeAnimator {
 
-    constructor(strageScene) {
+    constructor(strangeScene) {
         this.strangeScene = strangeScene;
         this.blockIdEndPositions = {};
+        // Note that mixers must stay in StrangeScene for rendering
     }
 
     animateToBlockEndPositions() {
@@ -1363,6 +1374,7 @@ class StrangeAnimation {
         actions.forEach((action) => {
             action.play();
         });
+        this.blockIdEndPositions = {};
     }
 
     setMoveBlocksOnAxisName(blocks, axisName, displacement) {
@@ -1632,7 +1644,7 @@ function main() {
     // let decompMachineProg = compiler.decompileIntoScene(ss, prusaProg);
     let machine = new Machine('prusa', ss);
     machine.presetLoaders.prusa();
-    let kinematics = new Kinematics();
+    let kinematics = new Kinematics(ss);
     window.kinematics = kinematics;
     kinematics.buildTreeForMachine(machine);
     let animate = () => {
