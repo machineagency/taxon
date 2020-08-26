@@ -1313,7 +1313,10 @@ class Kinematics {
             // can we just have the user provide a mapping between motor pulse
             // to tool movement? idk, what to infer or designate here...
             let sa = new StrangeAnimation();
-            sa.moveBlocksOnAxisName(pathBlocks, axisName, displacement);
+            sa.setMoveBlocksOnAxisName(pathBlocks, axisName, displacement);
+            // Test a simultaneous move
+            sa.setMoveBlocksOnAxisName([pathBlocks[1]], 'z', displacement / 2);
+            sa.animateToBlockEndPositions();
         }
     }
 }
@@ -1341,46 +1344,51 @@ class StrangeAnimation {
 
     constructor(strageScene) {
         this.strangeScene = strangeScene;
+        this.blockIdEndPositions = {};
     }
 
-    moveBlocksOnAxisName(blocks, axisName, displacement) {
-        let actions = [];
-        blocks.forEach((block) => {
-            let newPos = (new THREE.Vector3()).copy(block.position);
-            if (axisName === 'x') {
-                newPos.x += displacement;
-            }
-            if (axisName === 'y') {
-                newPos.y += displacement;
-            }
-            if (axisName === 'z') {
-                newPos.z += displacement;
-            }
-            let mixerClipPair = this.makeMoveMixerClipPair(block, newPos);
+    animateToBlockEndPositions() {
+        let actions = Object.keys(this.blockIdEndPositions).map((blockId) => {
+            let block = this.strangeScene.machine.findBlockWithId(blockId);
+            let endPos = this.blockIdEndPositions[block.id];
+            let mixerClipPair = this.makeMoveMixerClipPair(block, endPos);
             let mixer = mixerClipPair[0];
             this.strangeScene.mixers.push(mixer);
             let clip = mixerClipPair[1];
             let action = mixer.clipAction(clip);
             action.loop = THREE.LoopOnce;
             action.clampWhenFinished = true;
-            actions.push(action);
+            return action;
         });
         actions.forEach((action) => {
             action.play();
         });
     }
 
-    makeMoveMixerClipPair(obj, newPos) {
-        // TODO: check if an object is already being animated, if so, take existing
-        // KF into account and add it to the new mixer-action.
-        // Don't have time to currently implement this, so come back to it.
-        // mixers.forEach((mixer) => {
-        //     let mixerObj = mixer.getRoot();
-        //     if (mixerObj === obj) {
-        //         // TODO
-        //     }
-        // });
+    setMoveBlocksOnAxisName(blocks, axisName, displacement) {
+        let currEndPos;
+        blocks.forEach((block) => {
+            if (this.blockIdEndPositions[block.id] !== undefined) {
+                currEndPos = this.blockIdEndPositions[block.id];
+            }
+            else {
+                currEndPos = (new THREE.Vector3()).copy(block.position);
+            }
 
+            if (axisName === 'x') {
+                currEndPos.x += displacement;
+            }
+            if (axisName === 'y') {
+                currEndPos.y += displacement;
+            }
+            if (axisName === 'z') {
+                currEndPos.z += displacement;
+            }
+            this.blockIdEndPositions[block.id] = currEndPos;
+        });
+    }
+
+    makeMoveMixerClipPair(obj, newPos) {
         let mixer = new THREE.AnimationMixer(obj);
         mixer.addEventListener('finished', (event) => {
             mixer.stopAllAction();
