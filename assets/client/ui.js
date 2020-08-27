@@ -32,7 +32,7 @@ function toggle_tool(btn) {
    }
 }
 
-function select_object(obj) {
+function create_dlg_select(obj) {
    dialog.updateFields(obj.id, true);
    dialog.showDialog();
    css_display_off(create_dlg);
@@ -65,6 +65,10 @@ function select_object(obj) {
 
    obj_list.appendChild(divider);
    obj_list.appendChild(item);
+}
+
+function create_obj(obj) {
+   
 }
 
 function open_obj_property(lego) {
