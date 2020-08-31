@@ -1217,7 +1217,7 @@ class Motor extends Block {
 class Kinematics {
 
     constructor(strangeScene) {
-        this.rootKNode = undefined;
+        this.rootKNodes = [];
         this.strangeScene = strangeScene;
         this.strangeAnimator = new StrangeAnimator(strangeScene);
     }
@@ -1231,17 +1231,28 @@ class Kinematics {
             return;
         }
         this.machine = machine;
-        this.rootKNode = new KNode(toolBlock);
-        this.__buildSubtree(this.rootKNode);
-        // FIXME: build subtrees for anything not connected to root
-        // e.g. the platform belt on the prusa
+        let rootBlocks = machine.blocks.filter((block) => block.endBlock);
+        rootBlocks.forEach((block) => {
+            let rootNode = new KNode(block);
+            this.__buildSubtree(rootNode);
+            this.rootKNodes.push(rootNode);
+        });
     }
 
-    __buildSubtree(parentKNode) {
-        let currAddBlockId = parentKNode.block.id;
+    __buildSubtree(currKNode) {
+        currKNode.block.visited = true;
+        let currAddBlockId = currKNode.block.id;
         let baseBlockConnections = this.machine.connections.filter((conn) => {
             return conn.addBlock.id === currAddBlockId;
+            //     || (conn.baseBlock.id === currAddBlockId
+            //             && !conn.baseBlock.visited);
         });
+        let orphans = this.machine.connections.filter((conn) => {
+            return conn.baseBlock.id === currAddBlockId
+                    && !conn.addBlock.visited;
+        });
+        console.log(`${currKNode.block.name} has [${orphans.map((c) => c.addBlock.name)}]`);
+        // baseBlockConnections.push(...orphans);
         if (baseBlockConnections.length === 0) {
             return;
         }
@@ -1249,7 +1260,7 @@ class Kinematics {
             return this.machine.findBlockWithId(conn.baseBlock.id);
         });
         let baseBlockNodes = baseBlocks.map((block) => {
-            return new KNode(block, parentKNode);
+            return new KNode(block, currKNode);
         });
         if (baseBlockNodes.length > 1) {
             baseBlockNodes.forEach((baseBlockNode) => {
@@ -1260,7 +1271,7 @@ class Kinematics {
             });
         }
 
-        parentKNode.addChildNodes(baseBlockNodes);
+        currKNode.addChildNodes(baseBlockNodes);
         baseBlockNodes.forEach((baseNode) => {
             this.__buildSubtree(baseNode);
         });
@@ -1370,13 +1381,14 @@ class Kinematics {
             let parallelBlockNames = drivenStageNode.parallelNodes
                                         .map((node) => node.block.name);
             let axisName = this.determineAxisNameForBlock(stage);
-            console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: parallel [${parallelBlockNames}] and chain [${pathBlockNames}].`)
+            console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. Parallel blocks [${parallelBlockNames}] should also have their motors turning.`)
 
-            // TODO: might not need to explicitly label "direct drive" or "hbot"
-            // can we just have the user provide a mapping between motor pulse
-            // to tool movement? idk, what to infer or designate here...
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          displacement);
+
+            // TODO: HBot case is something like
+            // this.strangeAnimator.setMove(aBlock, axisName, +displacement / 2);
+            // this.strangeAnimator.setMove(bBlock, axisName, -displacement / 2);
         }
     }
 }
