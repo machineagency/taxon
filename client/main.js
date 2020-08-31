@@ -450,6 +450,10 @@ class Machine {
                 length: 200 - 35,
                 width: 200 - 35
             });
+            let platform = new Platform('build plate', this, {
+                length: 200 - 35 * 2,
+                width: 200 - 35 * 2
+            });
             let platformBelt = new LinearStage('platform belt', this, {
                 width: 200 - 35,
                 height: 25,
@@ -494,8 +498,8 @@ class Machine {
             we.placeOnComponent(platformBelt);
             lsMotorA.placeOnComponent(be);
             lsMotorB.placeOnComponent(be);
-            lsMotorA.movePosition(100, 0, -100);
-            lsMotorB.movePosition(100, 0, +100);
+            lsMotorA.movePosition(35, 0, -100);
+            lsMotorB.movePosition(35, 0, +100);
             this.setConnection({
                 baseBlock: lsMotorA,
                 baseBlockFace: '-y',
@@ -521,6 +525,14 @@ class Machine {
                 addBlockEnd: '0'
             });
             carriageBelt.placeOnComponent(be);
+            this.setConnection({
+                baseBlock: platformBelt,
+                baseBlockFace: '-y',
+                baseBlockEnd: '0',
+                addBlock: platform,
+                addBlockFace: '+y',
+                addBlockEnd: '0'
+            });
             this.setConnection({
                 baseBlock: lsA,
                 baseBlockFace: '+x',
@@ -955,7 +967,8 @@ class WorkEnvelope extends StrangeComponent {
         super(name, parentMachine, dimensions);
         this.componentType = 'WorkEnvelope';
         parentMachine.workEnvelope = this;
-        this.renderDimensions();
+        // FIXME: come back to generating work envelope, hide for now.
+        // this.renderDimensions();
     }
 
     get shape() {
@@ -1003,6 +1016,7 @@ class Tool extends Block {
         // NOTE: Tool objects are not base blocks because they are assumed
         // to be "floating" and machine-independent for simulation purposes
         this.baseBlock = false;
+        this.endBlock = true;
         parentMachine.addBlock(this);
         this.renderDimensions();
     }
@@ -1080,6 +1094,42 @@ class ToolAssembly extends Block {
         this.meshGroup.position.set(Tool.defaultPosition.x,
                                Tool.defaultPosition.y,
                                Tool.defaultPosition.z)
+    }
+}
+
+class Platform extends Block {
+    static caseColor = 0x222222;
+    constructor(name, parentMachine, dimensions) {
+        dimensions['height'] = 10;
+        super(name, parentMachine, dimensions);
+        this.componentType = 'Platform';
+        this.baseBlock = true;
+        this.endBlock = true;
+        parentMachine.addBlock(this);
+        this.renderDimensions();
+    }
+
+    renderDimensions() {
+        this.removeMeshGroupFromScene();
+        this.geom = BuildEnvironment.geometryFactories
+                                   .toolAssembly(this.dimensions);
+        this.edgesGeom = new THREE.EdgesGeometry(this.geom);
+        this.material = new THREE.MeshLambertMaterial({
+            color : Platform.caseColor,
+            transparent: true,
+            opacity: 0.05
+        });
+        this.edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x222222
+        });
+        this.mesh = new THREE.Mesh(this.geom, this.material);
+        this.wireSegments = new THREE.LineSegments(this.edgesGeom,
+                                this.edgesMaterial);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.mesh);
+        this.meshGroup.add(this.wireSegments);
+        this.geometries = [this.geom, this.edgesGeom];
+        this.addMeshGroupToScene();
     }
 }
 
