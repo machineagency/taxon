@@ -1373,7 +1373,7 @@ class Kinematics {
         this.strangeAnimator.animateToBlockEndPositions();
     }
 
-    __turnMotorSteps(motor, steps) {
+    __turnMotorSteps(motor, steps, recurseOnParallelMotors = true) {
         // TODO: have step -> displacement conversion assigned in motor,
         // for now assume 1-to-1
         let displacement = steps;
@@ -1392,10 +1392,18 @@ class Kinematics {
             let parallelBlockNames = drivenStageNode.parallelNodes
                                         .map((node) => node.block.name);
             let axisName = this.determineAxisNameForBlock(stage);
-            console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. [${parallelBlockNames}] should have their driving motors turning.`)
-
+            console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. [${parallelBlockNames}] should have their driving motors turning.`);
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          displacement);
+            if (recurseOnParallelMotors) {
+                drivenStageNode.parallelNodes.forEach((parallelNode) => {
+                    let block = parallelNode.block;
+                    let parallelMotors = block.drivingMotors
+                    block.drivingMotors.forEach((parallelMotor) => {
+                        this.__turnMotorSteps(parallelMotor, steps, false);
+                    });
+                })
+            }
 
             // TODO: HBot case is something like
             // this.strangeAnimator.setMove(aBlock, axisName, +displacement / 2);
