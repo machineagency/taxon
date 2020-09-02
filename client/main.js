@@ -1738,4 +1738,9 @@ function main() {
 }
 
 window.strangeScene = main();
+window.testMotor = () => {
+    let motor = window.strangeScene.machine.motors[0];
+    let steps = 100;
+    window.kinematics.turnMotors({ [motor.id] : steps });
+};
 
