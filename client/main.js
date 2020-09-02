@@ -188,6 +188,19 @@ class Machine {
         this.motors = [];
     }
 
+    setPairABMotors(motorA, motorB) {
+        if (motorA.kinematics === 'directDrive'
+            || motorB.kinematics === 'directDrive') {
+            console.warn('Cannot set direct drive motors as pairs.');
+        }
+        else {
+            motorA.pairMotorType = 'a';
+            motorA.pairMotor = motorB;
+            motorB.pairMotorType = 'b';
+            motorB.pairMotor = motorA;
+        }
+    }
+
     /**
      * Connects two components such that the center point on a face of some
      * addBlock becomes fixed to the center of the face of baseBlock.
@@ -395,12 +408,12 @@ class Machine {
                 width: 50,
                 height: 50,
                 length: 50
-            });
+            }, 'hBot');
             let motorB = new Motor('MotorB', this, {
                 width: 50,
                 height: 50,
                 length: 50
-            });
+            }, 'hBot');
             we.placeOnComponent(be);
             we.movePosition(-100, 0, 0);
             stageBottom.placeOnComponent(be);
@@ -437,6 +450,17 @@ class Machine {
                 addBlockFace: '+z',
                 addBlockEnd: '0'
             });
+            this.setConnection({
+                baseBlock: toolAssembly,
+                baseBlockFace: '+x',
+                baseBlockEnd: '0',
+                addBlock: tool,
+                addBlockFace: '-x',
+                addBlockEnd: '0'
+            });
+            this.setPairABMotors(motorA, motorB);
+            stageBottom.setDrivingMotors([motorA, motorB])
+            stageTop.setDrivingMotors([motorA, motorB])
             return this;
         },
         prusa: () => {
@@ -1596,6 +1620,9 @@ class Compiler {
                     z: motor.position.z
                 };
             }
+            if (motor.pairMotor) {
+                progMotor.pairMotorId = motor.pairMotor.id;
+            }
             return progMotor;
         });
         let progConnections = machine.connections.map((connection) => {
@@ -1719,6 +1746,7 @@ class Compiler {
                 addBlockEnd: connectionData.addBlockEnd
             });
         });
+        // TODO: set pair motors
         return machine;
     }
 }
@@ -1750,8 +1778,8 @@ function main() {
     let axidrawProg = '{"name":"Axidraw","buildEnvironment":{"width":500,"length":500},"workEnvelope":{"shape":"rectangle","width":250,"length":250,"position":{"x":-100,"y":14,"z":0}},"motors":[{"id":"_8u1etwnzu","name":"MotorA","componentType":"Motor","dimensions":{"width":50,"height":50,"length":50},"kinematics":"hBot"},{"id":"_l8ie2ir94","name":"MotorB","componentType":"Motor","dimensions":{"width":50,"height":50,"length":50},"kinematics":"hBot"}],"blocks":[{"id":"_88emu97v2","name":"Sharpie","componentType":"Tool","dimensions":{"type":"pen","height":50,"radius":5}},{"id":"_b79dmf0u1","name":"Servo","componentType":"ToolAssembly","dimensions":{"width":12.5,"height":25,"length":50}},{"id":"_pl4vtjbkv","name":"Top","componentType":"LinearStage","dimensions":{"width":250,"height":25,"length":50}},{"id":"_ezquxn891","name":"Bottom","componentType":"LinearStage","dimensions":{"width":50,"height":50,"length":250},"position":{"x":50,"y":39,"z":0}}],"connections":[{"baseBlock":"_ezquxn891","baseBlockName":"Bottom","baseBlockFace":"-y","addBlock":"_pl4vtjbkv","addBlockName":"Top","addBlockFace":"+y","addBlockEnd":"0"},{"baseBlock":"_pl4vtjbkv","baseBlockName":"Top","baseBlockFace":"+x","addBlock":"_b79dmf0u1","addBlockName":"Servo","addBlockFace":"-x","addBlockEnd":"0"},{"baseBlock":"_ezquxn891","baseBlockName":"Bottom","baseBlockFace":"+z","addBlock":"_8u1etwnzu","addBlockName":"MotorA","addBlockFace":"-z","addBlockEnd":"0"},{"baseBlock":"_ezquxn891","baseBlockName":"Bottom","baseBlockFace":"-z","addBlock":"_l8ie2ir94","addBlockName":"MotorB","addBlockFace":"+z","addBlockEnd":"0"}]}';
     let prusaProg = '{"name":"Prusa","buildEnvironment":{"width":500,"length":500},"workEnvelope":{"shape":"rectangle","width":165,"length":165,"position":{"x":0,"y":37.7,"z":0}},"motors":[{"id":"_9i4dkku69","name":"leadscrew motor a","componentType":"Motor","dimensions":{"width":25,"height":25,"length":25},"kinematics":"directDrive","position":{"x":100,"y":25.1,"z":-100}},{"id":"_ojk1v6pqe","name":"leadscrew motor b","componentType":"Motor","dimensions":{"width":25,"height":25,"length":25},"kinematics":"directDrive","position":{"x":100,"y":25.1,"z":100}},{"id":"_4voygo4cz","name":"platform belt motor","componentType":"Motor","dimensions":{"width":25,"height":25,"length":25},"kinematics":"directDrive"},{"id":"_d90cj6s4o","name":"carriage belt motor","componentType":"Motor","dimensions":{"width":25,"height":25,"length":25},"kinematics":"directDrive"}],"blocks":[{"id":"_5727moa5h","name":"platform belt","componentType":"LinearStage","dimensions":{"width":165,"height":25,"length":25},"position":{"x":0,"y":25.1,"z":0}},{"id":"_1hhx18qbr","name":"carriage belt","componentType":"LinearStage","dimensions":{"width":12.5,"height":25,"length":210},"position":{"x":88.75,"y":75.1,"z":0}},{"id":"_ohjvuvl0s","name":"z leadscrew a","componentType":"LinearStage","dimensions":{"width":10,"height":150,"length":10}},{"id":"_n476hx9vz","name":"z leadscrew b","componentType":"LinearStage","dimensions":{"width":10,"height":150,"length":10}},{"id":"_flbuxdy66","name":"hotend","componentType":"ToolAssembly","dimensions":{"width":12.5,"height":25,"length":25}},{"id":"_yey0kq0l5","name":"extruder","componentType":"Tool","dimensions":{"type":"pen","height":25,"radius":5}}],"connections":[{"baseBlock":"_9i4dkku69","baseBlockName":"leadscrew motor a","baseBlockFace":"-y","addBlock":"_ohjvuvl0s","addBlockName":"z leadscrew a","addBlockFace":"-y","addBlockEnd":"0"},{"baseBlock":"_ojk1v6pqe","baseBlockName":"leadscrew motor b","baseBlockFace":"-y","addBlock":"_n476hx9vz","addBlockName":"z leadscrew b","addBlockFace":"-y","addBlockEnd":"0"},{"baseBlock":"_5727moa5h","baseBlockName":"platform belt","baseBlockFace":"+x","addBlock":"_4voygo4cz","addBlockName":"platform belt motor","addBlockFace":"-x","addBlockEnd":"0"},{"baseBlock":"_1hhx18qbr","baseBlockName":"carriage belt","baseBlockFace":"+z","addBlock":"_d90cj6s4o","addBlockName":"carriage belt motor","addBlockFace":"-x","addBlockEnd":"0"},{"baseBlock":"_1hhx18qbr","baseBlockName":"carriage belt","baseBlockFace":"+x","addBlock":"_flbuxdy66","addBlockName":"hotend","addBlockFace":"-x","addBlockEnd":"0"}]}';
     // let decompMachineProg = compiler.decompileIntoScene(ss, prusaProg);
-    let machine = new Machine('prusa', ss);
-    machine.presetLoaders.prusa();
+    let machine = new Machine('axidraw', ss);
+    machine.presetLoaders.axidraw();
     let kinematics = new Kinematics(ss);
     window.kinematics = kinematics;
     kinematics.buildTreeForMachine(machine);
@@ -1769,8 +1797,11 @@ function main() {
 
 window.strangeScene = main();
 window.testMotor = () => {
-    let motor = window.strangeScene.machine.motors[0];
-    let steps = 100;
-    window.kinematics.turnMotors({ [motor.id] : steps });
+    let motorA = window.strangeScene.machine.motors[0];
+    let motorB = window.strangeScene.machine.motors[1];
+    window.kinematics.turnMotors({
+        [motorA.id] : 100,
+        [motorB.id] : -100
+    });
 };
 
