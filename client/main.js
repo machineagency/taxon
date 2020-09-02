@@ -1398,7 +1398,7 @@ class Kinematics {
         this.strangeAnimator.animateToBlockEndPositions();
     }
 
-    __turnMotorSteps(motor, steps, recurseOnParallelMotors = true) {
+    __turnMotorSteps(motor, steps, recurseOnSecondaryMotors = true) {
         // TODO: have step -> displacement conversion assigned in motor,
         // for now assume 1-to-1
         let displacement = steps;
@@ -1426,14 +1426,35 @@ class Kinematics {
                 baseStage = motor.drivenStages[0];
                 addStage = motor.drivenStages[1];
             }
+            else {
+                baseStage = motor.drivenStages[1];
+                addStage = motor.drivenStages[0];
+            }
             let baseAxisName = this.determineAxisNameForBlock(baseStage);
             let addAxisName = this.determineAxisNameForBlock(addStage);
-            // FIXME: need to flip the sign if "this" motor is MA vs. MB
-            // How to even establish which is which?
-            this.strangeAnimator.setMoveBlocksOnAxisName([baseStage], baseAxisName,
-                                                         0.5 * displacement);
-            this.strangeAnimator.setMoveBlocksOnAxisName([addStage], addAxisName,
-                                                         0.5 * displacement);
+            let addStageNode = this.findNodeWithBlockId(addStage.id);
+            let path = this.pathFromNodeToRoot(addStageNode).slice(1);
+            let pathBlocks = path.map((node) => {
+                let orphanBlocks = node.orphanNodes.map((node) => node.block);
+                return [node.block].concat(orphanBlocks);
+            }).flat();
+            pathBlocks = [addStage].concat(pathBlocks);
+            if (motor.pairMotorType === 'a') {
+                this.strangeAnimator
+                    .setMoveBlocksOnAxisName(pathBlocks, baseAxisName,
+                                             0.5 * displacement, true);
+                this.strangeAnimator
+                    .setMoveBlocksOnAxisName(pathBlocks, addAxisName,
+                                             0.5 * displacement, true);
+            }
+            else if (motor.pairMotorType === 'b') {
+                this.strangeAnimator
+                    .setMoveBlocksOnAxisName(pathBlocks, baseAxisName,
+                                             0.5 * displacement, true);
+                this.strangeAnimator
+                    .setMoveBlocksOnAxisName(pathBlocks, addAxisName,
+                                             -0.5 * displacement, true);
+            }
         }
         if (motor.kinematics === 'coreXy') {
             // Same kinematics as HBot, but different pointer logistics
@@ -1454,7 +1475,7 @@ class Kinematics {
             console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. [${parallelBlockNames}] should have their driving motors turning.`);
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          displacement);
-            if (recurseOnParallelMotors) {
+            if (recurseOnSecondaryMotors) {
                 drivenStageNode.parallelNodes.forEach((parallelNode) => {
                     let block = parallelNode.block;
                     let parallelMotors = block.drivingMotors
@@ -1518,7 +1539,8 @@ class StrangeAnimator {
         this.blockIdEndPositions = {};
     }
 
-    setMoveBlocksOnAxisName(blocks, axisName, displacement) {
+    setMoveBlocksOnAxisName(blocks, axisName, displacement,
+                            compoundDisplacement = false) {
         let currEndPos;
         blocks.forEach((block) => {
             if (this.blockIdEndPositions[block.id] !== undefined) {
@@ -1527,8 +1549,14 @@ class StrangeAnimator {
             else {
                 currEndPos = (new THREE.Vector3()).copy(block.position);
             }
-            currEndPos[axisName] = Math.max(block.position[axisName]
-                                    + displacement, currEndPos.y);
+
+            if (compoundDisplacement) {
+                currEndPos[axisName] += displacement;
+            }
+            else {
+                currEndPos[axisName] = Math.max(block.position[axisName]
+                                        + displacement, currEndPos[axisName]);
+            }
             this.blockIdEndPositions[block.id] = currEndPos;
         });
     }
@@ -1599,7 +1627,6 @@ class Compiler {
             return progBlock;
         });
         let progMotors = machine.motors.map((motor) => {
-            // TODO: kinematics, motor designations, etc.
             let progMotor = {
                 id: motor.id,
                 name: motor.name,
