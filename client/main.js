@@ -1177,9 +1177,10 @@ class LinearStage extends Block {
 
 class Motor extends Block {
     static color = 0xffed90;
-    constructor(name, parentMachine, dimensions) {
+    constructor(name, parentMachine, dimensions, kinematics = 'directDrive') {
         super(name, parentMachine, dimensions);
         this.componentType = 'Motor';
+        this.kinematics = kinematics;
         this.baseBlock = true;
         this.drivenStages = [];
         parentMachine.addMotor(this);
@@ -1378,9 +1379,43 @@ class Kinematics {
         // for now assume 1-to-1
         let displacement = steps;
         let drivenStages = motor.drivenStages;
-        // Examine kinematic type. E.g. HBot needs extra steps here.
-        // Driven stages is 1 only in the direct drive case
-        if (drivenStages.length === 1) {
+        if (motor.kinematics === 'hBot') {
+            // This motor must have two drivenStages, a relative base
+            // (SB) and a relative add (SA). SB and SA must have the
+            // complementary motor (MA or MB) as a drivingMotor.
+
+            // Given displacement operator d on a stage's native axis:
+            //     dSB = 0.5(dMA + dMB)
+            //     dSA = 0.5(dMA - dMB)
+            // For a single motor call, one of dMA or dMB will just be zero,
+            // but that will be handled in the subsequent motor call, which
+            // is the responsibility of the caller, although we can warn
+            // about this possibly.
+            // From there on, we can handle all child nodes of SB and SA
+            // as we do in the direct drive case.
+            let baseStage, addStage;
+            let plausibleMotorConfig = this.machine.connections.find((conn) => {
+                return conn.baseBlock.id === motor.drivenStages[0].id
+                    && conn.addBlock.id === motor.drivenStages[1].id;
+            });
+            if (plausibleMotorConfig !== undefined) {
+                baseStage = motor.drivenStages[0];
+                addStage = motor.drivenStages[1];
+            }
+            let baseAxisName = this.determineAxisNameForBlock(baseStage);
+            let addAxisName = this.determineAxisNameForBlock(addStage);
+            // FIXME: need to flip the sign if "this" motor is MA vs. MB
+            // How to even establish which is which?
+            this.strangeAnimator.setMoveBlocksOnAxisName([baseStage], baseAxisName,
+                                                         0.5 * displacement);
+            this.strangeAnimator.setMoveBlocksOnAxisName([addStage], addAxisName,
+                                                         0.5 * displacement);
+        }
+        if (motor.kinematics === 'coreXy') {
+            // Same kinematics as HBot, but different pointer logistics
+            // For getting motors and stages (should have a compound stage).
+        }
+        if (motor.kinematics === 'directDrive') {
             let stage = drivenStages[0];
             let drivenStageNode = this.findNodeWithBlockId(stage.id);
             let path = this.pathFromNodeToRoot(drivenStageNode).slice(1);
@@ -1404,10 +1439,6 @@ class Kinematics {
                     });
                 })
             }
-
-            // TODO: HBot case is something like
-            // this.strangeAnimator.setMove(aBlock, axisName, +displacement / 2);
-            // this.strangeAnimator.setMove(bBlock, axisName, -displacement / 2);
         }
     }
 }
@@ -1545,13 +1576,12 @@ class Compiler {
         });
         let progMotors = machine.motors.map((motor) => {
             // TODO: kinematics, motor designations, etc.
-            let kinematics = machine.name === 'Axidraw' ? 'hBot' : 'directDrive';
             let progMotor = {
                 id: motor.id,
                 name: motor.name,
                 componentType: motor.componentType,
                 dimensions: motor.dimensions,
-                kinematics: kinematics
+                kinematics: motor.kinematics
             }
             progMotor.drivenStages = motor.drivenStages.map((stage) => {
                 return {
