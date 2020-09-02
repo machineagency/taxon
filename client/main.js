@@ -421,10 +421,10 @@ class Machine {
             this.setConnection({
                 baseBlock: stageBottom,
                 baseBlockFace: '-y',
-                baseBlockEnd: '+x',
+                baseBlockEnd: '0',
                 addBlock: stageTop,
                 addBlockFace: '+y',
-                addBlockEnd: '+z'
+                addBlockEnd: '0'
             });
             this.setConnection({
                 baseBlock: stageTop,
