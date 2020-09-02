@@ -1257,7 +1257,7 @@ class Kinematics {
         if (baseBlockNodes.length > 1) {
             baseBlockNodes.forEach((baseBlockNode) => {
                 let parallels = baseBlockNodes.filter((node) => {
-                    return node.block.id !== baseBlockNode.id;
+                    return node.block.id !== baseBlockNode.block.id;
                 });
                 baseBlockNode.addParallelNodes(parallels);
             });
