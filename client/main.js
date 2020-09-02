@@ -1472,16 +1472,8 @@ class StrangeAnimator {
             else {
                 currEndPos = (new THREE.Vector3()).copy(block.position);
             }
-
-            if (axisName === 'x') {
-                currEndPos.x += displacement;
-            }
-            if (axisName === 'y') {
-                currEndPos.y += displacement;
-            }
-            if (axisName === 'z') {
-                currEndPos.z += displacement;
-            }
+            currEndPos[axisName] = Math.max(block.position[axisName]
+                                    + displacement, currEndPos.y);
             this.blockIdEndPositions[block.id] = currEndPos;
         });
     }
