@@ -1287,7 +1287,10 @@ class Kinematics {
             });
             return maybeResults.find((result) => result !== undefined);
         };
-        return dfs(this.rootKNode, blockId);
+        let rootResults = this.rootKNodes.map((rootKNode) => {
+            return dfs(rootKNode, blockId);
+        });
+        return rootResults.find((result) => result !== undefined);
     }
 
     pathFromNodeToRoot(node) {
