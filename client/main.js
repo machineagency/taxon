@@ -1244,15 +1244,7 @@ class Kinematics {
         let currAddBlockId = currKNode.block.id;
         let baseBlockConnections = this.machine.connections.filter((conn) => {
             return conn.addBlock.id === currAddBlockId;
-            //     || (conn.baseBlock.id === currAddBlockId
-            //             && !conn.baseBlock.visited);
         });
-        let orphans = this.machine.connections.filter((conn) => {
-            return conn.baseBlock.id === currAddBlockId
-                    && !conn.addBlock.visited;
-        });
-        console.log(`${currKNode.block.name} has [${orphans.map((c) => c.addBlock.name)}]`);
-        // baseBlockConnections.push(...orphans);
         if (baseBlockConnections.length === 0) {
             return;
         }
@@ -1275,6 +1267,19 @@ class Kinematics {
         baseBlockNodes.forEach((baseNode) => {
             this.__buildSubtree(baseNode);
         });
+
+        // Deal with any orphan blocks, but do not recurse on them
+        let orphans = this.machine.connections.filter((conn) => {
+            return conn.baseBlock.id === currAddBlockId
+                    && !conn.addBlock.visited;
+        });
+        let orphanBlocks = orphans.map((conn) => {
+            return this.machine.findBlockWithId(conn.addBlock.id);
+        });
+        let orphanBlockNodes = orphanBlocks.map((block) => {
+            return new KNode(block);
+        });
+        currKNode.addOrphanNodes(orphanBlockNodes);
     }
 
     findNodeWithBlockId(blockId) {
@@ -1379,12 +1384,15 @@ class Kinematics {
             let stage = drivenStages[0];
             let drivenStageNode = this.findNodeWithBlockId(stage.id);
             let path = this.pathFromNodeToRoot(drivenStageNode).slice(1);
-            let pathBlocks = path.map((node) => node.block);
-            let pathBlockNames = path.map((node) => node.block.name);
+            let pathBlocks = path.map((node) => {
+                let orphanBlocks = node.orphanNodes.map((node) => node.block);
+                return [node.block].concat(orphanBlocks);
+            }).flat();
+            let pathBlockNames = pathBlocks.map((block) => block.name);
             let parallelBlockNames = drivenStageNode.parallelNodes
                                         .map((node) => node.block.name);
             let axisName = this.determineAxisNameForBlock(stage);
-            console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. Parallel blocks [${parallelBlockNames}] should also have their motors turning.`)
+            console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. [${parallelBlockNames}] should have their driving motors turning.`)
 
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          displacement);
@@ -1403,6 +1411,7 @@ class KNode {
         this.parentNode = parentNode;
         this.childNodes = [];
         this.parallelNodes = [];
+        this.orphanNodes = [];
     }
 
     addChildNodes(childNodes) {
@@ -1411,6 +1420,10 @@ class KNode {
 
     addParallelNodes(parallelNodes) {
         this.parallelNodes = this.parallelNodes.concat(parallelNodes);
+    }
+
+    addOrphanNodes(orphanNodes) {
+        this.orphanNodes = this.orphanNodes.concat(orphanNodes);
     }
 
 }
