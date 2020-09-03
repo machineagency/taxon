@@ -386,8 +386,9 @@ class Machine {
             });
             let tool = new Tool('Sharpie', this, {
                 type: 'pen',
+                width: 10,
                 height: 50,
-                radius: 5
+                length: 10
             });
             let toolAssembly = new ToolAssembly('Servo', this, {
                 width: 12.5,
@@ -604,8 +605,9 @@ class Machine {
             });
             let tool = new Tool('extruder', this, {
                 type: 'pen',
+                width: 10,
                 height: 25,
-                radius: 5
+                length: 10
             });
             this.setConnection({
                 baseBlock: toolAssembly,
@@ -779,8 +781,11 @@ class StrangeComponent {
                 return new THREE.CylinderBufferGeometry(5, 5, 50, 10)
             }
             if (dimensions.type === 'pen') {
-                return new THREE.CylinderBufferGeometry(dimensions.radius,
-                        dimensions.radius, dimensions.height, 10)
+                let radius = dimensions.width / 2;
+                let height = dimensions.height;
+                let numSegments = 10;
+                return new THREE.CylinderBufferGeometry(radius, radius, height,
+                                                        numSegments);
             }
         },
         toolAssembly: (d) => new THREE.BoxBufferGeometry(d.width, d.height,
