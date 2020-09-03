@@ -1805,6 +1805,9 @@ class Compiler {
             if (blockData.componentType === 'LinearStage') {
                 CurrentBlockConstructor = LinearStage;
             }
+            if (blockData.componentType === 'Platform') {
+                CurrentBlockConstructor = Platform;
+            }
             let block = new CurrentBlockConstructor(blockData.name, machine, {
                 width: blockData.dimensions.width,
                 height: blockData.dimensions.height,
