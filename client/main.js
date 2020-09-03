@@ -1049,8 +1049,8 @@ class Block extends StrangeComponent {
 class Tool extends Block {
     static color = 0xe44242;
     static defaultPosition = new THREE.Vector3(0, 150, 0);
-    constructor(name, parentMachine, dimensions) {
-        super(name, parentMachine, dimensions, attributes = {});
+    constructor(name, parentMachine, dimensions, attributes = {}) {
+        super(name, parentMachine, dimensions);
         this.componentType = 'Tool';
         // NOTE: Tool objects are not base blocks because they are assumed
         // to be "floating" and machine-independent for simulation purposes
