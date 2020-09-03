@@ -104,6 +104,9 @@ class Machine {
         this.blocks = [];
         this.motors = [];
         this.connections = [];
+        // Eagerly store paired motors, whereas parallel motors are
+        // inferred lazily later on.
+        this.pairedMotors = [];
         this.axisToDim = {
             'x': 'width',
             'y': 'height',
@@ -199,6 +202,7 @@ class Machine {
             motorB.pairMotorType = 'b';
             motorB.pairMotor = motorA;
         }
+        this.pairedMotors.push([motorA, motorB]);
     }
 
     /**
@@ -1703,6 +1707,15 @@ class Compiler {
                 }
             });
         });
+        references['pairedMotorGroups'] = machine.pairedMotors.map((group) => {
+            return group.map((motor) => {
+                return {
+                    id: motor.id,
+                    name: motor.name,
+                    kinematics: motor.kinematics
+                }
+            });
+        });
 
         let kinematics = new Kinematics();
         kinematics.buildTreeForMachine(machine);
@@ -1799,7 +1812,22 @@ class Compiler {
                 addBlockEnd: connectionData.addBlockEnd
             });
         });
-        // TODO: set pair motors
+        progObj.motors.forEach((motorData) => {
+            let motorPairs = [];
+            let pairedMotorIds = [];
+            if (motorData.pairMotorId !== undefined) {
+                if (!pairedMotorIds.includes(motorData.id)
+                    && !pairedMotorIds.includes(motorData.pairMotorId)) {
+                    let motor = machine.findBlockWithId(motorData.id)
+                    let pairMotor = machine.findBlockWithId(motorData
+                                                            .pairMotorId);
+                    motorPairs.push([motor, pairMotor]);
+                    pairedMotorIds.push(motorData.id);
+                    pairedMotorIds.push(motorData.pairMotorId);
+                }
+            }
+            machine.pairedMotors = motorPairs;
+        });
         return machine;
     }
 }
