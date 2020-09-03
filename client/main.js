@@ -1231,6 +1231,14 @@ class LinearStage extends Block {
     }
 }
 
+class RotaryStage {
+    // TODO
+}
+
+class CompoundStage {
+    // TODO
+}
+
 class Motor extends Block {
     static color = 0xffed90;
     constructor(name, parentMachine, dimensions, kinematics = 'directDrive') {
