@@ -1914,8 +1914,20 @@ function main() {
 
 window.strangeScene = main();
 window.testMotor = () => {
-    let motorA = window.strangeScene.machine.motors[0];
-    let motorB = window.strangeScene.machine.motors[1];
+    let motors = window.strangeScene.machine.motors;
+    let motorA = motors.find((motor) => {
+        return motor.name === 'MotorA';
+    });
+    let motorB = motors.find((motor) => {
+        return motor.name === 'MotorB';
+    });
+    let lsMotorA = motors.find((motor) => {
+        return motor.name === 'leadscrew motor a';
+    });
+    let platformMotor = motors.find((motor) => {
+        return motor.name === 'platform belt motor';
+    });
+
     window.kinematics.turnMotors({
         [motorA.id] : 100,
         [motorB.id] : -100
