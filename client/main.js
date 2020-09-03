@@ -458,6 +458,14 @@ class Machine {
                 addBlockFace: '-x',
                 addBlockEnd: '0'
             });
+            stageBottom.setAttributes({
+                driveMechanism: 'timingBelt',
+                stepDisplacementRatio: '0.7'
+            });
+            stageTop.setAttributes({
+                driveMechanism: 'timingBelt',
+                stepDisplacementRatio: '0.7'
+            });
             this.setPairABMotors(motorA, motorB);
             stageBottom.setDrivingMotors([motorA, motorB])
             stageTop.setDrivingMotors([motorA, motorB])
@@ -1159,9 +1167,13 @@ class Platform extends Block {
 
 class LinearStage extends Block {
     static caseColor = 0x222222;
-    constructor(name, parentMachine, dimensions) {
+    constructor(name, parentMachine, dimensions, attributes = {}) {
         super(name, parentMachine, dimensions);
         this.componentType = 'LinearStage';
+        this.attributes = {
+            driveMechanism: '',
+            stepDisplacementRatio: 0
+        };
         this.drivingMotors = [];
         this.baseBlock = true;
         parentMachine.addBlock(this);
@@ -1173,6 +1185,13 @@ class LinearStage extends Block {
         motors.forEach((motor) => {
             motor.addDrivenStage(this);
         });
+    }
+
+    setAttributes(newAttributes) {
+        let newDriveMechanism = newAttributes.driveMechanism || '';
+        let newStepDisplacementRatio = newAttributes.stepDisplacementRatio || 0;
+        this.attributes.driveMechanism = newDriveMechanism;
+        this.attributes.stepDisplacementRatio = newStepDisplacementRatio;
     }
 
     renderDimensions() {
@@ -1616,6 +1635,7 @@ class Compiler {
                         name: name.id
                     };
                 });
+                progBlock.attributes = block.attributes;
             }
             if (block.baseBlock) {
                 progBlock.position = {
@@ -1762,6 +1782,7 @@ class Compiler {
                                             blockData.position.z);
                 block.position = position;
             }
+            block.attributes = blockData.attributes;
         });
         progObj.connections.forEach((connectionData) => {
             machine.setConnection({
