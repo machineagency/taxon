@@ -389,11 +389,10 @@ class Machine {
                 width: 250
             });
             let tool = new Tool('Sharpie', this, {
-                type: 'pen',
                 width: 10,
                 height: 50,
                 length: 10
-            });
+            }, { toolType : 'pen' });
             let toolAssembly = new ToolAssembly('Servo', this, {
                 width: 12.5,
                 height: 25,
@@ -608,11 +607,10 @@ class Machine {
                 addBlockEnd: '0'
             });
             let tool = new Tool('extruder', this, {
-                type: 'pen',
                 width: 10,
                 height: 25,
                 length: 10
-            });
+            }, { toolType: 'extruder' });
             this.setConnection({
                 baseBlock: toolAssembly,
                 baseBlockFace: '+x',
@@ -1052,12 +1050,18 @@ class Tool extends Block {
     static color = 0xe44242;
     static defaultPosition = new THREE.Vector3(0, 150, 0);
     constructor(name, parentMachine, dimensions) {
-        super(name, parentMachine, dimensions);
+        super(name, parentMachine, dimensions, attributes = {});
         this.componentType = 'Tool';
         // NOTE: Tool objects are not base blocks because they are assumed
         // to be "floating" and machine-independent for simulation purposes
         this.baseBlock = false;
         this.endBlock = true;
+        this.attributes = {
+            toolType : attributes.toolType || '',
+            // If we want to specify radius explicitly, then we need to change
+            // the mesh instantiation in the geometry factory.
+            radius : dimensions.width / 2
+        };
         parentMachine.addBlock(this);
         this.renderDimensions();
     }
