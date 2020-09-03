@@ -1832,7 +1832,9 @@ class Compiler {
                                             blockData.position.z);
                 block.position = position;
             }
-            block.setAtrributes(blockData.attributes);
+            if (block.type === 'LinearStage' || block.type === 'Tool') {
+                block.setAtrributes(blockData.attributes);
+            }
         });
         progObj.connections.forEach((connectionData) => {
             machine.setConnection({
