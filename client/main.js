@@ -1457,15 +1457,28 @@ class Kinematics {
         // TODO: traverse kinematic tree, if node block has steps and its
         // parallel motor doesn't, problem!
         let blockIdEndPositions = strangeAnimator.blockIdEndPositions;
+        let allTrue = (accumulator, curr) => { return accumulator && curr; };
         let verifySubtree = (subtreeRootNode) => {
-            subtreeRootNode.parallelNodes.forEach((parallelNode) => {
-                let block = parallelNode.block;
-                let parallelMotors = block.drivingMotors
-                block.drivingMotors.forEach((parallelMotor) => {
-                    this.__turnMotorSteps(parallelMotor, steps, false);
-                });
+            let parallelStageIds = subtreeRootNode.parallelNodes.map((node) => {
+                return node.block.id;
+            });
+            let parallelsInAnim = parallelStageIds.map((id) => {
+                return strangeAnimator.blockIdEndPositions[id] !== undefined;
+            });
+            let allParallelsInAnim = parallelsInAnim.reduce(allTrue, true);
+            if (!allParallelsInAnim) {
+                return false;
+            }
+            let subTreesResults = subtreeRootNode.childNodes.map((childNode) => {
+                return verifySubtree(childNode);
             })
+            return subTreesResults.reduce(allTrue, true);
         };
+
+        let rootResults = this.rootKNodes.map((rootNode) => {
+            return verifySubtree(rootNode);
+        });
+        return rootResults.reduce(allTrue, true);
     }
 
     moveToolRelative(axesToCoords) {
@@ -1490,8 +1503,9 @@ class Kinematics {
             let steps = motorIdToSteps[motorId];
             this.__turnMotorSteps(motor, steps);
         });
-        // TODO: UGGGGH
-        // this.verifyMotorStepsInAnimator(this.strangeAnimator);
+        let validMotorTurn = this.verifyMotorStepsInAnimator(this.strangeAnimator);
+        console.log(`Motor turns valid... ${validMotorTurn}`);
+        console.log(validMotorTurn);
         this.strangeAnimator.animateToBlockEndPositions();
     }
 
