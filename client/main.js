@@ -1453,16 +1453,34 @@ class Kinematics {
         return axisToBlock;
     }
 
+    moveToolRelative(axesToCoords) {
+        // TODO: assume direct drive only for now, HBot later
+        // TODO: not just moving tool, also plates yikes
+        let machine = this.strangeScene.machine;
+        let motorIdToSteps = {};
+        let axisToStageLists = this.determineMachineAxes();
+        Object.keys(axisToStageLists).forEach((axisName) => {
+            let stages = axisToStageLists[axisName];
+            let axisMotors = stages.map((stage) => stage.drivingMotors).flat();
+            let axisMotorIds = axisMotors.map((motor) => motor.id);
+            let steps = axesToCoords[axisName] || 0;
+            motorIdToSteps[axisMotorIds[0]] = steps;
+        });
+        this.turnMotors(motorIdToSteps);
+    }
+
     turnMotors(motorIdToSteps) {
         Object.keys(motorIdToSteps).forEach((motorId) => {
             let motor = this.strangeScene.machine.findBlockWithId(motorId);
             let steps = motorIdToSteps[motorId];
             this.__turnMotorSteps(motor, steps);
         });
+        // TODO: UGGGGH
+        // this.verifyMotorStepsInAnimator(this.strangeAnimator);
         this.strangeAnimator.animateToBlockEndPositions();
     }
 
-    __turnMotorSteps(motor, steps, recurseOnSecondaryMotors = true) {
+    __turnMotorSteps(motor, steps) {
         // TODO: have step -> displacement conversion assigned in motor,
         // for now assume 1-to-1
         let displacement = steps;
@@ -1542,15 +1560,6 @@ class Kinematics {
             console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. [${parallelBlockNames}] should have their driving motors turning.`);
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          displacement);
-            if (recurseOnSecondaryMotors) {
-                drivenStageNode.parallelNodes.forEach((parallelNode) => {
-                    let block = parallelNode.block;
-                    let parallelMotors = block.drivingMotors
-                    block.drivingMotors.forEach((parallelMotor) => {
-                        this.__turnMotorSteps(parallelMotor, steps, false);
-                    });
-                })
-            }
         }
     }
 }
@@ -1606,8 +1615,7 @@ class StrangeAnimator {
         this.blockIdEndPositions = {};
     }
 
-    setMoveBlocksOnAxisName(blocks, axisName, displacement,
-                            compoundDisplacement = false) {
+    setMoveBlocksOnAxisName(blocks, axisName, displacement) {
         let currEndPos;
         blocks.forEach((block) => {
             if (this.blockIdEndPositions[block.id] !== undefined) {
@@ -1617,13 +1625,7 @@ class StrangeAnimator {
                 currEndPos = (new THREE.Vector3()).copy(block.position);
             }
 
-            if (compoundDisplacement) {
-                currEndPos[axisName] += displacement;
-            }
-            else {
-                currEndPos[axisName] = Math.max(block.position[axisName]
-                                        + displacement, currEndPos[axisName]);
-            }
+            currEndPos[axisName] = block.position[axisName] + displacement;
             this.blockIdEndPositions[block.id] = currEndPos;
         });
     }
@@ -1954,6 +1956,9 @@ window.testMotor = () => {
     let lsMotorA = motors.find((motor) => {
         return motor.name === 'leadscrew motor a';
     });
+    let lsMotorB = motors.find((motor) => {
+        return motor.name === 'leadscrew motor b';
+    });
     let platformMotor = motors.find((motor) => {
         return motor.name === 'platform belt motor';
     });
@@ -1964,9 +1969,14 @@ window.testMotor = () => {
         });
     }
     if (machine.name === 'prusa') {
-        window.kinematics.turnMotors({
-            [lsMotorA.id] : 50,
-            [platformMotor.id] : 50
+        // window.kinematics.turnMotors({
+        //     [lsMotorA.id] : -50,
+        //     [platformMotor.id] : 50
+        // });
+        window.kinematics.moveToolRelative({
+            x: 50,
+            y: -20,
+            z: 30
         });
     }
 };
