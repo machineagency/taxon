@@ -1453,6 +1453,21 @@ class Kinematics {
         return axisToBlock;
     }
 
+    verifyMotorStepsInAnimator(strangeAnimator) {
+        // TODO: traverse kinematic tree, if node block has steps and its
+        // parallel motor doesn't, problem!
+        let blockIdEndPositions = strangeAnimator.blockIdEndPositions;
+        let verifySubtree = (subtreeRootNode) => {
+            subtreeRootNode.parallelNodes.forEach((parallelNode) => {
+                let block = parallelNode.block;
+                let parallelMotors = block.drivingMotors
+                block.drivingMotors.forEach((parallelMotor) => {
+                    this.__turnMotorSteps(parallelMotor, steps, false);
+                });
+            })
+        };
+    }
+
     moveToolRelative(axesToCoords) {
         // TODO: assume direct drive only for now, HBot later
         // TODO: not just moving tool, also plates yikes
