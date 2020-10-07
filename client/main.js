@@ -1433,7 +1433,11 @@ class Kinematics {
         let axisBlockPairs = this.machine.blocks.map((block) => {
             return [this.determineAxisNameForBlock(block), block];
         }).filter((axisBlockPair) => {
-            return axisBlockPair[0] !== '0';
+            let axisName = axisBlockPair[0];
+            let block = axisBlockPair[1]
+            return (block.componentType === 'LinearStage'
+                    || block.componentType === 'RotaryStage')
+                    && axisName !== '0';
         });
         let axisToBlock = {};
         axisBlockPairs.forEach((axisBlockPair) => {
