@@ -165,7 +165,15 @@ class Machine {
 
     findBlockWithId(id) {
         let motorsAndOtherBlocks = this.motors.concat(this.blocks);
-        return motorsAndOtherBlocks.find(block => block.id === id);
+        let block = motorsAndOtherBlocks.find(block => block.id === id);
+        if (block === undefined) {
+            console.warn(`Couldn't find block with ID: ${id}.`);
+        }
+        return block;
+    }
+
+    getTool() {
+        return this.blocks.find((b) => b.componentType === 'Tool');
     }
 
     renderRulerForComponent(component) {
