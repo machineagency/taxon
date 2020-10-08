@@ -1674,7 +1674,7 @@ class StrangeAnimator {
                 currEndPos = (new THREE.Vector3()).copy(block.position);
             }
 
-            currEndPos[axisName] = block.position[axisName] + displacement;
+            currEndPos[axisName] += displacement;
             this.blockIdEndPositions[block.id] = currEndPos;
         });
     }
