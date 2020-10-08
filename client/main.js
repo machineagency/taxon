@@ -1509,7 +1509,10 @@ class Kinematics {
             let axisMotors = stages.map((stage) => stage.drivingMotors).flat();
             let axisMotorIds = axisMotors.map((motor) => motor.id);
             let steps = axesToCoords[axisName] || 0;
-            motorIdToSteps[axisMotorIds[0]] = steps;
+            axisMotorIds.forEach((motorId, motorIdx) => {
+                let invert = axisMotors[motorIdx].invertSteps ? -1 : 1;
+                motorIdToSteps[motorId] = steps * invert;
+            });
         });
         this.turnMotors(motorIdToSteps);
     }
@@ -2018,16 +2021,16 @@ window.testMotor = () => {
         });
     }
     if (machine.name === 'prusa') {
-        window.kinematics.turnMotors({
-            [lsMotorA.id] : -50,
-            [lsMotorB.id] : -50,
-            [platformMotor.id] : 50
-        });
-        // window.kinematics.moveToolRelative({
-        //     x: 50,
-        //     y: -20,
-        //     z: 30
+        // window.kinematics.turnMotors({
+        //     [lsMotorA.id] : -50,
+        //     [lsMotorB.id] : -50,
+        //     [platformMotor.id] : 50
         // });
+        window.kinematics.moveToolRelative({
+            x: 50,
+            y: -20,
+            z: 30
+        });
     }
 };
 
