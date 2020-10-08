@@ -1330,9 +1330,6 @@ class Kinematics {
         let baseBlockConnections = this.machine.connections.filter((conn) => {
             return conn.addBlock.id === currAddBlockId;
         });
-        if (baseBlockConnections.length === 0) {
-            return;
-        }
         let baseBlocks = baseBlockConnections.map((conn) => {
             return this.machine.findBlockWithId(conn.baseBlock.id);
         });
