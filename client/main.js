@@ -1460,32 +1460,36 @@ class Kinematics {
         return axisToBlock;
     }
 
-    verifyMotorStepsInAnimator(strangeAnimator) {
-        // TODO: traverse kinematic tree, if node block has steps and its
-        // parallel motor doesn't, problem!
-        let blockIdEndPositions = strangeAnimator.blockIdEndPositions;
-        let allTrue = (accumulator, curr) => { return accumulator && curr; };
-        let verifySubtree = (subtreeRootNode) => {
-            let parallelStageIds = subtreeRootNode.parallelNodes.map((node) => {
-                return node.block.id;
-            });
-            let parallelsInAnim = parallelStageIds.map((id) => {
-                return strangeAnimator.blockIdEndPositions[id] !== undefined;
-            });
-            let allParallelsInAnim = parallelsInAnim.reduce(allTrue, true);
-            if (!allParallelsInAnim) {
-                return false;
+    verifyParallelMotorSteps(motorIdToSteps) {
+        let verificationPassed = true;
+        Object.keys(motorIdToSteps).forEach((motorId) => {
+            let motorSteps = motorIdToSteps[motorId];
+            let motor = this.machine.findBlockWithId(motorId);
+            if (motor.kinematics !== 'directDrive') {
+                return;
             }
-            let subTreesResults = subtreeRootNode.childNodes.map((childNode) => {
-                return verifySubtree(childNode);
-            })
-            return subTreesResults.reduce(allTrue, true);
-        };
-
-        let rootResults = this.rootKNodes.map((rootNode) => {
-            return verifySubtree(rootNode);
+            let drivenStages = motor.drivenStages;
+            let drivenStageNodes = drivenStages.map((stage) => {
+                return this.findNodeWithBlockId(stage.id);
+            });
+            let drivenStageParallelNodes = drivenStageNodes.map((node) => {
+                return node.parallelNodes;
+            }).flat();
+            drivenStageParallelNodes.forEach((parallelStageNode) => {
+                // A stage is driven by only one motor in direct drive case
+                let parallelMotor = parallelStageNode.block.drivingMotors[0];
+                let parallelSteps = motorIdToSteps[parallelMotor.id];
+                if (parallelSteps === undefined
+                    || parallelSteps !== motorSteps) {
+                    let mt = motor.name;
+                    let mp = parallelMotor.name;
+                    console.error(`Parallel step mismatch with ${mt} and ${mp}:\
+                                    ${motorSteps} versus ${parallelSteps}`);
+                    verificationPassed = false;
+                }
+            });
         });
-        return rootResults.reduce(allTrue, true);
+        return verificationPassed;
     }
 
     moveToolRelative(axesToCoords) {
@@ -1505,15 +1509,15 @@ class Kinematics {
     }
 
     turnMotors(motorIdToSteps) {
-        Object.keys(motorIdToSteps).forEach((motorId) => {
-            let motor = this.strangeScene.machine.findBlockWithId(motorId);
-            let steps = motorIdToSteps[motorId];
-            this.__turnMotorSteps(motor, steps);
-        });
-        let validMotorTurn = this.verifyMotorStepsInAnimator(this.strangeAnimator);
-        console.log(`Motor turns valid... ${validMotorTurn}`);
-        console.log(validMotorTurn);
-        this.strangeAnimator.animateToBlockEndPositions();
+        let validMotorTurn = this.verifyParallelMotorSteps(motorIdToSteps);
+        if (validMotorTurn) {
+            Object.keys(motorIdToSteps).forEach((motorId) => {
+                let motor = this.strangeScene.machine.findBlockWithId(motorId);
+                let steps = motorIdToSteps[motorId];
+                this.__turnMotorSteps(motor, steps);
+            });
+            this.strangeAnimator.animateToBlockEndPositions();
+        }
     }
 
     __turnMotorSteps(motor, steps) {
@@ -1679,7 +1683,8 @@ class StrangeAnimator {
         let currPos = obj.position;
         let positionKF = new THREE.VectorKeyframeTrack('.position', [1,2],
                             [currPos.x, currPos.y, currPos.z,
-                             newPos.x, newPos.y, newPos.z], THREE.InterpolateLinear);
+                             newPos.x, newPos.y, newPos.z],
+                            THREE.InterpolateLinear);
         let clip = new THREE.AnimationClip('Action', 2, [ positionKF ]);
         return [mixer, clip];
     };
@@ -2005,15 +2010,16 @@ window.testMotor = () => {
         });
     }
     if (machine.name === 'prusa') {
-        // window.kinematics.turnMotors({
-        //     [lsMotorA.id] : -50,
-        //     [platformMotor.id] : 50
-        // });
-        window.kinematics.moveToolRelative({
-            x: 50,
-            y: -20,
-            z: 30
+        window.kinematics.turnMotors({
+            [lsMotorA.id] : -50,
+            [lsMotorB.id] : -50,
+            [platformMotor.id] : 50
         });
+        // window.kinematics.moveToolRelative({
+        //     x: 50,
+        //     y: -20,
+        //     z: 30
+        // });
     }
 };
 
