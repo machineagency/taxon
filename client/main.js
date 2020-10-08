@@ -1369,6 +1369,12 @@ class Kinematics {
             if (currNode.block.id === targetId) {
                 return currNode;
             }
+            let maybeMatchingOrphan = currNode.orphanNodes.find((oNode) => {
+                return oNode.block.id === blockId;
+            });
+            if (maybeMatchingOrphan !== undefined) {
+                return maybeMatchingOrphan;
+            }
             let maybeResults = currNode.childNodes.map((childNode) => {
                 return dfs(childNode, targetId);
             });
@@ -1377,7 +1383,11 @@ class Kinematics {
         let rootResults = this.rootKNodes.map((rootKNode) => {
             return dfs(rootKNode, blockId);
         });
-        return rootResults.find((result) => result !== undefined);
+        let result = rootResults.find((result) => result !== undefined);
+        if (result === undefined) {
+            console.warn(`Cannot find block in kinematic tree with id ${blockId}`);
+        }
+        return result;
     }
 
     pathFromNodeToRoot(node) {
