@@ -643,6 +643,7 @@ class Machine {
             carriageBelt.setDrivingMotors([carriageMotor]);
             lsA.setDrivingMotors([lsMotorA]);
             lsB.setDrivingMotors([lsMotorB]);
+            platformMotor.invertSteps();
             return this;
         },
         connectionSandbox: () => {
@@ -1266,6 +1267,7 @@ class Motor extends Block {
         this.componentType = 'Motor';
         this.kinematics = kinematics;
         this.baseBlock = true;
+        this.invertSteps = false;
         this.drivenStages = [];
         parentMachine.addMotor(this);
         this.renderDimensions();
@@ -1273,6 +1275,10 @@ class Motor extends Block {
 
     addDrivenStage(stage) {
         this.drivenStages.push(stage);
+    }
+
+    invertSteps() {
+        this.invertSteps = true;
     }
 
     renderDimensions() {
@@ -1743,7 +1749,8 @@ class Compiler {
                 name: motor.name,
                 componentType: motor.componentType,
                 dimensions: motor.dimensions,
-                kinematics: motor.kinematics
+                kinematics: motor.kinematics,
+                invertSteps: motor.invertSteps
             }
             progMotor.drivenStages = motor.drivenStages.map((stage) => {
                 return {
@@ -1854,6 +1861,7 @@ class Compiler {
             });
             motor.id = motorData.id;
             motor.kinematics = motorData.kinematics;
+            motor.invertSteps = motorData.invertSteps;
             if (motorData.position !== undefined) {
                 let position = new THREE.Vector3(motorData.position.x,
                                             motorData.position.y,
