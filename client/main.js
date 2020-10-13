@@ -1447,6 +1447,33 @@ class Kinematics {
         return axisToBlock;
     }
 
+    determineWorkEnvelopeAlternate() {
+        // Work in progreses, more robust way of calculating
+        // work envelopes
+        let toolPosition = this.machine.getTool().position;
+        let stages = this.machine.blocks.filter((block) => {
+            return block.componentType === 'LinearStage'
+                    || block.componentType === 'RotaryStage';
+        });
+        let boundingBoxes = stages.map((stage) => {
+            return stage.computeComponentBoundingBox();
+        });
+        let points = boundingBoxes.map((box) => {
+            return [box.min, box.max];
+        }).flat();
+        let xBoxCoords = points.map((point) => point.x)
+                            .concat(toolPosition.x)
+                            .sort();
+        let yBoxCoords = points.map((point) => point.y)
+                            .concat(toolPosition.y)
+                            .sort();
+        let zBoxCoords = points.map((point) => point.z)
+                            .concat(toolPosition.z)
+                            .sort();
+        this.oldDetermineWorkEnvelope();
+
+    }
+
     determineWorkEnvelope() {
         // Assumptions: there is only one stage per axis that we care about
         let axesToStages = this.determineMachineAxes();
