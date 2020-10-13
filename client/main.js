@@ -1488,9 +1488,14 @@ class Kinematics {
             length: zDim
         });
         let toolPosition = this.machine.getTool().position;
-        we.placeOnComponent(this.machine.buildEnvironment);
-        we.position.setX(toolPosition.x);
-        we.position.setZ(toolPosition.z);
+        if (shape === 'rectangle') {
+            we.placeOnComponent(this.machine.buildEnvironment);
+            we.position.setX(toolPosition.x);
+            we.position.setZ(toolPosition.z);
+        }
+        else {
+            we.position = toolPosition;
+        }
         return we;
     }
 
