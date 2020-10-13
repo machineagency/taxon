@@ -807,8 +807,8 @@ class StrangeComponent {
                                                      dimensions.width);
             }
             if (dimensions.shape === 'box') {
-                return new THREE.BoxBufferGeometry(dimensions.length,
-                    dimensions.width, dimensions.height, 2, 2, 2);
+                return new THREE.BoxBufferGeometry(dimensions.width,
+                    dimensions.height, dimensions.length, 2, 2, 2);
             }
             if (dimensions.shape === 'cylinder') {
                 return new THREE.CylinderBufferGeometry(dimensions.radius,
