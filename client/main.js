@@ -1027,6 +1027,24 @@ class WorkEnvelope extends StrangeComponent {
         }
     }
 
+    checkContainsPoint(point) {
+        let tool = this.parentMachine.getTool();
+        let unzeroedPoint = tool.unzeroPoint(point);
+        let center = this.position;
+        if (this.dimensions.shape === 'rectangle') {
+            let bbox = new THREE.Box2();
+            let size = new THREE.Vector2(this.width, this.length);
+            bbox.setFromCenterAndSize(center, size);
+            return bbox.containsPoint(unzeroedPoint);
+        }
+        else {
+            let bbox = new THREE.Box3();
+            let size = new THREE.Vector3(this.width, this.height, this.length);
+            bbox.setFromCenterAndSize(center, size);
+            return bbox.containsPoint(unzeroedPoint);
+        }
+    }
+
     renderDimensions() {
         this.removeMeshGroupFromScene();
         let geom = WorkEnvelope.geometryFactories.workEnvelope(this.dimensions);
