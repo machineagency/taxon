@@ -468,6 +468,7 @@ class Machine {
             this.setPairABMotors(motorA, motorB);
             stageBottom.setDrivingMotors([motorA, motorB]);
             stageTop.setDrivingMotors([motorA, motorB]);
+            tool.zeroToolAtCurrentPosition();
             return this;
         },
         prusa: () => {
@@ -625,6 +626,7 @@ class Machine {
             lsA.setDrivingMotors([lsMotorA]);
             lsB.setDrivingMotors([lsMotorB]);
             platformMotor.setInvertSteps();
+            tool.zeroToolAtCurrentPosition();
             return this;
         },
         connectionSandbox: () => {
@@ -1066,6 +1068,7 @@ class Tool extends Block {
         };
         parentMachine.addBlock(this);
         this.renderDimensions();
+        this.zeroPosition = new THREE.Vector3();
     }
 
     renderDimensions() {
@@ -1095,10 +1098,26 @@ class Tool extends Block {
         this.addMeshGroupToScene();
     }
 
+    get zeroedPosition() {
+        let zeroedPosition = new THREE.Vector3();
+        zeroedPosition.copy(this.position);
+        return zeroedPosition.sub(this.zeroPosition);
+    }
+
+    zeroToolAtCurrentPosition() {
+        this.zeroPosition.copy(this.position);
+    }
+
+    unzeroPoint(point) {
+        let unzeroedPoint = new THREE.Vector3();
+        unzeroedPoint.copy(point);
+        return unzeroedPoint.add(this.zeroPosition);
+    }
+
     setPositionToDefault() {
         this.meshGroup.position.set(Tool.defaultPosition.x,
                                Tool.defaultPosition.y,
-                               Tool.defaultPosition.z)
+                               Tool.defaultPosition.z);
     }
 }
 
@@ -1476,6 +1495,8 @@ class Kinematics {
 
     determineWorkEnvelope() {
         // Assumptions: there is only one stage per axis that we care about
+        // NOTE: this is an approximation of the work envelope, it's
+        // not always accurate in non-common cases but it will do for now.
         let axesToStages = this.determineMachineAxes();
         let xDim = axesToStages['x'] ? axesToStages['x'][0].width : 0;
         let yDim = axesToStages['y'] ? axesToStages['y'][0].height : 0;
