@@ -1538,6 +1538,28 @@ class Kinematics {
         return we;
     }
 
+    verifyMoveInWorkEnvelope(axesToCoords) {
+        if (this.machine.workEnvelope === undefined) {
+            this.determineWorkEnvelope();
+        }
+        let toolGoalPosition;
+        if (this.machine.workEnvelope === 'rectangle') {
+            toolGoalPosition = new THREE.Vector2(axesToCoords['x'],
+                                                 axesToCoords['z']);
+        }
+        else {
+            toolGoalPosition = new THREE.Vector3(axesToCoords['x'],
+                                                 axesToCoords['y'],
+                                                 axesToCoords['z']);
+        }
+        let containResult = this.machine.workEnvelope
+                                .checkContainsPoint(toolGoalPosition);
+        if (!containResult) {
+            console.error(`Move to ${axesToCoords.x} ${axesToCoords.y} ${axesToCoords.z} is outside work envelope.`);
+        }
+        return containResult;
+    }
+
     verifyParallelMotorSteps(motorIdToSteps) {
         let verificationPassed = true;
         Object.keys(motorIdToSteps).forEach((motorId) => {
@@ -1570,21 +1592,23 @@ class Kinematics {
         return verificationPassed;
     }
 
-    zeroAtCurrentToolPosition() {
-        // TODO
-    }
-
     moveTool() {
         // TODO
+        // NOTE: distinction between coords (zero applied) and position
+        // matters here, as well is in verifyMoveInWorkEnvelope, but not
+        // in the rest of moveToolRelative
     }
 
     moveToolRelative(axesToCoords) {
-        let machine = this.strangeScene.machine;
-        let motorIdToSteps = {};
-        // TODO: make these return subobjects
-        this.__addDirectDriveIK(axesToCoords, motorIdToSteps);
-        this.__addHBotIK(axesToCoords, motorIdToSteps);
-        this.turnMotors(motorIdToSteps);
+        let validMove = this.verifyMoveInWorkEnvelope(axesToCoords);
+        if (validMove) {
+            let machine = this.strangeScene.machine;
+            let motorIdToSteps = {};
+            // TODO: make these return subobjects
+            this.__addDirectDriveIK(axesToCoords, motorIdToSteps);
+            this.__addHBotIK(axesToCoords, motorIdToSteps);
+            this.turnMotors(motorIdToSteps);
+        }
     }
 
     __addDirectDriveIK(axesToCoords, motorIdToSteps) {
@@ -1710,6 +1734,7 @@ class Kinematics {
                                         .map((node) => node.block.name);
             let axisName = this.determineAxisNameForBlock(stage);
             console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. [${parallelBlockNames}] should have their driving motors turning.`);
+            // FIXME: Prevent parallel motors for compounding displacement!
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          displacement);
         }
@@ -2142,8 +2167,8 @@ window.testMotor = () => {
         // });
         window.kinematics.moveToolRelative({
             x: 50,
-            y: -20,
-            z: 0
+            y: 0,
+            z: 100
         });
     }
 };
