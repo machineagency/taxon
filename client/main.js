@@ -17,6 +17,7 @@ class StrangeScene {
         this.mixers = [];
         this.controls = this.initControls(this.camera, this.renderer);
         this.ruler = new Ruler();
+        this.instructionQueue = new InstructionQueue();
     }
 
     initScene() {
@@ -92,6 +93,59 @@ class StrangeScene {
             mixer.update(deltaSeconds);
         });
         this.renderer.render(this.scene, this.camera);
+    }
+}
+
+class InstructionQueue {
+    constructor() {
+        this.arr = [];
+    }
+
+    get length() {
+        return this.arr.length;
+    }
+
+    get isEmpty() {
+        return this.length === 0;
+    }
+
+    setKinematics(kinematics) {
+        this.kinematics = kinematics;
+    }
+
+    enqueueInstruction(instruction) {
+        return this.arr.push(instruction);
+    }
+
+    executeNextInstruction() {
+        if (this.kinematics === undefined) {
+            console.error('No kinematics set for instruction queue.');
+            return;
+        }
+        let nextInst = this.arr.splice(0, 1)[0];
+        this.__executeInst(nextInst);
+    }
+
+    __executeInst(inst) {
+        let tokens = inst.split(' ');
+        let opcode = tokens[0];
+        if (opcode === 'G0' || opcode === 'G1') {
+            this.__handleG0(tokens);
+        }
+    }
+
+    __handleG0(tokens) {
+        let xCoord = parseInt(tokens[1].substring(1));
+        let yCoord = parseInt(tokens[2].substring(1));
+        let axesToCoords = {
+            x: xCoord,
+            y: yCoord,
+        };
+        if (tokens.length === 4) {
+            let zCoord = parseInt(tokens[3].substring(1));
+            axesToCoords[z] = zCoord;
+        }
+        this.kinematics.moveToolRelative(axesToCoords);
     }
 }
 
@@ -1733,7 +1787,7 @@ class Kinematics {
             let parallelBlockNames = drivenStageNode.parallelNodes
                                         .map((node) => node.block.name);
             let axisName = this.determineAxisNameForBlock(stage);
-            console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. [${parallelBlockNames}] should have their driving motors turning.`);
+            // console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. [${parallelBlockNames}] should have their driving motors turning.`);
             // FIXME: Prevent parallel motors for compounding displacement!
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          displacement);
@@ -1816,6 +1870,8 @@ class StrangeAnimator {
                 this.strangeScene.mixers.splice(idx, 1);
             }
             obj.position.set(newPos.x, newPos.y, newPos.z);
+            // If no mixers in scene, pull another instruction off queue, if
+            // such an instruction exists
         });
         let currPos = obj.position;
         let positionKF = new THREE.VectorKeyframeTrack('.position', [1,2],
