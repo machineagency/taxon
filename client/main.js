@@ -1202,7 +1202,8 @@ class Tool extends Block {
         this.addMeshGroupToScene();
     }
 
-    get zeroedPosition() {
+    getZeroedPosition() {
+        // World coordinates -> control coordinates
         let zeroedPosition = new THREE.Vector3();
         zeroedPosition.copy(this.position);
         return zeroedPosition.sub(this.zeroPosition);
@@ -1213,6 +1214,7 @@ class Tool extends Block {
     }
 
     unzeroPoint(point) {
+        // Control coordinates -> world coordinates
         let unzeroedPoint = new THREE.Vector3();
         unzeroedPoint.copy(point);
         return unzeroedPoint.add(this.zeroPosition);
@@ -1678,11 +1680,35 @@ class Kinematics {
         return verificationPassed;
     }
 
-    moveTool() {
+    moveTool(axesToCoords) {
         // TODO
         // NOTE: distinction between coords (zero applied) and position
         // matters here, as well is in verifyMoveInWorkEnvelope, but not
         // in the rest of moveToolRelative
+        let axesToCoordsAdjusted = {};
+        let tool = this.machine.getTool();
+        let currentPositionMachineCoords = tool.getZeroedPosition();
+        if (Object.keys(axesToCoords).length === 2) {
+            let adjustedPoint = new THREE.Vector2(axesToCoords.x,
+                                                  axesToCoords.y);
+            adjustedPoint.sub(currentPositionMachineCoords);
+            axesToCoordsAdjusted = {
+                x: adjustedPoint.x,
+                y: adjustedPoint.y
+            };
+        }
+        if (Object.keys(axesToCoords).length === 3) {
+            let adjustedPoint = new THREE.Vector3(axesToCoords.x,
+                                                  axesToCoords.y,
+                                                  axesToCoords.z);
+            adjustedPoint.sub(currentPositionMachineCoords);
+            axesToCoordsAdjusted = {
+                x: adjustedPoint.x,
+                y: adjustedPoint.y,
+                z: adjustedPoint.z,
+            };
+        }
+        this.moveToolRelative(axesToCoordsAdjusted);
     }
 
     moveToolRelative(axesToCoords) {
