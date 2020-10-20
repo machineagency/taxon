@@ -175,8 +175,7 @@ class InstructionQueue {
     }
 
     __handleG92(tokens) {
-        let tool = this.kinematics.machine.getTool();
-        tool.zeroToolAtCurrentPosition();
+        this.kinematics.zeroAtCurrentPosition();
         this.executeNextInstruction();
     }
 }
@@ -260,6 +259,10 @@ class Machine {
 
     getTool() {
         return this.blocks.find((b) => b.componentType === 'Tool');
+    }
+
+    getPlatform() {
+        return this.blocks.find((b) => b.componentType === 'Platform');
     }
 
     renderRulerForComponent(component) {
@@ -554,7 +557,6 @@ class Machine {
             this.setPairABMotors(motorA, motorB);
             stageBottom.setDrivingMotors([motorA, motorB]);
             stageTop.setDrivingMotors([motorA, motorB]);
-            tool.zeroToolAtCurrentPosition();
             return this;
         },
         prusa: () => {
@@ -712,7 +714,6 @@ class Machine {
             lsA.setDrivingMotors([lsMotorA]);
             lsB.setDrivingMotors([lsMotorB]);
             platformMotor.setInvertSteps();
-            tool.zeroToolAtCurrentPosition();
             return this;
         },
         connectionSandbox: () => {
@@ -1113,24 +1114,6 @@ class WorkEnvelope extends StrangeComponent {
         }
     }
 
-    checkContainsPoint(point) {
-        let tool = this.parentMachine.getTool();
-        let unzeroedPoint = tool.unzeroPoint(point);
-        let center = this.position;
-        if (this.dimensions.shape === 'rectangle') {
-            let bbox = new THREE.Box2();
-            let size = new THREE.Vector2(this.width, this.length);
-            bbox.setFromCenterAndSize(center, size);
-            return bbox.containsPoint(unzeroedPoint);
-        }
-        else {
-            let bbox = new THREE.Box3();
-            let size = new THREE.Vector3(this.width, this.height, this.length);
-            bbox.setFromCenterAndSize(center, size);
-            return bbox.containsPoint(unzeroedPoint);
-        }
-    }
-
     renderDimensions() {
         this.removeMeshGroupFromScene();
         let geom = WorkEnvelope.geometryFactories.workEnvelope(this.dimensions);
@@ -1172,7 +1155,6 @@ class Tool extends Block {
         };
         parentMachine.addBlock(this);
         this.renderDimensions();
-        this.zeroPosition = new THREE.Vector3();
     }
 
     renderDimensions() {
@@ -1200,24 +1182,6 @@ class Tool extends Block {
         this.geometries = [geom, edgesGeom];
         this.setPositionToDefault();
         this.addMeshGroupToScene();
-    }
-
-    getZeroedPosition() {
-        // World coordinates -> control coordinates
-        let zeroedPosition = new THREE.Vector3();
-        zeroedPosition.copy(this.position);
-        return zeroedPosition.sub(this.zeroPosition);
-    }
-
-    zeroToolAtCurrentPosition() {
-        this.zeroPosition.copy(this.position);
-    }
-
-    unzeroPoint(point) {
-        // Control coordinates -> world coordinates
-        let unzeroedPoint = new THREE.Vector3();
-        unzeroedPoint.copy(point);
-        return unzeroedPoint.add(this.zeroPosition);
     }
 
     setPositionToDefault() {
@@ -1418,6 +1382,39 @@ class Kinematics {
         this.strangeScene = strangeScene;
         this.strangeAnimator = new StrangeAnimator(strangeScene);
     }
+
+    zeroAtCurrentPosition() {
+        this.zeroPosition = this.getWorldPosition();
+    }
+
+    getWorldPosition() {
+        // TODO: do for 2-axis machines
+        let worldPosition = new THREE.Vector3();
+        let tool = this.machine.getTool();
+        worldPosition.copy(tool.position);
+        let maybePlatform = this.machine.getPlatform();
+        if (maybePlatform !== undefined) {
+            // TODO: make a Platform method that has user set motionAxis
+            let platformMotionAxis = 'x';
+            worldPosition.setX(-maybePlatform.position.x);
+        }
+        return worldPosition;
+    }
+
+    getZeroedPosition() {
+        // World coordinates -> control coordinates
+        let zeroedPosition = new THREE.Vector3();
+        zeroedPosition.copy(this.getWorldPosition());
+        return zeroedPosition.sub(this.zeroPosition);
+    }
+
+    unzeroPoint(point) {
+        // Control coordinates -> world coordinates
+        let unzeroedPoint = new THREE.Vector3();
+        unzeroedPoint.copy(point);
+        return unzeroedPoint.add(this.zeroPosition);
+    }
+
 
     buildTreeForMachine(machine) {
         let toolBlock = machine.blocks.find((block) => {
@@ -1640,13 +1637,31 @@ class Kinematics {
                                                  axesToCoords['y'],
                                                  axesToCoords['z']);
         }
-        let containResult = this.machine.workEnvelope
-                                .checkContainsPoint(toolGoalPosition);
+        let containResult = this.checkContainsPoint(toolGoalPosition);
         if (!containResult) {
             console.error(`Move to ${axesToCoords.x} ${axesToCoords.y} ${axesToCoords.z} is outside work envelope.`);
         }
         return containResult;
     }
+
+    checkContainsPoint(point) {
+        let we = this.machine.workEnvelope;
+        let unzeroedPoint = this.unzeroPoint(point);
+        let center = we.position;
+        if (we.dimensions.shape === 'rectangle') {
+            let bbox = new THREE.Box2();
+            let size = new THREE.Vector2(we.width, we.length);
+            bbox.setFromCenterAndSize(center, size);
+            return bbox.containsPoint(unzeroedPoint);
+        }
+        else {
+            let bbox = new THREE.Box3();
+            let size = new THREE.Vector3(we.width, we.height, we.length);
+            bbox.setFromCenterAndSize(center, size);
+            return bbox.containsPoint(unzeroedPoint);
+        }
+    }
+
 
     verifyParallelMotorSteps(motorIdToSteps) {
         let verificationPassed = true;
@@ -1686,8 +1701,7 @@ class Kinematics {
         // matters here, as well is in verifyMoveInWorkEnvelope, but not
         // in the rest of moveToolRelative
         let axesToCoordsAdjusted = {};
-        let tool = this.machine.getTool();
-        let currentPositionMachineCoords = tool.getZeroedPosition();
+        let currentPositionMachineCoords = this.getZeroedPosition();
         if (Object.keys(axesToCoords).length === 2) {
             let adjustedPoint = new THREE.Vector2(axesToCoords.x,
                                                   axesToCoords.y);
@@ -2291,7 +2305,7 @@ window.testMotor = () => {
         // });
         let iq = window.strangeScene.instructionQueue;
         iq.enqueueInstruction('G92 X0 Y0 Z0');
-        iq.enqueueInstruction('G0 X50 Y-20 Z0');
+        iq.enqueueInstruction('G0 X20 Y0 Z0');
         iq.enqueueInstruction('G0 X0 Y0 Z0');
         iq.executeNextInstruction();
     }
