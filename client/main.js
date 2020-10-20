@@ -1898,6 +1898,7 @@ class StrangeAnimator {
             action.clampWhenFinished = true;
             return action;
         });
+        this.strangeScene.instructionQueue.setMotorsBusy();
         actions.forEach((action) => {
             action.play();
         });
@@ -1930,6 +1931,8 @@ class StrangeAnimator {
             obj.position.set(newPos.x, newPos.y, newPos.z);
             // If no mixers in scene, pull another instruction off queue, if
             // such an instruction exists
+            this.strangeScene.instructionQueue.unsetMotorsBusy();
+            this.strangeScene.instructionQueue.executeNextInstruction();
         });
         let currPos = obj.position;
         let positionKF = new THREE.VectorKeyframeTrack('.position', [1,2],
@@ -2232,6 +2235,8 @@ function main() {
     let kinematics = new Kinematics(ss);
     window.kinematics = kinematics;
     kinematics.buildTreeForMachine(machine);
+    ss.instructionQueue = new InstructionQueue();
+    ss.instructionQueue.setKinematics(window.kinematics);
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
@@ -2279,11 +2284,16 @@ window.testMotor = () => {
         //     [lsMotorB.id] : -50,
         //     [platformMotor.id] : 50
         // });
-        window.kinematics.moveToolRelative({
-            x: 50,
-            y: 0,
-            z: 100
-        });
+        // window.kinematics.moveToolRelative({
+        //     x: 50,
+        //     y: 0,
+        //     z: 100
+        // });
+        let iq = window.strangeScene.instructionQueue;
+        iq.enqueueInstruction('G92 X0 Y0 Z0');
+        iq.enqueueInstruction('G0 X50 Y-20 Z0');
+        iq.enqueueInstruction('G0 X0 Y0 Z0');
+        iq.executeNextInstruction();
     }
 };
 
