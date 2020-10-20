@@ -99,6 +99,7 @@ class StrangeScene {
 class InstructionQueue {
     constructor() {
         this.arr = [];
+        this.unsetMotorsBusy();
     }
 
     get length() {
@@ -109,6 +110,14 @@ class InstructionQueue {
         return this.length === 0;
     }
 
+    setMotorsBusy() {
+        this.motorsBusy = true;
+    }
+
+    unsetMotorsBusy() {
+        this.motorsBusy = false;
+    }
+
     setKinematics(kinematics) {
         this.kinematics = kinematics;
     }
@@ -117,12 +126,24 @@ class InstructionQueue {
         return this.arr.push(instruction);
     }
 
+    peekNext() {
+        return this.arr[0];
+    }
+
     executeNextInstruction() {
         if (this.kinematics === undefined) {
             console.error('No kinematics set for instruction queue.');
             return;
         }
+        if (this.isEmpty) {
+            return;
+        }
+        if (this.motorsBusy) {
+            console.warn(`Motors are busy. Next instruction: ${this.peekNext()}.`);
+            return;
+        }
         let nextInst = this.arr.splice(0, 1)[0];
+        console.log(`Executing: ${nextInst}`);
         this.__executeInst(nextInst);
     }
 
@@ -131,6 +152,9 @@ class InstructionQueue {
         let opcode = tokens[0];
         if (opcode === 'G0' || opcode === 'G1') {
             this.__handleG0(tokens);
+        }
+        if (opcode === 'G92') {
+            this.__handleG92(tokens);
         }
     }
 
@@ -143,9 +167,17 @@ class InstructionQueue {
         };
         if (tokens.length === 4) {
             let zCoord = parseInt(tokens[3].substring(1));
-            axesToCoords[z] = zCoord;
+            axesToCoords.z = zCoord;
         }
-        this.kinematics.moveToolRelative(axesToCoords);
+        // This call eventually sets a callback that calls
+        // executeInstruction in a THREE.js mixer in StrangeScene
+        this.kinematics.moveTool(axesToCoords);
+    }
+
+    __handleG92(tokens) {
+        let tool = this.kinematics.machine.getTool();
+        tool.zeroToolAtCurrentPosition();
+        this.executeNextInstruction();
     }
 }
 
