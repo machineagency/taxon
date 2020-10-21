@@ -144,6 +144,7 @@ class InstructionQueue {
         }
         let nextInst = this.arr.splice(0, 1)[0];
         console.log(`Executing: ${nextInst}`);
+        this.setMotorsBusy();
         this.__executeInst(nextInst);
     }
 
@@ -176,6 +177,7 @@ class InstructionQueue {
 
     __handleG92(tokens) {
         this.kinematics.zeroAtCurrentPosition();
+        this.unsetMotorsBusy();
         this.executeNextInstruction();
     }
 }
@@ -1912,7 +1914,6 @@ class StrangeAnimator {
             action.clampWhenFinished = true;
             return action;
         });
-        this.strangeScene.instructionQueue.setMotorsBusy();
         actions.forEach((action) => {
             action.play();
         });
@@ -1943,10 +1944,10 @@ class StrangeAnimator {
                 this.strangeScene.mixers.splice(idx, 1);
             }
             obj.position.set(newPos.x, newPos.y, newPos.z);
-            // If no mixers in scene, pull another instruction off queue, if
-            // such an instruction exists
-            this.strangeScene.instructionQueue.unsetMotorsBusy();
-            this.strangeScene.instructionQueue.executeNextInstruction();
+            if (this.strangeScene.mixers.length === 0) {
+                this.strangeScene.instructionQueue.unsetMotorsBusy();
+                this.strangeScene.instructionQueue.executeNextInstruction();
+            }
         });
         let currPos = obj.position;
         let positionKF = new THREE.VectorKeyframeTrack('.position', [1,2],
@@ -2306,6 +2307,8 @@ window.testMotor = () => {
         let iq = window.strangeScene.instructionQueue;
         iq.enqueueInstruction('G92 X0 Y0 Z0');
         iq.enqueueInstruction('G0 X20 Y0 Z0');
+        iq.enqueueInstruction('G0 X20 Y0 Z20');
+        iq.enqueueInstruction('G0 X0 Y0 Z20');
         iq.enqueueInstruction('G0 X0 Y0 Z0');
         iq.executeNextInstruction();
     }
