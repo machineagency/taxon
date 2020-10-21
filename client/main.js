@@ -97,6 +97,9 @@ class StrangeScene {
 }
 
 class InstructionQueue {
+
+    // NOTE: instantiate only one InstructionQueue and do so as
+    // StrangeScene.InstructionQueue
     constructor() {
         this.arr = [];
         this.unsetMotorsBusy();
@@ -126,6 +129,10 @@ class InstructionQueue {
         return this.arr.push(instruction);
     }
 
+    setQueueFromArray(instArray) {
+        this.arr = instArray.slice();
+    }
+
     peekNext() {
         return this.arr[0];
     }
@@ -136,6 +143,7 @@ class InstructionQueue {
             return;
         }
         if (this.isEmpty) {
+            console.log('No more instructions to execute.');
             return;
         }
         if (this.motorsBusy) {
