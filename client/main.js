@@ -1959,6 +1959,63 @@ class StrangeAnimator {
     };
 }
 
+class JobFile {
+    constructor(strangeScene) {
+        if (strangeScene === undefined) {
+            console.error('Need to instantiate JobFile with a StrangeScene.');
+        }
+        this.strangeScene = strangeScene;
+        this.inputDom = document.getElementById('job-file-input');
+        this.gcodes = [];
+    }
+
+    setKinematics(kinematics) {
+        this.kinematics = kinematics;
+    }
+
+    loadFromInputDom() {
+        let file = this.inputDom.files[0];
+        if (file === undefined) {
+            console.error('Cannot find a file to load.');
+            return;
+        }
+        let fileReader = new FileReader();
+        let promise = new Promise((resolve, reject) => {
+            fileReader.addEventListener('loadend', (event) => {
+                let text = fileReader.result;
+                try {
+                    let gcodes = text.split('\n').filter((gcode) => {
+                        return gcode !== '';
+                    });
+                    this.gcodes = gcodes;
+                    console.log('Successfully loaded GCode file.');
+                    resolve(gcodes);
+                }
+                catch (error) {
+                    console.error('Error while loading GCode file:');
+                    console.error(error);
+                }
+            });
+            fileReader.readAsText(file, 'utf-8');
+        });
+        return promise;
+    }
+
+    runStaticAnalysis(whatAreTheArguments) {
+    }
+
+    runJob() {
+        if (this.kinematics === undefined) {
+            console.error('Cannot run job without setting kinematics first.');
+        }
+        console.log('Running GCode file...');
+        let iq = this.strangeScene.instructionQueue;
+        iq.setKinematics(this.kinematics);
+        iq.setQueueFromArray(this.gcodes);
+        iq.executeNextInstruction();
+    }
+}
+
 class Compiler {
 
     constructor() {
@@ -2304,13 +2361,22 @@ window.testMotor = () => {
         //     y: 0,
         //     z: 100
         // });
-        let iq = window.strangeScene.instructionQueue;
-        iq.enqueueInstruction('G92 X0 Y0 Z0');
-        iq.enqueueInstruction('G0 X20 Y0 Z0');
-        iq.enqueueInstruction('G0 X20 Y0 Z20');
-        iq.enqueueInstruction('G0 X0 Y0 Z20');
-        iq.enqueueInstruction('G0 X0 Y0 Z0');
-        iq.executeNextInstruction();
+        //
+        // let iq = window.strangeScene.instructionQueue;
+        // iq.enqueueInstruction('G92 X0 Y0 Z0');
+        // iq.enqueueInstruction('G0 X20 Y0 Z0');
+        // iq.enqueueInstruction('G0 X20 Y0 Z20');
+        // iq.enqueueInstruction('G0 X0 Y0 Z20');
+        // iq.enqueueInstruction('G0 X0 Y0 Z0');
+        // iq.executeNextInstruction();
+        //
+        let jobFile = new JobFile(window.strangeScene);
+        jobFile.setKinematics(window.kinematics);
+        jobFile.loadFromInputDom().then((result) => {
+            jobFile.runJob();
+        }, (error) => {
+            console.error(error);
+        });
     }
 };
 
