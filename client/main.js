@@ -1429,12 +1429,20 @@ class Kinematics {
     getZeroedPosition() {
         // World coordinates -> control coordinates
         let zeroedPosition = new THREE.Vector3();
+        if (this.zeroPosition === undefined) {
+            console.error('Machine has not yet been zeroed.');
+            return THREE.Vector3();
+        }
         zeroedPosition.copy(this.getWorldPosition());
         return zeroedPosition.sub(this.zeroPosition);
     }
 
     unzeroPoint(point) {
         // Control coordinates -> world coordinates
+        if (this.zeroPosition === undefined) {
+            console.error('Machine has not yet been zeroed.');
+            return THREE.Vector3();
+        }
         let unzeroedPoint = new THREE.Vector3();
         unzeroedPoint.copy(point);
         return unzeroedPoint.add(this.zeroPosition);
