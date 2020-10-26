@@ -1768,8 +1768,10 @@ class Kinematics {
             let motorA = motorPair[0];
             let motorB = motorPair[1];
             // FIXME: good luck unhardcoding this one
-            let motorAAxis = 'x';
-            let motorBAxis = 'z';
+            // Note that in the axidraw case motorA (bottom) is on the z-axis,
+            // Don't get these backwards
+            let motorAAxis = 'z';
+            let motorBAxis = 'x';
             let axisASteps = axesToCoords[motorAAxis];
             let axisBSteps = axesToCoords[motorBAxis];
             motorIdToSteps[motorA.id] = axisASteps + axisBSteps;
