@@ -1406,6 +1406,11 @@ class Kinematics {
 
     zeroAtCurrentPosition() {
         this.zeroPosition = this.getWorldPosition();
+        // TODO: calc grid from WE
+        this.zeroGrid = new THREE.GridHelper(400, 40);
+        this.strangeScene.addSceneObjectDirectly(this.zeroGrid);
+        this.zeroGrid.position.copy(this.zeroPosition);
+        console.log(this.zeroGrid);
     }
 
     getWorldPosition() {
