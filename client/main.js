@@ -1391,6 +1391,7 @@ class Kinematics {
         this.rootKNodes = [];
         this.strangeScene = strangeScene;
         this.strangeAnimator = new StrangeAnimator(strangeScene);
+        this.suppressedNodes = [];
     }
 
     zeroAtCurrentPosition() {
@@ -1790,6 +1791,7 @@ class Kinematics {
             });
             this.strangeAnimator.animateToBlockEndPositions();
         }
+        this.suppressedNodes = [];
     }
 
     __turnMotorSteps(motor, steps) {
@@ -1860,6 +1862,10 @@ class Kinematics {
         if (motor.kinematics === 'directDrive') {
             let stage = drivenStages[0];
             let drivenStageNode = this.findNodeWithBlockId(stage.id);
+            if (this.suppressedNodes.find((node) => node.block.id
+                                            === drivenStageNode.block.id)) {
+                return;
+            }
             let path = this.pathFromNodeToRoot(drivenStageNode).slice(1);
             let pathBlocks = path.map((node) => {
                 let orphanBlocks = node.orphanNodes.map((node) => node.block);
@@ -1870,9 +1876,11 @@ class Kinematics {
                                         .map((node) => node.block.name);
             let axisName = this.determineAxisNameForBlock(stage);
             // console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. [${parallelBlockNames}] should have their driving motors turning.`);
-            // FIXME: Prevent parallel motors for compounding displacement!
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          displacement);
+            drivenStageNode.parallelNodes.forEach((pNode) => {
+                this.suppressedNodes.push(pNode);
+            });
         }
     }
 }
@@ -2324,7 +2332,8 @@ function main() {
         }, 1000 / maxFramerate);
         ss.renderScene();
     };
-    console.log(compiler.compileMachine(ss.machine));
+    // console.log(compiler.compileMachine(ss.machine));
+    compiler.compileMachine(ss.machine);
     animate();
     return ss;
 }
