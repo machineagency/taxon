@@ -1419,6 +1419,10 @@ class Kinematics {
             let platformMotionAxis = 'x';
             worldPosition.setX(-maybePlatform.position.x);
         }
+        if (this.machine.workEnvelope.shape === 'rectangle') {
+            let wePos = this.machine.workEnvelope.position;
+            worldPosition.setY(wePos.y);
+        }
         return worldPosition;
     }
 
