@@ -137,6 +137,10 @@ class InstructionQueue {
         return this.arr[0];
     }
 
+    instIsComment(inst) {
+        return inst[0] === ';';
+    }
+
     executeNextInstruction() {
         if (this.kinematics === undefined) {
             console.error('No kinematics set for instruction queue.');
@@ -151,12 +155,20 @@ class InstructionQueue {
             return;
         }
         let nextInst = this.arr.splice(0, 1)[0];
-        console.log(`Executing: ${nextInst}`);
-        this.setMotorsBusy();
         this.__executeInst(nextInst);
     }
 
     __executeInst(inst) {
+        if (this.instIsComment(inst)) {
+            // Set timeout for next instruction after a comment because
+            // we don't want to call the next instruction on this current
+            // stack frame—let this frame return and call next EPS_MS later.
+            let epsMs = 10;
+            setTimeout(() => this.executeNextInstruction(), epsMs);
+            return;
+        }
+        console.log(`Executing: ${inst}`);
+        this.setMotorsBusy();
         let tokens = inst.split(' ');
         let opcode = tokens[0];
         if (opcode === 'G0' || opcode === 'G1') {
