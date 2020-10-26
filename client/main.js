@@ -182,14 +182,12 @@ class InstructionQueue {
     __handleG0(tokens) {
         let xCoord = parseInt(tokens[1].substring(1));
         let yCoord = parseInt(tokens[2].substring(1));
+        let zCoord = parseInt(tokens[3].substring(1));
         let axesToCoords = {
             x: xCoord,
             y: yCoord,
+            z: zCoord
         };
-        if (tokens.length === 4) {
-            let zCoord = parseInt(tokens[3].substring(1));
-            axesToCoords.z = zCoord;
-        }
         // This call eventually sets a callback that calls
         // executeInstruction in a THREE.js mixer in StrangeScene
         this.kinematics.moveTool(axesToCoords);
@@ -1650,16 +1648,9 @@ class Kinematics {
         if (this.machine.workEnvelope === undefined) {
             this.determineWorkEnvelope();
         }
-        let toolGoalPosition;
-        if (this.machine.workEnvelope === 'rectangle') {
-            toolGoalPosition = new THREE.Vector2(axesToCoords['x'],
-                                                 axesToCoords['z']);
-        }
-        else {
-            toolGoalPosition = new THREE.Vector3(axesToCoords['x'],
+        let toolGoalPosition = new THREE.Vector3(axesToCoords['x'],
                                                  axesToCoords['y'],
                                                  axesToCoords['z']);
-        }
         let containResult = this.checkContainsPoint(toolGoalPosition);
         if (!containResult) {
             console.error(`Move to ${axesToCoords.x} ${axesToCoords.y} ${axesToCoords.z} is outside work envelope.`);
@@ -1671,18 +1662,10 @@ class Kinematics {
         let we = this.machine.workEnvelope;
         let unzeroedPoint = this.unzeroPoint(point);
         let center = we.position;
-        if (we.dimensions.shape === 'rectangle') {
-            let bbox = new THREE.Box2();
-            let size = new THREE.Vector2(we.width, we.length);
-            bbox.setFromCenterAndSize(center, size);
-            return bbox.containsPoint(unzeroedPoint);
-        }
-        else {
-            let bbox = new THREE.Box3();
-            let size = new THREE.Vector3(we.width, we.height, we.length);
-            bbox.setFromCenterAndSize(center, size);
-            return bbox.containsPoint(unzeroedPoint);
-        }
+        let bbox = new THREE.Box3();
+        let size = new THREE.Vector3(we.width, we.height, we.length);
+        bbox.setFromCenterAndSize(center, size);
+        return bbox.containsPoint(unzeroedPoint);
     }
 
 
@@ -1725,26 +1708,15 @@ class Kinematics {
         // in the rest of moveToolRelative
         let axesToCoordsAdjusted = {};
         let currentPositionMachineCoords = this.getZeroedPosition();
-        if (Object.keys(axesToCoords).length === 2) {
-            let adjustedPoint = new THREE.Vector2(axesToCoords.x,
-                                                  axesToCoords.y);
-            adjustedPoint.sub(currentPositionMachineCoords);
-            axesToCoordsAdjusted = {
-                x: adjustedPoint.x,
-                y: adjustedPoint.y
-            };
-        }
-        if (Object.keys(axesToCoords).length === 3) {
-            let adjustedPoint = new THREE.Vector3(axesToCoords.x,
-                                                  axesToCoords.y,
-                                                  axesToCoords.z);
-            adjustedPoint.sub(currentPositionMachineCoords);
-            axesToCoordsAdjusted = {
-                x: adjustedPoint.x,
-                y: adjustedPoint.y,
-                z: adjustedPoint.z,
-            };
-        }
+        let adjustedPoint = new THREE.Vector3(axesToCoords.x,
+                                              axesToCoords.y,
+                                              axesToCoords.z);
+        adjustedPoint.sub(currentPositionMachineCoords);
+        axesToCoordsAdjusted = {
+            x: adjustedPoint.x,
+            y: adjustedPoint.y,
+            z: adjustedPoint.z,
+        };
         this.moveToolRelative(axesToCoordsAdjusted);
     }
 
