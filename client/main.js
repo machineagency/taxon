@@ -190,7 +190,10 @@ class InstructionQueue {
         };
         // This call eventually sets a callback that calls
         // executeInstruction in a THREE.js mixer in StrangeScene
-        this.kinematics.moveTool(axesToCoords);
+        let moveSuccessResult = this.kinematics.moveTool(axesToCoords);
+        if (!moveSuccessResult) {
+            this.unsetMotorsBusy();
+        }
     }
 
     __handleG92(tokens) {
@@ -1737,7 +1740,7 @@ class Kinematics {
             y: adjustedPoint.y,
             z: adjustedPoint.z,
         };
-        this.moveToolRelative(axesToCoordsAdjusted);
+        return this.moveToolRelative(axesToCoordsAdjusted);
     }
 
     moveToolRelative(axesToCoords) {
@@ -1750,6 +1753,7 @@ class Kinematics {
             this.__addHBotIK(axesToCoords, motorIdToSteps);
             this.turnMotors(motorIdToSteps);
         }
+        return validMove;
     }
 
     __addDirectDriveIK(axesToCoords, motorIdToSteps) {
