@@ -158,6 +158,10 @@ class InstructionQueue {
         this.__executeInst(nextInst);
     }
 
+    doDryRunInstructions() {
+        return this.__dryExecuteInstWithIndex(0);
+    }
+
     __executeInst(inst) {
         if (this.instIsComment(inst)) {
             // Set timeout for next instruction after a comment because
@@ -177,6 +181,28 @@ class InstructionQueue {
         if (opcode === 'G92') {
             this.__handleG92(tokens);
         }
+    }
+
+    __dryExecuteInstWithIndex(instIdx) {
+        // TODO: static checking recursively
+        if (this.arr[instIdx] === undefined) {
+            return;
+        }
+        if (this.instIsComment(inst)) {
+            // Assuming tail call optimization
+            return this.__dryExecuteInstWithIndex(instIdx + 1);
+        }
+        console.log(`Checking: ${inst}`);
+        let tokens = inst.split(' ');
+        let opcode = tokens[0];
+        if (opcode === 'G0' || opcode === 'G1') {
+            // Run absolute -> relative, then static check
+        }
+        if (opcode === 'G92') {
+            // Have to set zero actually and undo it later, or
+            // save to a separate zero?
+        }
+        return this.__dryExecuteInstWithIndex(instIdx + 1);
     }
 
     __handleG0(tokens) {
@@ -2027,7 +2053,15 @@ class JobFile {
         return promise;
     }
 
-    runStaticAnalysis(whatAreTheArguments) {
+    runStaticAnalysis() {
+        if (this.kinematics === undefined) {
+            console.error('Cannot analyze job without setting kinematics first.');
+        }
+        console.log('Statically analyzing GCode file...');
+        let iq = this.strangeScene.instructionQueue;
+        iq.setKinematics(this.kinematics);
+        iq.setQueueFromArray(this.gcodes);
+        iq.doDryRunInstructions();
     }
 
     runJob() {
