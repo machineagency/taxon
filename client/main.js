@@ -2380,6 +2380,7 @@ function main() {
     };
     // console.log(compiler.compileMachine(ss.machine));
     compiler.compileMachine(ss.machine);
+    window.strangeGui = new StrangeGui(window.kinematics);
     animate();
     return ss;
 }
