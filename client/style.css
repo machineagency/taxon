@@ -1,0 +1,198 @@
+
+body {
+    font-family: Monospace;
+    background-color: #f0f0f0;
+    margin: 0px;
+    overflow: hidden;
+}
+
+button {
+    background-color: white;
+    border: none;
+    color: black;
+    font-family: Monospace;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    width: 100px;
+    padding: 10px 0px 10px 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+input[type="file"] {
+    background-color: white;
+    border: none;
+    color: black;
+    font-family: Monospace;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    width: 100px;
+    padding: 10px 0px 10px 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+.button-bar {
+    width: 100%;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#info {
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    padding: 5px;
+    font-family: Monospace;
+    font-size: 13px;
+    text-align: center;
+    color: #ffffff;
+}
+
+#control-pad {
+    z-index: 1000;
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    padding: 20px;
+    font-family: Monospace;
+    font-size: 13px;
+    text-align: center;
+    color: #ffffff;
+    width: 200px;
+    background-color: black;
+}
+
+#program-pad {
+    z-index: 1000;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    padding: 20px 20px 10px 20px;
+    font-family: Monospace;
+    font-size: 10px;
+    color: #ffffff;
+    width: 20%;
+    height: 80%;
+    background-color: black;
+}
+
+#job-pad {
+    z-index: 1000;
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    padding: 20px 20px 10px 20px;
+    font-family: Monospace;
+    font-size: 10px;
+    color: #ffffff;
+    width: 250px;
+    background-color: black;
+}
+
+#job-container {
+    outline: none;
+    border: 1px solid white;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    height: 80%;
+    overflow: scroll;
+    height: 200px;
+}
+
+#program-container {
+    outline: none;
+    border: 1px solid white;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    height: 100%;
+    overflow: scroll;
+    line-height; 2;
+}
+
+.control-row {
+    height: 65px;
+    margin-bottom: 5px;
+}
+
+.pos-inst-container {
+    height: 100%;
+    width: 100%;
+    margin-bottom: 5px;
+    display: none; /* to be programatically shown */
+}
+
+.position-row {
+    font-size: 14px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.inst-input {
+    background-color: black;
+    border: 2px solid white;
+    outline: none;
+    height: 25px;
+    width: 85%;
+    color: white;
+    font-family: Monospace;
+    font-size: 18px;
+    padding-left: 15px;
+}
+
+.axis-name {
+    display: inline-block;
+    line-height: 65px;
+    font-size: 28px;
+}
+
+.control-arrow {
+    height: 50px;
+    width: 50px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.float-left {
+    float: left;
+}
+
+.float-right {
+    float: right;
+}
+
+.clearfix {
+    overflow: auto;
+}
+
+/* Make dat.gui have cooler fonts */
+
+.title {
+    font-family: Monospace;
+}
+
+.property-name {
+    font-family: Monospace;
+}
+
+.dg .cr.string input[type=text] {
+    font-family: Monospace;
+}
+
+.function {
+    font-family: Monospace;
+}
+
+.close-button {
+    font-family: Monospace;
+    display: none;
+}
+
+a {
+    color: #ffffff;
+}
+
