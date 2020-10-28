@@ -12,7 +12,24 @@
 <body>
 
 <div id="container"></div>
-<input id="job-file-input" type="file" />
+
+<div id="job-pad">
+    <pre id="job-container" contenteditable="false">
+    </pre>
+    <div class="button-bar">
+        <input id="job-file-input" type="file" onchange="window.jobFile.loadFromInputDom();"/>
+        <button onclick="window.jobFile.runJob();">Run</button>
+    </div>
+</div>
+
+<div id="program-pad">
+    <div class="button-bar">
+        <button>Upload</button>
+        <button>Compile</button>
+    </div>
+    <pre id="program-container" contenteditable="false">
+    </pre>
+</div>
 
 <script type="module" src="main.js"></script>
 

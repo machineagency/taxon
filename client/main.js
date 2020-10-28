@@ -2020,6 +2020,7 @@ class JobFile {
         }
         this.strangeScene = strangeScene;
         this.inputDom = document.getElementById('job-file-input');
+        this.jobContainerDom = document.getElementById('job-container');
         this.gcodes = [];
     }
 
@@ -2042,6 +2043,7 @@ class JobFile {
                         return gcode !== '';
                     });
                     this.gcodes = gcodes;
+                    this.jobContainerDom.innerText = text;
                     console.log('Successfully loaded GCode file.');
                     resolve(gcodes);
                 }
@@ -2379,13 +2381,15 @@ function main() {
         ss.renderScene();
     };
     // console.log(compiler.compileMachine(ss.machine));
-    compiler.compileMachine(ss.machine);
+    let compiledMachine = compiler.compileMachine(ss.machine);
+    let domProgramContainer = document.getElementById('program-container');
+    domProgramContainer.innerHTML = compiledMachine;
     window.strangeGui = new StrangeGui(window.kinematics);
+    window.jobFile = new JobFile(window.strangeScene);
+    window.jobFile.setKinematics(window.kinematics);
     animate();
-    return ss;
 }
 
-window.strangeScene = main();
 window.testMotor = () => {
     let machine = window.strangeScene.machine;
     let motors = machine.motors;
@@ -2404,12 +2408,12 @@ window.testMotor = () => {
     let platformMotor = motors.find((motor) => {
         return motor.name === 'platform belt motor';
     });
-    let jobFile = new JobFile(window.strangeScene);
-    jobFile.setKinematics(window.kinematics);
-    jobFile.loadFromInputDom().then((result) => {
-        jobFile.runJob();
+    window.jobFile.loadFromInputDom().then((result) => {
+        window.jobFile.runJob();
     }, (error) => {
         console.error(error);
     });
 };
+
+main();
 
