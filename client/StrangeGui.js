@@ -12,7 +12,11 @@ class StrangeGui {
         this.datGui = new dat.GUI();
         // TODO
         this.archTree = null;
-        this.initializeDatGui();
+
+        // Looks like we don't want dat gui... just have raw program to
+        // compile. However, maybe dat gui can just be for add block/motor
+        // and connect? Some sort of scaffold for adding text? Idk
+        // this.initializeDatGui();
     }
 
     initializeDatGui() {
