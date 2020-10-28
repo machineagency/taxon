@@ -72,12 +72,12 @@ input[type="file"] {
     position: absolute;
     right: 20px;
     top: 20px;
+    bottom: 20px;
     padding: 20px 20px 10px 20px;
     font-family: Monospace;
     font-size: 10px;
     color: #ffffff;
     width: 20%;
-    height: 80%;
     background-color: black;
 }
 
@@ -107,11 +107,13 @@ input[type="file"] {
 #program-container {
     outline: none;
     border: 1px solid white;
-    margin-bottom: 10px;
-    padding-left: 10px;
-    height: 100%;
     overflow: scroll;
-    line-height; 2;
+    line-height: 1.25;
+    position: absolute;
+    top: 60px; /* FIXME: compute off of button bar */
+    bottom: 10px;
+    left: 20px;
+    right: 20px;
 }
 
 .control-row {
