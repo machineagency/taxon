@@ -7,6 +7,8 @@ import { Line2 } from './build/lines/Line2.js';
 import { LineGeometry } from './build/lines/LineGeometry.js';
 import { LineMaterial } from './build/lines/LineMaterial.js';
 
+import { StrangeGui } from './StrangeGui.js';
+
 class StrangeScene {
     constructor() {
         this.domContainer = document.getElementById('container');
