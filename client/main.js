@@ -2021,11 +2021,26 @@ class JobFile {
         this.strangeScene = strangeScene;
         this.inputDom = document.getElementById('job-file-input');
         this.jobContainerDom = document.getElementById('job-container');
+        this.text = '';
         this.gcodes = [];
     }
 
     setKinematics(kinematics) {
         this.kinematics = kinematics;
+    }
+
+    renderToDom() {
+        this.jobContainerDom.innerText = this.text;
+    }
+
+    loadFromString(jobString) {
+        this.text = jobString;
+        let gcodes = jobString.split('\n').filter((gcode) => {
+            return gcode !== '';
+        });
+        this.gcodes = gcodes;
+        this.renderToDom();
+        console.log('Successfully loaded GCode file.');
     }
 
     loadFromInputDom() {
@@ -2037,13 +2052,13 @@ class JobFile {
         let fileReader = new FileReader();
         let promise = new Promise((resolve, reject) => {
             fileReader.addEventListener('loadend', (event) => {
-                let text = fileReader.result;
+                this.text = fileReader.result;
                 try {
-                    let gcodes = text.split('\n').filter((gcode) => {
+                    let gcodes = this.text.split('\n').filter((gcode) => {
                         return gcode !== '';
                     });
                     this.gcodes = gcodes;
-                    this.jobContainerDom.innerText = text;
+                    this.renderToDom();
                     console.log('Successfully loaded GCode file.');
                     resolve(gcodes);
                 }
@@ -2361,21 +2376,619 @@ let makeLoadStlPromise = (filepath, strangeScene) => {
     return loadPromise;
 };
 
+class TestPrograms {
+    static axidrawMachine = `{
+  "name": "axidraw",
+  "buildEnvironment": {
+    "width": 500,
+    "length": 500
+  },
+  "workEnvelope": {
+    "shape": "rectangle",
+    "width": 250,
+    "height": 0,
+    "length": 250,
+    "position": {
+      "x": -92.5,
+      "y": 12.6,
+      "z": 0
+    }
+  },
+  "motors": [
+    {
+      "id": "_702tqu61d",
+      "name": "MotorA",
+      "componentType": "Motor",
+      "dimensions": {
+        "width": 50,
+        "height": 50,
+        "length": 50
+      },
+      "kinematics": "hBot",
+      "invertSteps": false,
+      "drivenStages": [
+        {
+          "id": "_1mkon5w30",
+          "name": "Bottom"
+        },
+        {
+          "id": "_rauctizr7",
+          "name": "Top"
+        }
+      ],
+      "pairMotorId": "_ru5vlo0fl",
+      "pairMotorType": "b"
+    },
+    {
+      "id": "_ru5vlo0fl",
+      "name": "MotorB",
+      "componentType": "Motor",
+      "dimensions": {
+        "width": 50,
+        "height": 50,
+        "length": 50
+      },
+      "kinematics": "hBot",
+      "invertSteps": false,
+      "drivenStages": [
+        {
+          "id": "_1mkon5w30",
+          "name": "Bottom"
+        },
+        {
+          "id": "_rauctizr7",
+          "name": "Top"
+        }
+      ],
+      "pairMotorId": "_702tqu61d",
+      "pairMotorType": "a"
+    }
+  ],
+  "blocks": [
+    {
+      "id": "_u9cjbuxqg",
+      "name": "Sharpie",
+      "componentType": "Tool",
+      "dimensions": {
+        "width": 10,
+        "height": 50,
+        "length": 10
+      }
+    },
+    {
+      "id": "_pqnrqcs3z",
+      "name": "Servo",
+      "componentType": "ToolAssembly",
+      "dimensions": {
+        "width": 12.5,
+        "height": 25,
+        "length": 50
+      }
+    },
+    {
+      "id": "_rauctizr7",
+      "name": "Top",
+      "componentType": "LinearStage",
+      "dimensions": {
+        "width": 250,
+        "height": 25,
+        "length": 50
+      },
+      "drivingMotors": [
+        {
+          "id": "_702tqu61d"
+        },
+        {
+          "id": "_ru5vlo0fl"
+        }
+      ],
+      "attributes": {
+        "driveMechanism": "timingBelt",
+        "stepDisplacementRatio": "0.7"
+      }
+    },
+    {
+      "id": "_1mkon5w30",
+      "name": "Bottom",
+      "componentType": "LinearStage",
+      "dimensions": {
+        "width": 50,
+        "height": 50,
+        "length": 250
+      },
+      "drivingMotors": [
+        {
+          "id": "_702tqu61d"
+        },
+        {
+          "id": "_ru5vlo0fl"
+        }
+      ],
+      "attributes": {
+        "driveMechanism": "timingBelt",
+        "stepDisplacementRatio": "0.7"
+      },
+      "position": {
+        "x": 50,
+        "y": 37.6,
+        "z": 0
+      }
+    }
+  ],
+  "connections": [
+    {
+      "baseBlock": "_1mkon5w30",
+      "baseBlockName": "Bottom",
+      "baseBlockFace": "-y",
+      "baseBlockEnd": "0",
+      "addBlock": "_rauctizr7",
+      "addBlockName": "Top",
+      "addBlockFace": "+y",
+      "addBlockEnd": "0"
+    },
+    {
+      "baseBlock": "_rauctizr7",
+      "baseBlockName": "Top",
+      "baseBlockFace": "+x",
+      "baseBlockEnd": "0",
+      "addBlock": "_pqnrqcs3z",
+      "addBlockName": "Servo",
+      "addBlockFace": "-x",
+      "addBlockEnd": "0"
+    },
+    {
+      "baseBlock": "_1mkon5w30",
+      "baseBlockName": "Bottom",
+      "baseBlockFace": "+z",
+      "baseBlockEnd": "0",
+      "addBlock": "_702tqu61d",
+      "addBlockName": "MotorA",
+      "addBlockFace": "-z",
+      "addBlockEnd": "0"
+    },
+    {
+      "baseBlock": "_1mkon5w30",
+      "baseBlockName": "Bottom",
+      "baseBlockFace": "-z",
+      "baseBlockEnd": "0",
+      "addBlock": "_ru5vlo0fl",
+      "addBlockName": "MotorB",
+      "addBlockFace": "+z",
+      "addBlockEnd": "0"
+    },
+    {
+      "baseBlock": "_pqnrqcs3z",
+      "baseBlockName": "Servo",
+      "baseBlockFace": "+x",
+      "baseBlockEnd": "0",
+      "addBlock": "_u9cjbuxqg",
+      "addBlockName": "Sharpie",
+      "addBlockFace": "-x",
+      "addBlockEnd": "0"
+    }
+  ],
+  "references": {
+    "parallelBlockGroups": [],
+    "pairedMotorGroups": [
+      [
+        {
+          "id": "_702tqu61d",
+          "name": "MotorA",
+          "kinematics": "hBot"
+        },
+        {
+          "id": "_ru5vlo0fl",
+          "name": "MotorB",
+          "kinematics": "hBot"
+        }
+      ]
+    ],
+    "axes": {
+      "x": [
+        {
+          "id": "_rauctizr7",
+          "name": "Top"
+        }
+      ],
+      "z": [
+        {
+          "id": "_1mkon5w30",
+          "name": "Bottom"
+        }
+      ]
+    },
+    "workEnvelope": {
+      "shape": "rectangle",
+      "width": 250,
+      "height": 0,
+      "length": 250,
+      "position": {
+        "x": -92.5,
+        "y": 12.6,
+        "z": 0
+      }
+    }
+  }
+}`;
+    static prusaMachine = `{
+    "name": "prusa",
+    "buildEnvironment": {
+        "width": 500,
+        "length": 500
+    },
+    "workEnvelope": {
+        "shape": "box",
+        "width": 165,
+        "height": 150,
+        "length": 210,
+        "position": {
+            "x": 0,
+            "y": 87.6,
+            "z": 0
+        }
+    },
+    "motors": [
+        {
+            "id": "_wspzkqtt4",
+            "name": "leadscrew motor a",
+            "componentType": "Motor",
+            "dimensions": {
+                "width": 25,
+                "height": 25,
+                "length": 25
+            },
+            "kinematics": "directDrive",
+            "invertSteps": false,
+            "drivenStages": [
+                {
+                    "id": "_xqtko21l8",
+                    "name": "z leadscrew a"
+                }
+            ],
+            "position": {
+                "x": 35,
+                "y": 25.1,
+                "z": -100
+            }
+        },
+        {
+            "id": "_76jz1l8m3",
+            "name": "leadscrew motor b",
+            "componentType": "Motor",
+            "dimensions": {
+                "width": 25,
+                "height": 25,
+                "length": 25
+            },
+            "kinematics": "directDrive",
+            "invertSteps": false,
+            "drivenStages": [
+                {
+                    "id": "_c1nf4uf24",
+                    "name": "z leadscrew b"
+                }
+            ],
+            "position": {
+                "x": 35,
+                "y": 25.1,
+                "z": 100
+            }
+        },
+        {
+            "id": "_3dg6fxkhj",
+            "name": "platform belt motor",
+            "componentType": "Motor",
+            "dimensions": {
+                "width": 25,
+                "height": 25,
+                "length": 25
+            },
+            "kinematics": "directDrive",
+            "invertSteps": false,
+            "drivenStages": [
+                {
+                    "id": "_4jqi7hfnt",
+                    "name": "platform belt"
+                }
+            ]
+        },
+        {
+            "id": "_1ixp2wekj",
+            "name": "carriage belt motor",
+            "componentType": "Motor",
+            "dimensions": {
+                "width": 25,
+                "height": 25,
+                "length": 25
+            },
+            "kinematics": "directDrive",
+            "invertSteps": false,
+            "drivenStages": [
+                {
+                    "id": "_mop0u2z1w",
+                    "name": "carriage belt"
+                }
+            ]
+        }
+    ],
+    "blocks": [
+        {
+            "id": "_bccb07fca",
+            "name": "build plate",
+            "componentType": "Platform",
+            "dimensions": {
+                "length": 130,
+                "width": 130,
+                "height": 10
+            }
+        },
+        {
+            "id": "_4jqi7hfnt",
+            "name": "platform belt",
+            "componentType": "LinearStage",
+            "dimensions": {
+                "width": 165,
+                "height": 25,
+                "length": 25
+            },
+            "drivingMotors": [
+                {
+                    "id": "_3dg6fxkhj"
+                }
+            ],
+            "attributes": {
+                "driveMechanism": "timingBelt",
+                "stepDisplacementRatio": 0.7
+            },
+            "position": {
+                "x": 0,
+                "y": 25.1,
+                "z": 0
+            }
+        },
+        {
+            "id": "_mop0u2z1w",
+            "name": "carriage belt",
+            "componentType": "LinearStage",
+            "dimensions": {
+                "width": 12.5,
+                "height": 25,
+                "length": 210
+            },
+            "drivingMotors": [
+                {
+                    "id": "_1ixp2wekj"
+                }
+            ],
+            "attributes": {
+                "driveMechanism": "timingBelt",
+                "stepDisplacementRatio": 0.5
+            }
+        },
+        {
+            "id": "_xqtko21l8",
+            "name": "z leadscrew a",
+            "componentType": "LinearStage",
+            "dimensions": {
+                "width": 10,
+                "height": 150,
+                "length": 10
+            },
+            "drivingMotors": [
+                {
+                    "id": "_wspzkqtt4"
+                }
+            ],
+            "attributes": {
+                "driveMechanism": "leadscrew",
+                "stepDisplacementRatio": 0.5
+            }
+        },
+        {
+            "id": "_c1nf4uf24",
+            "name": "z leadscrew b",
+            "componentType": "LinearStage",
+            "dimensions": {
+                "width": 10,
+                "height": 150,
+                "length": 10
+            },
+            "drivingMotors": [
+                {
+                    "id": "_76jz1l8m3"
+                }
+            ],
+            "attributes": {
+                "driveMechanism": "leadscrew",
+                "stepDisplacementRatio": 0.5
+            }
+        },
+        {
+            "id": "_qbpp87ejx",
+            "name": "hotend",
+            "componentType": "ToolAssembly",
+            "dimensions": {
+                "width": 12.5,
+                "height": 25,
+                "length": 25
+            }
+        },
+        {
+            "id": "_9j7xrk6xl",
+            "name": "extruder",
+            "componentType": "Tool",
+            "dimensions": {
+                "width": 10,
+                "height": 25,
+                "length": 10
+            }
+        }
+    ],
+    "connections": [
+        {
+            "baseBlock": "_wspzkqtt4",
+            "baseBlockName": "leadscrew motor a",
+            "baseBlockFace": "-y",
+            "baseBlockEnd": "0",
+            "addBlock": "_xqtko21l8",
+            "addBlockName": "z leadscrew a",
+            "addBlockFace": "+y",
+            "addBlockEnd": "0"
+        },
+        {
+            "baseBlock": "_76jz1l8m3",
+            "baseBlockName": "leadscrew motor b",
+            "baseBlockFace": "-y",
+            "baseBlockEnd": "0",
+            "addBlock": "_c1nf4uf24",
+            "addBlockName": "z leadscrew b",
+            "addBlockFace": "+y",
+            "addBlockEnd": "0"
+        },
+        {
+            "baseBlock": "_4jqi7hfnt",
+            "baseBlockName": "platform belt",
+            "baseBlockFace": "+x",
+            "baseBlockEnd": "0",
+            "addBlock": "_3dg6fxkhj",
+            "addBlockName": "platform belt motor",
+            "addBlockFace": "-x",
+            "addBlockEnd": "0"
+        },
+        {
+            "baseBlock": "_4jqi7hfnt",
+            "baseBlockName": "platform belt",
+            "baseBlockFace": "-y",
+            "baseBlockEnd": "0",
+            "addBlock": "_bccb07fca",
+            "addBlockName": "build plate",
+            "addBlockFace": "+y",
+            "addBlockEnd": "0"
+        },
+        {
+            "baseBlock": "_xqtko21l8",
+            "baseBlockName": "z leadscrew a",
+            "baseBlockFace": "+x",
+            "baseBlockEnd": "0",
+            "addBlock": "_mop0u2z1w",
+            "addBlockName": "carriage belt",
+            "addBlockFace": "-x",
+            "addBlockEnd": "+z"
+        },
+        {
+            "baseBlock": "_c1nf4uf24",
+            "baseBlockName": "z leadscrew b",
+            "baseBlockFace": "+x",
+            "baseBlockEnd": "0",
+            "addBlock": "_mop0u2z1w",
+            "addBlockName": "carriage belt",
+            "addBlockFace": "-x",
+            "addBlockEnd": "-z"
+        },
+        {
+            "baseBlock": "_mop0u2z1w",
+            "baseBlockName": "carriage belt",
+            "baseBlockFace": "+z",
+            "baseBlockEnd": "0",
+            "addBlock": "_1ixp2wekj",
+            "addBlockName": "carriage belt motor",
+            "addBlockFace": "-x",
+            "addBlockEnd": "+x"
+        },
+        {
+            "baseBlock": "_mop0u2z1w",
+            "baseBlockName": "carriage belt",
+            "baseBlockFace": "+x",
+            "baseBlockEnd": "0",
+            "addBlock": "_qbpp87ejx",
+            "addBlockName": "hotend",
+            "addBlockFace": "-x",
+            "addBlockEnd": "0"
+        },
+        {
+            "baseBlock": "_qbpp87ejx",
+            "baseBlockName": "hotend",
+            "baseBlockFace": "+x",
+            "baseBlockEnd": "0",
+            "addBlock": "_9j7xrk6xl",
+            "addBlockName": "extruder",
+            "addBlockFace": "-x",
+            "addBlockEnd": "0"
+        }
+    ],
+    "references": {
+        "parallelBlockGroups": [
+            [
+                {
+                    "id": "_xqtko21l8",
+                    "name": "z leadscrew a"
+                },
+                {
+                    "id": "_c1nf4uf24",
+                    "name": "z leadscrew b"
+                }
+            ]
+        ],
+        "pairedMotorGroups": [],
+        "axes": {
+            "x": [
+                {
+                    "id": "_4jqi7hfnt",
+                    "name": "platform belt"
+                }
+            ],
+            "z": [
+                {
+                    "id": "_mop0u2z1w",
+                    "name": "carriage belt"
+                }
+            ],
+            "y": [
+                {
+                    "id": "_xqtko21l8",
+                    "name": "z leadscrew a"
+                },
+                {
+                    "id": "_c1nf4uf24",
+                    "name": "z leadscrew b"
+                }
+            ]
+        },
+        "workEnvelope": {
+            "shape": "box",
+            "width": 165,
+            "height": 150,
+            "length": 210,
+            "position": {
+                "x": 0,
+                "y": 87.6,
+                "z": 0
+            }
+        }
+    }
+}`;
+    static testDrawJob = 'G92\nG0 X0 Y0 Z0\nG0 X0 Y0 Z20\nG0 X20 Y0 Z20\nG0 X20 Y0 Z0\nG0 X0 Y0 Z0';
+}
+
 function main() {
     let ss = new StrangeScene();
     let compiler = new Compiler();
-    window.strangeScene = ss;
-    window.compiler = compiler;
-    let axidrawProg = '{"name":"axidraw","buildEnvironment":{"width":500,"length":500},"workEnvelope":{"shape":"rectangle","width":250,"height":0,"length":250,"position":{"x":-92.5,"y":12.6,"z":0}},"motors":[{"id":"_gtgpe5ykk","name":"MotorA","componentType":"Motor","dimensions":{"width":50,"height":50,"length":50},"kinematics":"hBot","invertSteps":false,"drivenStages":[{"id":"_ug8gzod3z","name":"Bottom"},{"id":"_nyqtmejvb","name":"Top"}],"pairMotorId":"_yro6inmwg","pairMotorType":"b"},{"id":"_yro6inmwg","name":"MotorB","componentType":"Motor","dimensions":{"width":50,"height":50,"length":50},"kinematics":"hBot","invertSteps":false,"drivenStages":[{"id":"_ug8gzod3z","name":"Bottom"},{"id":"_nyqtmejvb","name":"Top"}],"pairMotorId":"_gtgpe5ykk","pairMotorType":"a"}],"blocks":[{"id":"_rru0rtooz","name":"Sharpie","componentType":"Tool","dimensions":{"width":10,"height":50,"length":10}},{"id":"_um530fh8t","name":"Servo","componentType":"ToolAssembly","dimensions":{"width":12.5,"height":25,"length":50}},{"id":"_nyqtmejvb","name":"Top","componentType":"LinearStage","dimensions":{"width":250,"height":25,"length":50},"drivingMotors":[{"id":"_gtgpe5ykk"},{"id":"_yro6inmwg"}],"attributes":{"driveMechanism":"timingBelt","stepDisplacementRatio":"0.7"}},{"id":"_ug8gzod3z","name":"Bottom","componentType":"LinearStage","dimensions":{"width":50,"height":50,"length":250},"drivingMotors":[{"id":"_gtgpe5ykk"},{"id":"_yro6inmwg"}],"attributes":{"driveMechanism":"timingBelt","stepDisplacementRatio":"0.7"},"position":{"x":50,"y":37.6,"z":0}}],"connections":[{"baseBlock":"_ug8gzod3z","baseBlockName":"Bottom","baseBlockFace":"-y","baseBlockEnd":"0","addBlock":"_nyqtmejvb","addBlockName":"Top","addBlockFace":"+y","addBlockEnd":"0"},{"baseBlock":"_nyqtmejvb","baseBlockName":"Top","baseBlockFace":"+x","baseBlockEnd":"0","addBlock":"_um530fh8t","addBlockName":"Servo","addBlockFace":"-x","addBlockEnd":"0"},{"baseBlock":"_ug8gzod3z","baseBlockName":"Bottom","baseBlockFace":"+z","baseBlockEnd":"0","addBlock":"_gtgpe5ykk","addBlockName":"MotorA","addBlockFace":"-z","addBlockEnd":"0"},{"baseBlock":"_ug8gzod3z","baseBlockName":"Bottom","baseBlockFace":"-z","baseBlockEnd":"0","addBlock":"_yro6inmwg","addBlockName":"MotorB","addBlockFace":"+z","addBlockEnd":"0"},{"baseBlock":"_um530fh8t","baseBlockName":"Servo","baseBlockFace":"+x","baseBlockEnd":"0","addBlock":"_rru0rtooz","addBlockName":"Sharpie","addBlockFace":"-x","addBlockEnd":"0"}],"references":{"parallelBlockGroups":[],"pairedMotorGroups":[[{"id":"_gtgpe5ykk","name":"MotorA","kinematics":"hBot"},{"id":"_yro6inmwg","name":"MotorB","kinematics":"hBot"}]],"axes":{"x":[{"id":"_nyqtmejvb","name":"Top"}],"z":[{"id":"_ug8gzod3z","name":"Bottom"}]},"workEnvelope":{"shape":"rectangle","width":250,"height":0,"length":250,"position":{"x":-92.5,"y":12.6,"z":0}}}}';
-    let prusaProg = '{"name":"prusa","buildEnvironment":{"width":500,"length":500},"workEnvelope":{"shape":"box","width":165,"height":150,"length":210,"position":{"x":0,"y":87.6,"z":0}},"motors":[{"id":"_wspzkqtt4","name":"leadscrew motor a","componentType":"Motor","dimensions":{"width":25,"height":25,"length":25},"kinematics":"directDrive","invertSteps":false,"drivenStages":[{"id":"_xqtko21l8","name":"z leadscrew a"}],"position":{"x":35,"y":25.1,"z":-100}},{"id":"_76jz1l8m3","name":"leadscrew motor b","componentType":"Motor","dimensions":{"width":25,"height":25,"length":25},"kinematics":"directDrive","invertSteps":false,"drivenStages":[{"id":"_c1nf4uf24","name":"z leadscrew b"}],"position":{"x":35,"y":25.1,"z":100}},{"id":"_3dg6fxkhj","name":"platform belt motor","componentType":"Motor","dimensions":{"width":25,"height":25,"length":25},"kinematics":"directDrive","invertSteps":false,"drivenStages":[{"id":"_4jqi7hfnt","name":"platform belt"}]},{"id":"_1ixp2wekj","name":"carriage belt motor","componentType":"Motor","dimensions":{"width":25,"height":25,"length":25},"kinematics":"directDrive","invertSteps":false,"drivenStages":[{"id":"_mop0u2z1w","name":"carriage belt"}]}],"blocks":[{"id":"_bccb07fca","name":"build plate","componentType":"Platform","dimensions":{"length":130,"width":130,"height":10}},{"id":"_4jqi7hfnt","name":"platform belt","componentType":"LinearStage","dimensions":{"width":165,"height":25,"length":25},"drivingMotors":[{"id":"_3dg6fxkhj"}],"attributes":{"driveMechanism":"timingBelt","stepDisplacementRatio":0.7},"position":{"x":0,"y":25.1,"z":0}},{"id":"_mop0u2z1w","name":"carriage belt","componentType":"LinearStage","dimensions":{"width":12.5,"height":25,"length":210},"drivingMotors":[{"id":"_1ixp2wekj"}],"attributes":{"driveMechanism":"timingBelt","stepDisplacementRatio":0.5}},{"id":"_xqtko21l8","name":"z leadscrew a","componentType":"LinearStage","dimensions":{"width":10,"height":150,"length":10},"drivingMotors":[{"id":"_wspzkqtt4"}],"attributes":{"driveMechanism":"leadscrew","stepDisplacementRatio":0.5}},{"id":"_c1nf4uf24","name":"z leadscrew b","componentType":"LinearStage","dimensions":{"width":10,"height":150,"length":10},"drivingMotors":[{"id":"_76jz1l8m3"}],"attributes":{"driveMechanism":"leadscrew","stepDisplacementRatio":0.5}},{"id":"_qbpp87ejx","name":"hotend","componentType":"ToolAssembly","dimensions":{"width":12.5,"height":25,"length":25}},{"id":"_9j7xrk6xl","name":"extruder","componentType":"Tool","dimensions":{"width":10,"height":25,"length":10}}],"connections":[{"baseBlock":"_wspzkqtt4","baseBlockName":"leadscrew motor a","baseBlockFace":"-y","baseBlockEnd":"0","addBlock":"_xqtko21l8","addBlockName":"z leadscrew a","addBlockFace":"+y","addBlockEnd":"0"},{"baseBlock":"_76jz1l8m3","baseBlockName":"leadscrew motor b","baseBlockFace":"-y","baseBlockEnd":"0","addBlock":"_c1nf4uf24","addBlockName":"z leadscrew b","addBlockFace":"+y","addBlockEnd":"0"},{"baseBlock":"_4jqi7hfnt","baseBlockName":"platform belt","baseBlockFace":"+x","baseBlockEnd":"0","addBlock":"_3dg6fxkhj","addBlockName":"platform belt motor","addBlockFace":"-x","addBlockEnd":"0"},{"baseBlock":"_4jqi7hfnt","baseBlockName":"platform belt","baseBlockFace":"-y","baseBlockEnd":"0","addBlock":"_bccb07fca","addBlockName":"build plate","addBlockFace":"+y","addBlockEnd":"0"},{"baseBlock":"_xqtko21l8","baseBlockName":"z leadscrew a","baseBlockFace":"+x","baseBlockEnd":"0","addBlock":"_mop0u2z1w","addBlockName":"carriage belt","addBlockFace":"-x","addBlockEnd":"+z"},{"baseBlock":"_c1nf4uf24","baseBlockName":"z leadscrew b","baseBlockFace":"+x","baseBlockEnd":"0","addBlock":"_mop0u2z1w","addBlockName":"carriage belt","addBlockFace":"-x","addBlockEnd":"-z"},{"baseBlock":"_mop0u2z1w","baseBlockName":"carriage belt","baseBlockFace":"+z","baseBlockEnd":"0","addBlock":"_1ixp2wekj","addBlockName":"carriage belt motor","addBlockFace":"-x","addBlockEnd":"+x"},{"baseBlock":"_mop0u2z1w","baseBlockName":"carriage belt","baseBlockFace":"+x","baseBlockEnd":"0","addBlock":"_qbpp87ejx","addBlockName":"hotend","addBlockFace":"-x","addBlockEnd":"0"},{"baseBlock":"_qbpp87ejx","baseBlockName":"hotend","baseBlockFace":"+x","baseBlockEnd":"0","addBlock":"_9j7xrk6xl","addBlockName":"extruder","addBlockFace":"-x","addBlockEnd":"0"}],"references":{"parallelBlockGroups":[[{"id":"_xqtko21l8","name":"z leadscrew a"},{"id":"_c1nf4uf24","name":"z leadscrew b"}]],"pairedMotorGroups":[],"axes":{"x":[{"id":"_4jqi7hfnt","name":"platform belt"}],"z":[{"id":"_mop0u2z1w","name":"carriage belt"}],"y":[{"id":"_xqtko21l8","name":"z leadscrew a"},{"id":"_c1nf4uf24","name":"z leadscrew b"}]},"workEnvelope":{"shape":"box","width":165,"height":150,"length":210,"position":{"x":0,"y":87.6,"z":0}}}}';
-    // let machine = compiler.decompileIntoScene(ss, prusaProg);
-    let machine = new Machine('axidraw', ss);
-    machine.presetLoaders.axidraw();
+    let machine = compiler.decompileIntoScene(ss, TestPrograms.axidrawMachine);
     let kinematics = new Kinematics(ss);
-    window.kinematics = kinematics;
     kinematics.buildTreeForMachine(machine);
     ss.instructionQueue = new InstructionQueue();
-    ss.instructionQueue.setKinematics(window.kinematics);
+    ss.instructionQueue.setKinematics(kinematics);
+    let jobFile = new JobFile(ss);
+    jobFile.setKinematics(kinematics);
+    jobFile.loadFromString(TestPrograms.testDrawJob);
+    jobFile.renderToDom();
+    let domProgramContainer = document.getElementById('program-container');
+    domProgramContainer.innerHTML = TestPrograms.axidrawMachine;
+    window.strangeScene = ss;
+    window.kinematics = kinematics;
+    window.compiler = compiler;
+    window.jobFile = jobFile;
+
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
@@ -2383,14 +2996,16 @@ function main() {
         }, 1000 / maxFramerate);
         ss.renderScene();
     };
-    // console.log(compiler.compileMachine(ss.machine));
-    let compiledMachine = compiler.compileMachine(ss.machine);
-    let domProgramContainer = document.getElementById('program-container');
-    domProgramContainer.innerHTML = compiledMachine;
-    window.strangeGui = new StrangeGui(window.kinematics);
-    window.jobFile = new JobFile(window.strangeScene);
-    window.jobFile.setKinematics(window.kinematics);
     animate();
+}
+
+window.testInstantiateMachineFromJSClasses = (machineName) => {
+    // For debugging purposes—generate a machine from internal JS API
+    // as done in the presetLoaders. MachineName in { 'axidraw', 'prusa' }
+    let machine = new Machine(machineName, window.strangeScene);
+    machine.presetLoaders[machineName]();
+    let compiledMachine = compiler.compileMachine(machine);
+    console.log(compiledMachine);
 }
 
 window.testMotor = () => {
