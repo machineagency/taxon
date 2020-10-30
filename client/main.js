@@ -2676,7 +2676,7 @@ class TestPrograms {
                 "length": 25
             },
             "kinematics": "directDrive",
-            "invertSteps": false,
+            "invertSteps": true,
             "drivenStages": [
                 {
                     "id": "_4jqi7hfnt",
@@ -2959,23 +2959,35 @@ class TestPrograms {
         }
     }
 }`;
-    static testDrawJob = 'G92\nG0 X0 Y0 Z0\nG0 X0 Y0 Z20\nG0 X20 Y0 Z20\nG0 X20 Y0 Z0\nG0 X0 Y0 Z0';
+    static testDrawJob = `G92
+G0 X0 Y0 Z0
+G0 X0 Y0 Z20
+G0 X20 Y0 Z20
+G0 X20 Y0 Z0
+G0 X0 Y0 Z0`;
+
+    static testPrintJob = `G92
+G0 X0 Y-20 Z0
+G0 X0 Y-20 Z20
+G0 X20 Y-20 Z20
+G0 X20 Y-20 Z0
+G0 X0 Y0 Z0`;
 }
 
 function main() {
     let ss = new StrangeScene();
     let compiler = new Compiler();
     // let machine = window.testInstantiateMachineFromJSClasses(ss, 'axidraw');
-    let machine = compiler.decompileIntoScene(ss, TestPrograms.axidrawMachine);
+    let machine = compiler.decompileIntoScene(ss, TestPrograms.prusaMachine);
     let kinematics = new Kinematics(ss);
     ss.instructionQueue = new InstructionQueue();
     ss.instructionQueue.setKinematics(kinematics);
     let jobFile = new JobFile(ss);
     jobFile.setKinematics(kinematics);
-    jobFile.loadFromString(TestPrograms.testDrawJob);
+    jobFile.loadFromString(TestPrograms.testPrintJob);
     jobFile.renderToDom();
     let domProgramContainer = document.getElementById('program-container');
-    domProgramContainer.innerHTML = TestPrograms.axidrawMachine;
+    domProgramContainer.innerHTML = TestPrograms.prusaMachine;
     window.strangeScene = ss;
     window.kinematics = kinematics;
     window.compiler = compiler;
