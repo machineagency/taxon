@@ -2417,7 +2417,7 @@ class TestPrograms {
         }
       ],
       "pairMotorId": "_ru5vlo0fl",
-      "pairMotorType": "b"
+      "pairMotorType": "a"
     },
     {
       "id": "_ru5vlo0fl",
@@ -2441,7 +2441,7 @@ class TestPrograms {
         }
       ],
       "pairMotorId": "_702tqu61d",
-      "pairMotorType": "a"
+      "pairMotorType": "b"
     }
   ],
   "blocks": [
