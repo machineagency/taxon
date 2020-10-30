@@ -1433,6 +1433,10 @@ class Kinematics {
         this.strangeScene = strangeScene;
         this.strangeAnimator = new StrangeAnimator(strangeScene);
         this.suppressedNodes = [];
+        this.machine = this.strangeScene.machine;
+        this.__buildTreeForMachine(this.machine);
+
+        this.machine.workEnvelope = this.determineWorkEnvelope();
     }
 
     zeroAtCurrentPosition() {
@@ -1488,7 +1492,7 @@ class Kinematics {
     }
 
 
-    buildTreeForMachine(machine) {
+    __buildTreeForMachine(machine) {
         let toolBlock = machine.blocks.find((block) => {
             return block.componentType === 'Tool'
         });
@@ -1496,7 +1500,6 @@ class Kinematics {
             console.error(`Can't find tool for machine ${machine.name}`);
             return;
         }
-        this.machine = machine;
         let rootBlocks = machine.blocks.filter((block) => block.endBlock);
         rootBlocks.forEach((block) => {
             let rootNode = new KNode(block);
@@ -2197,7 +2200,6 @@ class Compiler {
         });
 
         let kinematics = new Kinematics();
-        kinematics.buildTreeForMachine(machine);
         let axisBlockGroups = kinematics.determineMachineAxes();
         let axisBlockGroupsReduced = {};
         Object.keys(axisBlockGroups).forEach((axisName) => {
@@ -2973,9 +2975,9 @@ class TestPrograms {
 function main() {
     let ss = new StrangeScene();
     let compiler = new Compiler();
+    // let machine = window.testInstantiateMachineFromJSClasses(ss, 'axidraw');
     let machine = compiler.decompileIntoScene(ss, TestPrograms.axidrawMachine);
     let kinematics = new Kinematics(ss);
-    kinematics.buildTreeForMachine(machine);
     ss.instructionQueue = new InstructionQueue();
     ss.instructionQueue.setKinematics(kinematics);
     let jobFile = new JobFile(ss);
@@ -2999,13 +3001,13 @@ function main() {
     animate();
 }
 
-window.testInstantiateMachineFromJSClasses = (machineName) => {
+window.testInstantiateMachineFromJSClasses = (strangeScene, machineName) => {
     // For debugging purposes—generate a machine from internal JS API
     // as done in the presetLoaders. MachineName in { 'axidraw', 'prusa' }
-    let machine = new Machine(machineName, window.strangeScene);
+    let machine = new Machine(machineName, strangeScene);
     machine.presetLoaders[machineName]();
-    let compiledMachine = compiler.compileMachine(machine);
-    console.log(compiledMachine);
+    strangeScene.machine = machine;
+    return machine;
 }
 
 window.testMotor = () => {
