@@ -2253,16 +2253,6 @@ class Compiler {
             length: progObj.buildEnvironment.length
         });
         be.id = progObj.buildEnvironment.id;
-        let we = new WorkEnvelope(machine, {
-            shape: progObj.workEnvelope.shape,
-            width: progObj.workEnvelope.width,
-            height: progObj.workEnvelope.height,
-            length: progObj.workEnvelope.length
-        });
-        we.id = progObj.workEnvelope.id;
-        we.position = new THREE.Vector3(progObj.workEnvelope.position.x,
-                                        progObj.workEnvelope.position.y,
-                                        progObj.workEnvelope.position.z);
         progObj.motors.forEach((motorData) => {
             let motor = new Motor(motorData.name, machine, {
                 width: motorData.dimensions.width,
