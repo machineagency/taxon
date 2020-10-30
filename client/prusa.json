@@ -72,7 +72,7 @@
                 "length": 25
             },
             "kinematics": "directDrive",
-            "invertSteps": false,
+            "invertSteps": true,
             "drivenStages": [
                 {
                     "id": "_4jqi7hfnt",
