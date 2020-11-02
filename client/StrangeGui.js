@@ -1,6 +1,7 @@
 'use strict';
 
-import * as dat from '/build/dat.gui.module.js';
+import * as THREE from './build/three.module.js';
+import { STLLoader } from './build/STLLoader.js';
 
 class StrangeGui {
 
@@ -9,49 +10,70 @@ class StrangeGui {
             console.error('Need kinematics to inflate the GUI');
         }
         this.kinematics = kinematics;
-        this.datGui = new dat.GUI();
-        // TODO
-        this.archTree = null;
-
-        // Looks like we don't want dat gui... just have raw program to
-        // compile. However, maybe dat gui can just be for add block/motor
-        // and connect? Some sort of scaffold for adding text? Idk
-        // this.initializeDatGui();
+        this.modelContainerDom = document.getElementById('model-container');
+        this.renderModelPane = this.__inflateModelContainerDom();
+        this.makeLoadStlPromise('./pikachu.stl');
+        this.renderModelPane();
     }
 
-    initializeDatGui() {
-        this.__addBlocksToDatGui();
-        this.__addMotorsToDatGui();
+    __inflateModelContainerDom() {
+        let domElement = this.modelContainerDom;
+        let scene = new THREE.Scene();
+        let aspect = domElement.offsetWidth / domElement.offsetHeight;
+        let viewSize = 50;
+        let camera = new THREE.OrthographicCamera(-viewSize * aspect, viewSize * aspect,
+            viewSize, -viewSize, -1000, 10000);
+        camera.zoom = 0.1;
+        camera.updateProjectionMatrix();
+        camera.frustumCulled = false;
+        camera.position.set(500, 500, 500); // I don't know why this works
+        camera.lookAt(scene.position);
+        scene.add(camera);
+        scene.background = new THREE.Color(0x000000);
+        let gridHelper = new THREE.GridHelper(2000, 50, 0xe5e6e8, 0x444444);
+        scene.add(gridHelper);
+        // scene.controlMode = 'translate';
+        // let controls = new THREE.OrbitControls(camera, domElement);
+        // scene.orbitControls = controls;
+
+        let mcRenderer = new THREE.WebGLRenderer({ antialias: true });
+        const {left, right, top, bottom, width, height} =
+            this.modelContainerDom.getBoundingClientRect();
+        mcRenderer.setPixelRatio(window.devicePixelRatio);
+        mcRenderer.setSize(width - 2, height - 2);
+        domElement.appendChild(mcRenderer.domElement);
+
+        this.modelScene = scene;
+        this.modelCamera = camera;
+
+        let renderModelPane = () => {
+            mcRenderer.render(scene, camera);
+        };
+        return renderModelPane;
     }
 
-    __addBlocksToDatGui() {
-        this.blocksFolder = this.datGui.addFolder('Blocks');
-        this.kinematics.machine.blocks.forEach((block) => {
-            let blockFolder = this.blocksFolder.addFolder(block.name);
-            blockFolder.add(block, 'componentType');
-            blockFolder.add(block.position, 'x');
-            blockFolder.add(block.position, 'y');
-            blockFolder.add(block.position, 'z');
-            blockFolder.add(block, 'width');
-            blockFolder.add(block, 'height');
-            blockFolder.add(block, 'length');
-            if (block.attributes !== undefined) {
-                if (block.attributes.driveMechanism !== undefined) {
-                    blockFolder.add(block.attributes, 'driveMechanism');
-                }
-                if (block.attributes.stepDisplacementRatio !== undefined) {
-                    blockFolder.add(block.attributes, 'stepDisplacementRatio');
-                }
-            }
+    makeLoadStlPromise = (filepath) => {
+        let loadPromise = new Promise(resolve => {
+            let loader = new STLLoader();
+            let stlMesh;
+            return loader.load(filepath, (stlGeom) => {
+                let material = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    wireframe: true
+                });
+                stlMesh = new THREE.Mesh(stlGeom, material);
+                stlMesh.scale.set(10, 10, 10);
+                stlMesh.isLoadedStl = true;
+                this.modelScene.add(stlMesh);
+                this.renderModelPane();
+                resolve(stlMesh);
+            }, undefined, (errorMsg) => {
+                console.log(errorMsg);
+            });
         });
-    }
-
-    __addMotorsToDatGui() {
-        this.blocksFolder = this.datGui.addFolder('Motors');
-        this.kinematics.machine.motors.forEach((motor) => {
-            this.blocksFolder.add(motor, 'name');
-        });
-    }
+        return loadPromise;
+    };
 }
 
 export { StrangeGui };
+
