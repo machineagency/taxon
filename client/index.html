@@ -14,13 +14,36 @@
 <div id="container"></div>
 
 <div id="job-pad">
-    <pre id="model-container" class="code-field" contenteditable="false">
-        Fancy 3D model goes here, copy from New Orleans demo.
-    </pre>
+    <div id="model-container">
+    </div>
     <pre id="cam-container" class="code-field" contenteditable="false">
-        JSON of CAM settings (Cura) here.
+{
+    "quality" {
+        "layerHeight" : 2
+    },
+    "shell" {
+        "wallThickness" : 1,
+        "topBottomThickness" : 6
+    },
+    "infill" : {
+        "pattern" : "triangles",
+        "density" : 20
+    },
+    "material" : {
+        "printingTemperature" : 205,
+        "buildPlateTemperature" : 60,
+        "enableRetraction" : true
+    },
+    "speed" : {
+        "printSpeed" : 70
+    },
+    "support" : {
+        "generateSupport" : true,
+        "supportOverhangAngle" : 60
+    }
+}
     </pre>
-    <button>Slice (Cura)</button>
+    <!-- <button>Slice (Cura)</button> -->
     <pre id="job-container" class="code-field" contenteditable="false">
     </pre>
     <div class="button-bar">

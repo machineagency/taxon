@@ -36,6 +36,16 @@ input[type="file"] {
     cursor: pointer;
 }
 
+#model-container {
+    height: 200px;
+    width: 250px;
+    border: 1px solid white;
+}
+
+#cam-container {
+    height: 200px;
+}
+
 .button-bar {
     width: 100%;
     margin-bottom: 10px;
