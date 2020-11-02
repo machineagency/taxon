@@ -14,7 +14,14 @@
 <div id="container"></div>
 
 <div id="job-pad">
-    <pre id="job-container" contenteditable="false">
+    <pre id="model-container" class="code-field" contenteditable="false">
+        Fancy 3D model goes here, copy from New Orleans demo.
+    </pre>
+    <pre id="cam-container" class="code-field" contenteditable="false">
+        JSON of CAM settings (Cura) here.
+    </pre>
+    <button>Slice (Cura)</button>
+    <pre id="job-container" class="code-field" contenteditable="false">
     </pre>
     <div class="button-bar">
         <input id="job-file-input" type="file" onchange="window.jobFile.loadFromInputDom();"/>
@@ -27,7 +34,7 @@
         <button>Upload</button>
         <button>Compile</button>
     </div>
-    <pre id="program-container" contenteditable="false">
+    <pre id="program-container" class="code-field" contenteditable="false">
     </pre>
 </div>
 
