@@ -12,7 +12,7 @@ import { TestPrograms } from './TestPrograms.js';
 
 class StrangeScene {
     constructor() {
-        this.domContainer = document.getElementById('container');
+        // this.domContainer = document.getElementById('container');
         this.scene = this.initScene();
         this.camera = this.initCamera(this.scene, true);
         this.renderer = this.initRenderer();
@@ -144,6 +144,10 @@ class InstructionQueue {
         return inst[0] === ';';
     }
 
+    instIsMCode(inst) {
+        return inst[0] === 'M';
+    }
+
     executeNextInstruction() {
         if (this.kinematics === undefined) {
             console.error('No kinematics set for instruction queue.');
@@ -166,7 +170,7 @@ class InstructionQueue {
     }
 
     __executeInst(inst) {
-        if (this.instIsComment(inst)) {
+        if (this.instIsComment(inst) || this.instIsMCode(inst)) {
             // Set timeout for next instruction after a comment because
             // we don't want to call the next instruction on this current
             // stack frame—let this frame return and call next EPS_MS later.
@@ -2379,7 +2383,7 @@ function main() {
     ss.instructionQueue.setKinematics(kinematics);
     let jobFile = new JobFile(ss);
     jobFile.setKinematics(kinematics);
-    jobFile.loadFromString(TestPrograms.testPrintJob);
+    jobFile.loadFromString(TestPrograms.pikachuPrintStart);
     jobFile.renderToDom();
     let domProgramContainer = document.getElementById('program-container');
     domProgramContainer.innerHTML = TestPrograms.prusaMachine;
@@ -2387,6 +2391,7 @@ function main() {
     window.kinematics = kinematics;
     window.compiler = compiler;
     window.jobFile = jobFile;
+    window.strangeGui = new StrangeGui(kinematics);
 
     let animate = () => {
         let maxFramerate = 20;
