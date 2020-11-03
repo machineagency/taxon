@@ -8,17 +8,6 @@ class TestPrograms {
     "width": 500,
     "length": 500
   },
-  "workEnvelope": {
-    "shape": "box",
-    "width": 165,
-    "height": 150,
-    "length": 210,
-    "position": {
-      "x": 0,
-      "y": 87.6,
-      "z": 0
-    }
-  },
   "motors": [
     {
       "id": "_wspzkqtt4",
