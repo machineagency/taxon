@@ -82,7 +82,6 @@ input[type="file"] {
     position: absolute;
     right: 20px;
     top: 20px;
-    bottom: 20px;
     padding: 20px 20px 10px 20px;
     font-family: Monospace;
     font-size: 10px;
@@ -95,7 +94,7 @@ input[type="file"] {
     z-index: 1000;
     position: absolute;
     left: 20px;
-    bottom: 20px;
+    top: 20px;
     padding: 20px 20px 10px 20px;
     font-family: Monospace;
     font-size: 10px;
@@ -118,12 +117,14 @@ input[type="file"] {
     height: 200px;
 }
 
-#program-container {
-    position: absolute;
-    top: 60px; /* FIXME: compute off of button bar */
-    bottom: 10px;
-    left: 20px;
-    right: 20px;
+#r-container {
+    height: 200px;
+    margin-top: 20px;
+}
+
+#gc-container {
+    height: 600px;
+    margin-top: 20px;
 }
 
 .control-row {
