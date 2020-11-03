@@ -127,6 +127,23 @@ input[type="file"] {
     margin-top: 20px;
 }
 
+#results-pad {
+    z-index: 1000;
+    position: absolute;
+    bottom: 20px;
+    padding: 20px 20px 10px 20px;
+    font-family: Monospace;
+    font-size: 10px;
+    color: #ffffff;
+    background-color: black;
+    width: 20%;
+    left: 35%;
+}
+
+#chi-container {
+    height: 150px;
+}
+
 .control-row {
     height: 65px;
     margin-bottom: 5px;
