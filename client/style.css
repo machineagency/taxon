@@ -136,12 +136,22 @@ input[type="file"] {
     font-size: 10px;
     color: #ffffff;
     background-color: black;
-    width: 20%;
+    width: 30%;
     left: 35%;
+    height: 150px;
+}
+
+.result-pane {
+    display: inline-block;
 }
 
 #chi-container {
-    height: 150px;
+    width: 200px;
+}
+
+#explanation-container {
+    margin-left: 10px;
+    width: 200px;
 }
 
 .control-row {
