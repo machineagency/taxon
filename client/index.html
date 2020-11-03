@@ -75,13 +75,14 @@
     "maxBridgeLength" : 14.0,
     "maxOverhangAngle" : null,
     "minPositiveFeatureThickness" : null,
-    "minNegativeFeatureThickness" : null,
+    "minNegativeFeatureThickness" : null
   }
 }
     </pre>
 </div>
 <div id="results-pad">
-    <pre id="chi-container" class="code-field">
+    <div class="result-pane">
+        <pre id="chi-container" class="code-field">
 {
   "lorem" : "ipsum",
   "lorem" : "ipsum",
@@ -90,7 +91,24 @@
   "lorem" : "ipsum",
   "lorem" : "ipsum"
 }
-    </pre>
+        </pre>
+    </div>
+    <div id="explanation-container" class="result-pane">
+        <div class="constraint-name">
+            Resolution
+        </div>
+        <div id="constraint-text">
+            Lorem ipsum dolor ea idequam bacon starfruit.
+        </div>
+        <ul id="constraint-fixes">
+            <li>
+                <p>Use a machine with x</p>
+            </li>
+            <li>
+                <p>Increase plate temperature</p>
+            </li>
+        </ul>
+    </div>
 </div>
 
 <script type="module" src="main.js"></script>
