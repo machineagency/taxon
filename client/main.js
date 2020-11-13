@@ -2385,7 +2385,7 @@ function main() {
     jobFile.setKinematics(kinematics);
     jobFile.loadFromString(TestPrograms.pikachuPrintStart);
     jobFile.renderToDom();
-    let domProgramContainer = document.getElementById('gc-container');
+    let domProgramContainer = document.getElementById('gc-container-1');
     domProgramContainer.innerHTML = TestPrograms.prusaMachine;
     window.strangeScene = ss;
     window.kinematics = kinematics;
