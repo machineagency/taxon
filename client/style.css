@@ -122,8 +122,8 @@ input[type="file"] {
     margin-top: 20px;
 }
 
-#gc-container {
-    height: 600px;
+.gc-container {
+    height: 400px;
     margin-top: 20px;
 }
 
