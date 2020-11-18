@@ -1,6 +1,7 @@
 'use strict';
 
 import * as THREE from './build/three.module.js';
+import { TestPrograms } from './TestPrograms.js';
 import { STLLoader } from './build/STLLoader.js';
 
 class StrangeGui {
@@ -50,6 +51,37 @@ class StrangeGui {
             mcRenderer.render(scene, camera);
         };
         return renderModelPane;
+    }
+
+    loadMachineFromListItemDom(listItemDom) {
+        // TODO: use ids not names for machine identifiers
+        let highlightClassName = 'current-machine-highlight';
+        let gcDom = document.getElementById('gc-container-1');
+        let machineName = listItemDom.innerText.toLowerCase();
+        let newText;
+        if (machineName === 'axidraw') {
+            newText = TestPrograms.axidrawMachine;
+        }
+        if (machineName === 'prusa') {
+            newText = TestPrograms.prusaMachine;
+        }
+        if (machineName === '(new machine)') {
+            newText = TestPrograms.newMachine;
+        }
+        gcDom.innerText = newText;
+        let oldHighlightedListItemDom = document
+            .getElementsByClassName(highlightClassName)[0];
+        oldHighlightedListItemDom.classList.remove(highlightClassName);
+        listItemDom.classList.add(highlightClassName);
+        this.__inflateSceneFromGCText();
+    }
+
+    __inflateSceneFromGCText() {
+        let gcDom = document.getElementById('gc-container-1');
+        let gcText = gcDom.innerText;
+        window.strangeScene.machine.clearMachineFromScene();
+        window.compiler.decompileIntoScene(window.strangeScene,
+            gcText);
     }
 
     makeLoadStlPromise = (filepath) => {
