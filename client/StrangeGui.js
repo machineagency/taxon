@@ -80,8 +80,10 @@ class StrangeGui {
         let gcDom = document.getElementById('gc-container-1');
         let gcText = gcDom.innerText;
         window.strangeScene.machine.clearMachineFromScene();
-        window.compiler.decompileIntoScene(window.strangeScene,
+        let newMachine = window.compiler.decompileIntoScene(window.strangeScene,
             gcText);
+        window.strangeScene.machine = newMachine;
+        window.kinematics.reinitializeForMachine(newMachine);
     }
 
     makeLoadStlPromise = (filepath) => {

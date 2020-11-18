@@ -1154,7 +1154,6 @@ class WorkEnvelope extends StrangeComponent {
         this.componentType = 'WorkEnvelope';
         parentMachine.workEnvelope = this;
         // FIXME: come back to generating work envelope, hide for now.
-        this.renderDimensions();
     }
 
     get shape() {
@@ -1171,6 +1170,8 @@ class WorkEnvelope extends StrangeComponent {
     }
 
     renderDimensions() {
+        // For some reason this.position gets reset, so save it here;
+        let centerPosition = new THREE.Vector3().copy(this.position);
         this.removeMeshGroupFromScene();
         let geom = WorkEnvelope.geometryFactories.workEnvelope(this.dimensions);
         let material = new THREE.MeshLambertMaterial({
@@ -1185,6 +1186,7 @@ class WorkEnvelope extends StrangeComponent {
         if (this.dimensions.shape === 'rectangle') {
             this.rotateToXYPlane();
         }
+        this.meshGroup.position.copy(centerPosition);
         this.addMeshGroupToScene();
     }
 }
@@ -1444,6 +1446,15 @@ class Kinematics {
         this.machine.workEnvelope = this.determineWorkEnvelope();
     }
 
+    reinitializeForMachine(newMachine) {
+        this.rootKNodes = [];
+        this.suppressedNodes = [];
+        this.machine = newMachine;
+        this.__buildTreeForMachine(this.machine);
+
+        this.machine.workEnvelope = this.determineWorkEnvelope();
+    }
+
     zeroAtCurrentPosition() {
         this.zeroPosition = this.getWorldPosition();
         // NOTE: we may want to move this to a UI class
@@ -1649,34 +1660,78 @@ class Kinematics {
         return axisToBlock;
     }
 
-    determineWorkEnvelopeAlternate() {
-        // Work in progreses, more robust way of calculating
-        // work envelopes
-        let toolPosition = this.machine.getTool().position;
-        let stages = this.machine.blocks.filter((block) => {
-            return block.componentType === 'LinearStage'
-                    || block.componentType === 'RotaryStage';
-        });
-        let boundingBoxes = stages.map((stage) => {
-            return stage.computeComponentBoundingBox();
-        });
-        let points = boundingBoxes.map((box) => {
-            return [box.min, box.max];
-        }).flat();
-        let xBoxCoords = points.map((point) => point.x)
-                            .concat(toolPosition.x)
-                            .sort();
-        let yBoxCoords = points.map((point) => point.y)
-                            .concat(toolPosition.y)
-                            .sort();
-        let zBoxCoords = points.map((point) => point.z)
-                            .concat(toolPosition.z)
-                            .sort();
-        this.oldDetermineWorkEnvelope();
-
+    determineMovingBlocks() {
+        // TODO: add rom info as calculated below
+        return this.rootKNodes.map((kNode) => kNode.block);
     }
 
     determineWorkEnvelope() {
+        let gatherSubtreeRoms = (rootNode) => {
+            if (rootNode.childNodes.length === 0) {
+                return rootNode.calcNodeRangeOfMotion(this);
+            }
+            let childLists = rootNode.childNodes.map((childNode) => {
+                return gatherSubtreeRoms(childNode);
+            });
+            childLists.push(rootNode.calcNodeRangeOfMotion(this));
+            return childLists.flat();
+        };
+        let romLists = this.rootKNodes.map((rootNode) => {
+           return gatherSubtreeRoms(rootNode).filter((rom) => {
+               return rom.romAxis !== '0';
+           });
+        });
+        let upperBoundVector = new THREE.Vector3();
+        let lowerBoundVector = new THREE.Vector3();
+        let intervalListLists = this.rootKNodes.map((rootNode, rootIdx) => {
+            let romList = romLists[rootIdx];
+            let intervalList = romList.map((rom) => {
+                let intervalAxis = rom.romAxis;
+                let axisCenter = rootNode.block.position[intervalAxis];
+                let upperBound = axisCenter + rom.rom / 2;
+                let lowerBound = axisCenter - rom.rom / 2;
+                upperBoundVector[intervalAxis] = upperBound;
+                lowerBoundVector[intervalAxis] = lowerBound;
+                return {
+                    intervalAxis: intervalAxis,
+                    bounds: [lowerBound, upperBound]
+                }
+            });
+            return intervalList;
+        });
+        let weBox = new THREE.Box3(lowerBoundVector, upperBoundVector);
+        // TODO: intersect box with platform or BE
+        let platform = this.machine.getPlatform();
+        if (platform !== undefined) {
+            let platformDimVect = new THREE.Vector3(
+                -(weBox.max.x - (platform.width / 2)),
+                -platform.height / 2,
+                -(weBox.max.z - (platform.length / 2)));
+            weBox.expandByVector(platformDimVect);
+            weBox.translate(new THREE.Vector3(0, platform.height / 2, 0));
+        }
+        // Assemble WE from Box
+        let weBoxSize = new THREE.Vector3();
+        weBox.getSize(weBoxSize);
+        let we = new WorkEnvelope(this.machine, {
+            shape: weBoxSize.y === 0 ? 'rectangle' : 'box',
+            width: weBoxSize.x,
+            height: weBoxSize.y,
+            length: weBoxSize.z
+        });
+        let weBoxCenter = new THREE.Vector3();
+        weBox.getCenter(weBoxCenter);
+        we.position = weBoxCenter;
+        if (we.height === 0) {
+            let beTopPosition = new THREE.Vector3();
+            beTopPosition.setY(0.1 + this.machine.buildEnvironment.height
+                / 2);
+            we.position = beTopPosition;
+        }
+        return we;
+    }
+
+    determineWorkEnvelopeOld() {
         // Assumptions: there is only one stage per axis that we care about
         // NOTE: this is an approximation of the work envelope, it's
         // not always accurate in non-common cases but it will do for now.
@@ -1951,6 +2006,29 @@ class KNode {
 
     addOrphanNodes(orphanNodes) {
         this.orphanNodes = this.orphanNodes.concat(orphanNodes);
+    }
+
+    /**
+     * Returns ROM unnormalized for position in the form:
+     * { romAxis: x, rom: 200 }
+     */
+    calcNodeRangeOfMotion(kinematics) {
+        if (kinematics === undefined) {
+            console.error('Please pass in kinematics.');
+            return;
+        }
+        if (this.block.componentType !== 'LinearStage') {
+            return { romAxis : '0', rom : 0 };
+        }
+        let romAxis, rom;
+        let axisToDim = {
+            'x': 'width',
+            'y': 'height',
+            'z': 'length'
+        };
+        romAxis = kinematics.determineAxisNameForBlock(this.block);
+        rom = this.block[axisToDim[romAxis]];
+        return { romAxis : romAxis, rom : rom };
     }
 
 }
