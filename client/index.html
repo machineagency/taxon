@@ -54,8 +54,17 @@
 
 <div id="program-pad">
     <div class="button-bar">
-        <button>Upload</button>
-        <button>Compile</button>
+        <button>Load</button>
+        <button>Compare</button>
+    </div>
+    <div class="list-container">
+        <ul id="load-machine-list">
+            <li onclick="window.strangeGui.loadMachineFromListItemDom(this)" class="machine-list-item">Axidraw</li>
+            <li class="machine-list-item">Jubilee</li>
+            <li onclick="window.strangeGui.loadMachineFromListItemDom(this)" class="machine-list-item current-machine-highlight">Prusa</li>
+            <li class="machine-list-item">Ultimaker</li>
+            <li onclick="window.strangeGui.loadMachineFromListItemDom(this)"class="machine-list-item">(New Machine)</li>
+        </ul>
     </div>
     <pre id="gc-container-1" class="gc-container code-field" contenteditable="false">
     </pre>

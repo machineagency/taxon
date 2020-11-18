@@ -80,7 +80,7 @@ input[type="file"] {
 #program-pad {
     z-index: 1000;
     position: absolute;
-    right: 20px;
+    left: 20px;
     top: 20px;
     padding: 20px 20px 10px 20px;
     font-family: Monospace;
@@ -93,7 +93,7 @@ input[type="file"] {
 #job-pad {
     z-index: 1000;
     position: absolute;
-    left: 20px;
+    right: 20px;
     top: 20px;
     padding: 20px 20px 10px 20px;
     font-family: Monospace;
@@ -127,6 +127,28 @@ input[type="file"] {
     margin-top: 20px;
 }
 
+#gc-container-2 {
+    display: none;
+}
+
+#load-machine-list {
+    padding-left: 20px;
+    padding-right: 20px;
+    list-style-type: none;
+}
+
+.machine-list-item {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    cursor: pointer;
+}
+
+.current-machine-highlight {
+    color: #000000;
+    background-color: #ffffff;
+    font-weight: bold;
+}
+
 #results-pad {
     z-index: 1000;
     position: absolute;
@@ -147,6 +169,10 @@ input[type="file"] {
 
 #chi-container {
     width: 200px;
+}
+
+.list-container {
+    border: 1px solid white;
 }
 
 #explanation-container {

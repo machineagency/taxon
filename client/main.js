@@ -2392,6 +2392,7 @@ function main() {
     window.compiler = compiler;
     window.jobFile = jobFile;
     window.strangeGui = new StrangeGui(kinematics);
+    window.testPrograms = TestPrograms;
 
     let animate = () => {
         let maxFramerate = 20;
