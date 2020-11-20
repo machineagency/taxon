@@ -52,23 +52,39 @@
     </div>
 </div>
 
-<div id="program-pad">
+<div id="program-pad" data-mode="single">
+    <!--
     <div class="button-bar">
         <button>Load</button>
         <button>Compare</button>
     </div>
-    <div class="list-container">
-        <ul id="load-machine-list">
-            <li onclick="window.strangeGui.loadMachineFromListItemDom(this)" class="machine-list-item">Axidraw</li>
-            <li class="machine-list-item">Jubilee</li>
-            <li onclick="window.strangeGui.loadMachineFromListItemDom(this)" class="machine-list-item current-machine-highlight">Prusa</li>
-            <li class="machine-list-item">Ultimaker</li>
-            <li onclick="window.strangeGui.loadMachineFromListItemDom(this)"class="machine-list-item">(New Machine)</li>
+    -->
+    <div id="machine-list-container" class="list-container">
+        <ul class="load-machine-list">
+            <li>3d_printer/
+                <ul class="load-machine-list">
+                    <li class="machine-list-item">Jubilee</li>
+                    <li onclick="window.strangeGui.loadMachineFromListItemDom(this)" class="machine-list-item current-machine-highlight">Prusa</li>
+                    <li>
+                        Ultimaker/
+                        <ul id="load-machine-list">
+                            <li>v3.0</li>
+                            <li>v2.0</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>plotter/
+                <ul class="load-machine-list">
+                    <li onclick="window.strangeGui.loadMachineFromListItemDom(this)">Axidraw</li>
+                </ul>
+            </li>
+            <li onclick="window.strangeGui.loadMachineFromListItemDom(this)">(New Machine)</li>
         </ul>
     </div>
     <pre id="gc-container-1" class="gc-container code-field" contenteditable="false">
     </pre>
-    <pre id="gc-container-2" class="gc-container code-field" contenteditable="false">
+    <pre id="gc-container-2" class="hidden gc-container code-field" contenteditable="false">
         Second program goes here
     </pre>
 </div>
