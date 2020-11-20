@@ -110,9 +110,9 @@ class TestPrograms {
       "name": "build plate",
       "componentType": "Platform",
       "dimensions": {
-        "length": 130,
         "width": 130,
-        "height": 10
+        "height": 10,
+        "length": 130
       }
     },
     {
@@ -349,251 +349,239 @@ class TestPrograms {
     },
     "workEnvelope": {
       "shape": "box",
-      "width": 165,
-      "height": 150,
-      "length": 210,
+      "width": 130,
+      "height": 140,
+      "length": 130,
       "position": {
         "x": 0,
-        "y": 87.6,
+        "y": 117.6,
         "z": 0
       }
     }
   }
 }`;
-
     static axidrawMachine = `{
-    "name": "axidraw",
-    "buildEnvironment": {
-        "width": 500,
-        "length": 500
+  "name": "axidraw",
+  "buildEnvironment": {
+    "width": 500,
+    "length": 500
+  },
+  "motors": [
+    {
+      "id": "_gtgpe5ykk",
+      "name": "MotorA",
+      "componentType": "Motor",
+      "dimensions": {
+        "width": 50,
+        "height": 50,
+        "length": 50
+      },
+      "kinematics": "hBot",
+      "invertSteps": false,
+      "drivenStages": [
+        {
+          "id": "_ug8gzod3z",
+          "name": "Bottom"
+        },
+        {
+          "id": "_nyqtmejvb",
+          "name": "Top"
+        }
+      ],
+      "pairMotorId": "_yro6inmwg",
+      "pairMotorType": "b"
+    },
+    {
+      "id": "_yro6inmwg",
+      "name": "MotorB",
+      "componentType": "Motor",
+      "dimensions": {
+        "width": 50,
+        "height": 50,
+        "length": 50
+      },
+      "kinematics": "hBot",
+      "invertSteps": false,
+      "drivenStages": [
+        {
+          "id": "_ug8gzod3z",
+          "name": "Bottom"
+        },
+        {
+          "id": "_nyqtmejvb",
+          "name": "Top"
+        }
+      ],
+      "pairMotorId": "_gtgpe5ykk",
+      "pairMotorType": "a"
+    }
+  ],
+  "blocks": [
+    {
+      "id": "_rru0rtooz",
+      "name": "Sharpie",
+      "componentType": "Tool",
+      "dimensions": {
+        "width": 10,
+        "height": 50,
+        "length": 10
+      }
+    },
+    {
+      "id": "_um530fh8t",
+      "name": "Servo",
+      "componentType": "ToolAssembly",
+      "dimensions": {
+        "width": 12.5,
+        "height": 25,
+        "length": 50
+      }
+    },
+    {
+      "id": "_nyqtmejvb",
+      "name": "Top",
+      "componentType": "LinearStage",
+      "dimensions": {
+        "width": 250,
+        "height": 25,
+        "length": 50
+      },
+      "drivingMotors": [
+        {
+          "id": "_gtgpe5ykk"
+        },
+        {
+          "id": "_yro6inmwg"
+        }
+      ],
+      "attributes": {
+        "driveMechanism": "",
+        "stepDisplacementRatio": 0
+      }
+    },
+    {
+      "id": "_ug8gzod3z",
+      "name": "Bottom",
+      "componentType": "LinearStage",
+      "dimensions": {
+        "width": 50,
+        "height": 50,
+        "length": 250
+      },
+      "drivingMotors": [
+        {
+          "id": "_gtgpe5ykk"
+        },
+        {
+          "id": "_yro6inmwg"
+        }
+      ],
+      "attributes": {
+        "driveMechanism": "",
+        "stepDisplacementRatio": 0
+      },
+      "position": {
+        "x": 50,
+        "y": 37.6,
+        "z": 0
+      }
+    }
+  ],
+  "connections": [
+    {
+      "baseBlock": "_ug8gzod3z",
+      "baseBlockName": "Bottom",
+      "baseBlockFace": "-y",
+      "baseBlockEnd": "0",
+      "addBlock": "_nyqtmejvb",
+      "addBlockName": "Top",
+      "addBlockFace": "+y",
+      "addBlockEnd": "0"
+    },
+    {
+      "baseBlock": "_nyqtmejvb",
+      "baseBlockName": "Top",
+      "baseBlockFace": "+x",
+      "baseBlockEnd": "0",
+      "addBlock": "_um530fh8t",
+      "addBlockName": "Servo",
+      "addBlockFace": "-x",
+      "addBlockEnd": "0"
+    },
+    {
+      "baseBlock": "_ug8gzod3z",
+      "baseBlockName": "Bottom",
+      "baseBlockFace": "+z",
+      "baseBlockEnd": "0",
+      "addBlock": "_gtgpe5ykk",
+      "addBlockName": "MotorA",
+      "addBlockFace": "-z",
+      "addBlockEnd": "0"
+    },
+    {
+      "baseBlock": "_ug8gzod3z",
+      "baseBlockName": "Bottom",
+      "baseBlockFace": "-z",
+      "baseBlockEnd": "0",
+      "addBlock": "_yro6inmwg",
+      "addBlockName": "MotorB",
+      "addBlockFace": "+z",
+      "addBlockEnd": "0"
+    },
+    {
+      "baseBlock": "_um530fh8t",
+      "baseBlockName": "Servo",
+      "baseBlockFace": "+x",
+      "baseBlockEnd": "0",
+      "addBlock": "_rru0rtooz",
+      "addBlockName": "Sharpie",
+      "addBlockFace": "-x",
+      "addBlockEnd": "0"
+    }
+  ],
+  "references": {
+    "parallelBlockGroups": [],
+    "pairedMotorGroups": [
+      [
+        {
+          "id": "_gtgpe5ykk",
+          "name": "MotorA",
+          "kinematics": "hBot"
+        },
+        {
+          "id": "_yro6inmwg",
+          "name": "MotorB",
+          "kinematics": "hBot"
+        }
+      ]
+    ],
+    "axes": {
+      "x": [
+        {
+          "id": "_nyqtmejvb",
+          "name": "Top"
+        }
+      ],
+      "z": [
+        {
+          "id": "_ug8gzod3z",
+          "name": "Bottom"
+        }
+      ]
     },
     "workEnvelope": {
-        "shape": "rectangle",
-        "width": 250,
-        "height": 0,
-        "length": 250,
-        "position": {
-            "x": -92.5,
-            "y": 12.6,
-            "z": 0
-        }
-    },
-    "motors": [
-        {
-            "id": "_gtgpe5ykk",
-            "name": "MotorA",
-            "componentType": "Motor",
-            "dimensions": {
-                "width": 50,
-                "height": 50,
-                "length": 50
-            },
-            "kinematics": "hBot",
-            "invertSteps": false,
-            "drivenStages": [
-                {
-                    "id": "_ug8gzod3z",
-                    "name": "Bottom"
-                },
-                {
-                    "id": "_nyqtmejvb",
-                    "name": "Top"
-                }
-            ],
-            "pairMotorId": "_yro6inmwg",
-            "pairMotorType": "a"
-        },
-        {
-            "id": "_yro6inmwg",
-            "name": "MotorB",
-            "componentType": "Motor",
-            "dimensions": {
-                "width": 50,
-                "height": 50,
-                "length": 50
-            },
-            "kinematics": "hBot",
-            "invertSteps": false,
-            "drivenStages": [
-                {
-                    "id": "_ug8gzod3z",
-                    "name": "Bottom"
-                },
-                {
-                    "id": "_nyqtmejvb",
-                    "name": "Top"
-                }
-            ],
-            "pairMotorId": "_gtgpe5ykk",
-            "pairMotorType": "b"
-        }
-    ],
-    "blocks": [
-        {
-            "id": "_rru0rtooz",
-            "name": "Sharpie",
-            "componentType": "Tool",
-            "dimensions": {
-                "width": 10,
-                "height": 50,
-                "length": 10
-            }
-        },
-        {
-            "id": "_um530fh8t",
-            "name": "Servo",
-            "componentType": "ToolAssembly",
-            "dimensions": {
-                "width": 12.5,
-                "height": 25,
-                "length": 50
-            }
-        },
-        {
-            "id": "_nyqtmejvb",
-            "name": "Top",
-            "componentType": "LinearStage",
-            "dimensions": {
-                "width": 250,
-                "height": 25,
-                "length": 50
-            },
-            "drivingMotors": [
-                {
-                    "id": "_gtgpe5ykk"
-                },
-                {
-                    "id": "_yro6inmwg"
-                }
-            ],
-            "attributes": {
-                "driveMechanism": "timingBelt",
-                "stepDisplacementRatio": "0.7"
-            }
-        },
-        {
-            "id": "_ug8gzod3z",
-            "name": "Bottom",
-            "componentType": "LinearStage",
-            "dimensions": {
-                "width": 50,
-                "height": 50,
-                "length": 250
-            },
-            "drivingMotors": [
-                {
-                    "id": "_gtgpe5ykk"
-                },
-                {
-                    "id": "_yro6inmwg"
-                }
-            ],
-            "attributes": {
-                "driveMechanism": "timingBelt",
-                "stepDisplacementRatio": "0.7"
-            },
-            "position": {
-                "x": 50,
-                "y": 37.6,
-                "z": 0
-            }
-        }
-    ],
-    "connections": [
-        {
-            "baseBlock": "_ug8gzod3z",
-            "baseBlockName": "Bottom",
-            "baseBlockFace": "-y",
-            "baseBlockEnd": "0",
-            "addBlock": "_nyqtmejvb",
-            "addBlockName": "Top",
-            "addBlockFace": "+y",
-            "addBlockEnd": "0"
-        },
-        {
-            "baseBlock": "_nyqtmejvb",
-            "baseBlockName": "Top",
-            "baseBlockFace": "+x",
-            "baseBlockEnd": "0",
-            "addBlock": "_um530fh8t",
-            "addBlockName": "Servo",
-            "addBlockFace": "-x",
-            "addBlockEnd": "0"
-        },
-        {
-            "baseBlock": "_ug8gzod3z",
-            "baseBlockName": "Bottom",
-            "baseBlockFace": "+z",
-            "baseBlockEnd": "0",
-            "addBlock": "_gtgpe5ykk",
-            "addBlockName": "MotorA",
-            "addBlockFace": "-z",
-            "addBlockEnd": "0"
-        },
-        {
-            "baseBlock": "_ug8gzod3z",
-            "baseBlockName": "Bottom",
-            "baseBlockFace": "-z",
-            "baseBlockEnd": "0",
-            "addBlock": "_yro6inmwg",
-            "addBlockName": "MotorB",
-            "addBlockFace": "+z",
-            "addBlockEnd": "0"
-        },
-        {
-            "baseBlock": "_um530fh8t",
-            "baseBlockName": "Servo",
-            "baseBlockFace": "+x",
-            "baseBlockEnd": "0",
-            "addBlock": "_rru0rtooz",
-            "addBlockName": "Sharpie",
-            "addBlockFace": "-x",
-            "addBlockEnd": "0"
-        }
-    ],
-    "references": {
-        "parallelBlockGroups": [],
-        "pairedMotorGroups": [
-            [
-                {
-                    "id": "_gtgpe5ykk",
-                    "name": "MotorA",
-                    "kinematics": "hBot"
-                },
-                {
-                    "id": "_yro6inmwg",
-                    "name": "MotorB",
-                    "kinematics": "hBot"
-                }
-            ]
-        ],
-        "axes": {
-            "x": [
-                {
-                    "id": "_nyqtmejvb",
-                    "name": "Top"
-                }
-            ],
-            "z": [
-                {
-                    "id": "_ug8gzod3z",
-                    "name": "Bottom"
-                }
-            ]
-        },
-        "workEnvelope": {
-            "shape": "rectangle",
-            "width": 250,
-            "height": 0,
-            "length": 250,
-            "position": {
-                "x": -92.5,
-                "y": 12.6,
-                "z": 0
-            }
-        }
+      "shape": "rectangle",
+      "width": 250,
+      "height": 0,
+      "length": 250,
+      "position": {
+        "x": 0,
+        "y": 12.6,
+        "z": 0
+      }
     }
-}`;
+  }
+}`
 
     static testDrawJob = `G92
 G0 X0 Y0 Z0
