@@ -237,9 +237,11 @@ class InstructionQueue {
 }
 
 class Machine {
-    constructor(name, parentScene) {
+    constructor(name, parentScene, isPreview=false) {
         this.name = name;
         this.parentScene = parentScene;
+        this.rootMeshGroup = new THREE.Group();
+        this.parentScene.scene.add(this.rootMeshGroup);
         this.buildEnvironment = undefined;
         this.workEnvelope = undefined;
         this.blocks = [];
@@ -253,7 +255,16 @@ class Machine {
             'y': 'height',
             'z': 'length'
         };
-        parentScene.machine = this;
+        if (isPreview) {
+            parentScene.previewMachine = this;
+            this.recolorAndMoveMachineForPreviewing();
+        }
+        else {
+            parentScene.machine = this;
+        }
+    }
+
+    recolorAndMoveMachineForPreviewing() {
     }
 
     findParallelBlockGroups() {
@@ -342,6 +353,12 @@ class Machine {
         });
         this.blocks = [];
         this.motors = [];
+        if (this.isPreview) {
+            this.parentScene.previewMachine = undefined;
+        }
+        else {
+            this.parentScene.machine = undefined;
+        }
     }
 
     setPairABMotors(motorA, motorB) {
@@ -1061,15 +1078,16 @@ class StrangeComponent {
         this.meshGroup.visible = true;
     }
 
-    addMeshGroupToScene() {
-        this.parentMachine.parentScene.scene.add(this.meshGroup);
+    addMeshGroupToScene(asPreview=false) {
+        this.parentMachine.rootMeshGroup.add(this.meshGroup);
     }
 
     removeMeshGroupFromScene() {
         if (this.parentMachine !== undefined) {
-            this.parentMachine.parentScene.removeFromScene(this.meshGroup);
+            this.parentMachine.rootMeshGroup.remove(this.meshGroup);
         }
         else if (this.parentScene !== undefined) {
+            console.warn('Hm, we probably shouldn\'t be here...');
             this.parentScene.removeFromScene(this.meshGroup);
         }
     }
@@ -2282,7 +2300,7 @@ class Compiler {
             });
         });
 
-        let kinematics = new Kinematics();
+        let kinematics = new Kinematics(window.strangeScene);
         let axisBlockGroups = kinematics.determineMachineAxes();
         let axisBlockGroupsReduced = {};
         Object.keys(axisBlockGroups).forEach((axisName) => {
@@ -2315,7 +2333,6 @@ class Compiler {
 
         progObj['name'] = machine['name'];
         progObj['buildEnvironment'] = progBuildEnvironment;
-        progObj['workEnvelope'] = progWorkEnvelope;
         progObj['motors'] = progMotors;
         progObj['blocks'] = progBlocks;
         progObj['connections'] = progConnections;
@@ -2325,8 +2342,14 @@ class Compiler {
         return JSON.stringify(progObj, undefined, indentSpaces);
     }
 
+    decompileAsPreview(strangeScene, machineProg) {
+        let progObj = JSON.parse(machineProg);
+        let previewMeshGroup = new THREE.Group();
+    }
+
     decompileIntoScene(strangeScene, machineProg) {
         if (strangeScene.machine !== undefined) {
+            console.log('Clearing');
             strangeScene.machine.clearMachineFromScene();
         }
         let progObj = JSON.parse(machineProg);

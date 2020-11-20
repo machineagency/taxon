@@ -79,7 +79,6 @@ class StrangeGui {
     __inflateSceneFromGCText() {
         let gcDom = document.getElementById('gc-container-1');
         let gcText = gcDom.innerText;
-        window.strangeScene.machine.clearMachineFromScene();
         let newMachine = window.compiler.decompileIntoScene(window.strangeScene,
             gcText);
         window.strangeScene.machine = newMachine;
