@@ -127,20 +127,29 @@ input[type="file"] {
     margin-top: 20px;
 }
 
-#gc-container-2 {
+.hidden {
     display: none;
 }
 
-#load-machine-list {
-    padding-left: 20px;
-    padding-right: 20px;
-    list-style-type: none;
+.reduced-gc-height .gc-container {
+    height: 150px;
 }
 
-.machine-list-item {
+#machine-list-container {
+    height: 150px;
+    overflow: scroll;
+}
+
+.load-machine-list {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.load-machine-list li {
     padding-top: 5px;
     padding-bottom: 5px;
     cursor: pointer;
+    list-style-type: none;
 }
 
 .current-machine-highlight {
@@ -150,6 +159,7 @@ input[type="file"] {
 }
 
 #results-pad {
+    display: none;
     z-index: 1000;
     position: absolute;
     bottom: 20px;
