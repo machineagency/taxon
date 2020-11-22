@@ -257,7 +257,6 @@ class Machine {
         };
         if (isPreview) {
             parentScene.previewMachine = this;
-            this.recolorAndMoveMachineForPreviewing();
         }
         else {
             parentScene.machine = this;
@@ -265,6 +264,18 @@ class Machine {
     }
 
     recolorAndMoveMachineForPreviewing() {
+        let previewMaterial = new THREE.MeshLambertMaterial({
+            color: 0x2ecc71,
+            transparent: true,
+            opacity: 0.75
+        });
+        this.rootMeshGroup.traverse((child) => {
+            let shouldRecolor = (child instanceof THREE.Mesh)
+                && !child.isBuildEnvironmentMesh;
+            if (shouldRecolor) {
+                child.material = previewMaterial;
+            }
+        });
     }
 
     findParallelBlockGroups() {
@@ -1150,6 +1161,7 @@ class BuildEnvironment extends StrangeComponent {
             color : BuildEnvironment.color
         });
         this.mesh = new THREE.Mesh(geom, material);
+        this.mesh.isBuildEnvironmentMesh = true;
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.mesh);
         this.geometries = [geom];
@@ -2343,17 +2355,27 @@ class Compiler {
     }
 
     decompileAsPreview(strangeScene, machineProg) {
-        let progObj = JSON.parse(machineProg);
-        let previewMeshGroup = new THREE.Group();
+        if (strangeScene.previewMachine !== undefined) {
+            strangeScene.previewMachine.clearMachineFromScene();
+        }
+        let machine = new Machine('', strangeScene, true);
+        this.decompileIntoMachineObjFromProg(machine, machineProg);
+        machine.recolorAndMoveMachineForPreviewing();
+        return machine;
     }
 
     decompileIntoScene(strangeScene, machineProg) {
         if (strangeScene.machine !== undefined) {
-            console.log('Clearing');
             strangeScene.machine.clearMachineFromScene();
         }
+        let machine = new Machine('', strangeScene, false);
+        this.decompileIntoMachineObjFromProg(machine, machineProg);
+        return machine;
+    }
+
+    decompileIntoMachineObjFromProg(machine, machineProg) {
         let progObj = JSON.parse(machineProg);
-        let machine = new Machine(progObj.name, strangeScene);
+        machine.name = progObj.name;
         let be = new BuildEnvironment(machine, {
             width: progObj.buildEnvironment.width,
             length: progObj.buildEnvironment.length
