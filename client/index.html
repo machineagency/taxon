@@ -64,7 +64,7 @@
             <li>3d_printer/
                 <ul class="load-machine-list">
                     <li class="machine-list-item">Jubilee</li>
-                    <li onclick="window.strangeGui.loadMachineFromListItemDom(this)" class="machine-list-item current-machine-highlight">Prusa</li>
+                    <li onclick="window.strangeGui.loadMachineFromListItemDom(this, event)" class="machine-list-item current-machine-highlight">Prusa</li>
                     <li>
                         Ultimaker/
                         <ul id="load-machine-list">
@@ -76,10 +76,10 @@
             </li>
             <li>plotter/
                 <ul class="load-machine-list">
-                    <li onclick="window.strangeGui.loadMachineFromListItemDom(this)">Axidraw</li>
+                    <li onclick="window.strangeGui.loadMachineFromListItemDom(this, event)">Axidraw</li>
                 </ul>
             </li>
-            <li onclick="window.strangeGui.loadMachineFromListItemDom(this)">(New Machine)</li>
+            <li onclick="window.strangeGui.loadMachineFromListItemDom(this, event)">(New Machine)</li>
         </ul>
     </div>
     <pre id="gc-container-1" class="gc-container code-field" contenteditable="false">
