@@ -53,10 +53,8 @@ class StrangeGui {
         return renderModelPane;
     }
 
-    loadMachineFromListItemDom(listItemDom) {
+    loadMachineFromListItemDom(listItemDom, event) {
         // TODO: use ids not names for machine identifiers
-        let highlightClassName = 'current-machine-highlight';
-        let gcDom = document.getElementById('gc-container-1');
         let machineName = listItemDom.innerText.toLowerCase();
         let newText;
         if (machineName === 'axidraw') {
@@ -68,20 +66,51 @@ class StrangeGui {
         if (machineName === '(new machine)') {
             newText = TestPrograms.newMachine;
         }
-        gcDom.innerText = newText;
-        let oldHighlightedListItemDom = document
-            .getElementsByClassName(highlightClassName)[0];
-        oldHighlightedListItemDom.classList.remove(highlightClassName);
-        listItemDom.classList.add(highlightClassName);
-        this.__inflateSceneFromGCText();
+
+        // CASE: shift click to load or clear machine preview
+        if (event.shiftKey) {
+            let highlightPreviewClassName = 'preview-machine-highlight';
+            let oldHighlightedListItemDom = document
+                .getElementsByClassName(highlightPreviewClassName)[0];
+            // CASE: click on existing preview removes it
+            if (oldHighlightedListItemDom === listItemDom) {
+                oldHighlightedListItemDom.classList
+                    .remove(highlightPreviewClassName);
+                window.strangeScene.previewMachine.clearMachineFromScene();
+            }
+            // CASE: click on new machine as preview (including curr machine)
+            else {
+                listItemDom.classList.add(highlightPreviewClassName);
+                if (oldHighlightedListItemDom !== undefined) {
+                    oldHighlightedListItemDom.classList
+                        .remove(highlightPreviewClassName);
+                }
+                this.__inflateAsPreview(newText);
+            }
+        }
+        // CASE: bare click swaps current machine
+        else {
+            let highlightClassName = 'current-machine-highlight';
+            let gcDom = document.getElementById('gc-container-1');
+            gcDom.innerText = newText;
+            let oldHighlightedListItemDom = document
+                .getElementsByClassName(highlightClassName)[0];
+            oldHighlightedListItemDom.classList.remove(highlightClassName);
+            listItemDom.classList.add(highlightClassName);
+            this.__inflateSceneFromGCText();
+        }
     }
 
-    __inflateSceneFromGCText() {
+    __inflateAsPreview(newText) {
+        window.compiler.decompileAsPreview(window.strangeScene, newText);
+    }
+
+    __inflateSceneFromGCText(inflateAsPreview) {
         let gcDom = document.getElementById('gc-container-1');
         let gcText = gcDom.innerText;
-        let newMachine = window.compiler.decompileIntoScene(window.strangeScene,
+        let newMachine = window.compiler.decompileIntoScene(window
+            .strangeScene,
             gcText);
-        window.strangeScene.machine = newMachine;
         window.kinematics.reinitializeForMachine(newMachine);
     }
 
