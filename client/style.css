@@ -158,6 +158,10 @@ input[type="file"] {
     font-weight: bold;
 }
 
+.preview-machine-highlight {
+    border: 1px solid #2ecc71;
+}
+
 #results-pad {
     display: none;
     z-index: 1000;

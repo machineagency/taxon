@@ -240,6 +240,7 @@ class Machine {
     constructor(name, parentScene, isPreview=false) {
         this.name = name;
         this.parentScene = parentScene;
+        this.isPreview = isPreview;
         this.rootMeshGroup = new THREE.Group();
         this.parentScene.scene.add(this.rootMeshGroup);
         this.buildEnvironment = undefined;
@@ -255,7 +256,7 @@ class Machine {
             'y': 'height',
             'z': 'length'
         };
-        if (isPreview) {
+        if (this.isPreview) {
             parentScene.previewMachine = this;
         }
         else {
