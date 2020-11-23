@@ -112,6 +112,11 @@ class StrangeGui {
         let gcText = gcDom.innerText;
         let gcJson = JSON.parse(gcText);
         let gcId = gcJson._id;
+        let gcName = gcJson.name;
+        let userConfirmed = confirm(`Delete ${gcName}?`);
+        if (!userConfirmed) {
+            return;
+        }
         let url = StrangeGui.serverURL + `/machine?id=${gcId}`;
         let deleteRes = await fetch(url, {
             method: 'DELETE'
