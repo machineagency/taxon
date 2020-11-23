@@ -68,6 +68,7 @@ class StrangeGui {
                     let machineList = responseJson.machines;
                     let machineNames = machineList.map(m => m.name);
                     let mListDom = document.getElementById('load-machine-list');
+                    mListDom.innerHTML = '';
                     machineNames.forEach((mName) => {
                         let mLi = document.createElement('li');
                         mLi.innerText = mName;
