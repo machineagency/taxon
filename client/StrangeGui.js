@@ -67,11 +67,13 @@ class StrangeGui {
                 .then((responseJson) => {
                     let machineList = responseJson.machines;
                     let machineNames = machineList.map(m => m.name);
+                    let machineIds = machineList.map(m => m._id);
                     let mListDom = document.getElementById('load-machine-list');
                     mListDom.innerHTML = '';
-                    machineNames.forEach((mName) => {
+                    machineNames.forEach((mName, idx) => {
                         let mLi = document.createElement('li');
                         mLi.innerText = mName;
+                        mLi.setAttribute('data-server-id', machineIds[idx]);
                         mLi.onclick = () => {
                             window.strangeGui
                                 .loadMachineFromListItemDom(mLi, event);
@@ -91,18 +93,41 @@ class StrangeGui {
         window.kinematics.reinitializeForMachine(machine);
     }
 
-    loadMachineFromListItemDom(listItemDom, event) {
+    setGCToNew() {
+        let highlightClassName = 'current-machine-highlight';
+        let gcDom = document.getElementById('gc-container-1');
+        gcDom.innerText = TestPrograms.newMachine;
+        let oldHighlightedListItemDom = document
+            .getElementsByClassName(highlightClassName)[0];
+        if (oldHighlightedListItemDom !== undefined) {
+            oldHighlightedListItemDom.classList.remove(highlightClassName);
+        }
+        let nmbbId = 'new-machine-button-bar';
+        let newMachineButtonBar = document.getElementById(nmbbId);
+        gcDom.setAttribute('contenteditable', true);
+        gcDom.classList.add('red-border');
+        newMachineButtonBar.classList.remove('hidden');
+        this.__inflateSceneFromGCText(false);
+    }
+
+    async loadMachineFromListItemDom(listItemDom, event) {
         // TODO: use ids not names for machine identifiers
         let machineName = listItemDom.innerText.toLowerCase();
+        let machineId = listItemDom.dataset.serverId;
+        let url = StrangeGui.serverURL + `/machine?id=${machineId}`;
+        let response = await fetch(url, {
+            method: 'GET'
+        });
         let newText;
-        if (machineName === 'axidraw') {
-            newText = TestPrograms.axidrawMachine;
+        if (response.ok) {
+            let outerJson = await response.json();
+            let machineJson = outerJson.machine[0];
+            let indentSpaces = 2
+            newText = JSON.stringify(machineJson, undefined, indentSpaces);
         }
-        if (machineName === 'prusa') {
-            newText = TestPrograms.prusaMachine;
-        }
-        if (machineName === '(new machine)') {
-            newText = TestPrograms.newMachine;
+        else {
+            console.error('Could not find machine.');
+            return;
         }
 
         // CASE: shift click to load or clear machine preview
@@ -137,20 +162,12 @@ class StrangeGui {
                 oldHighlightedListItemDom.classList.remove(highlightClassName);
             }
             listItemDom.classList.add(highlightClassName);
-            let newMachineSwap = machineName === '(new machine)';
+            gcDom.setAttribute('contenteditable', false);
+            gcDom.classList.remove('red-border');
             let nmbbId = 'new-machine-button-bar';
             let newMachineButtonBar = document.getElementById(nmbbId);
-            if (newMachineSwap) {
-                gcDom.setAttribute('contenteditable', true);
-                gcDom.classList.add('red-border');
-                newMachineButtonBar.classList.remove('hidden');
-            }
-            else {
-                gcDom.setAttribute('contenteditable', false);
-                gcDom.classList.remove('red-border');
-                newMachineButtonBar.classList.add('hidden');
-            }
-            this.__inflateSceneFromGCText(!newMachineSwap);
+            newMachineButtonBar.classList.add('hidden');
+            this.__inflateSceneFromGCText(true);
         }
     }
 
