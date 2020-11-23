@@ -112,6 +112,10 @@ input[type="file"] {
     line-height: 1.25;
 }
 
+.red-border {
+    border: 1px solid #e44242;
+}
+
 #job-container {
     overflow: scroll;
     height: 200px;
