@@ -144,6 +144,14 @@ input[type="file"] {
     overflow: scroll;
 }
 
+#pre-machine-list {
+    margin-bottom: 0px;
+}
+
+#load-machine-list {
+    margin-top: 0px;
+}
+
 .load-machine-list {
     padding-left: 20px;
     padding-right: 20px;
