@@ -53,20 +53,14 @@
 </div>
 
 <div id="program-pad" data-mode="single">
-    <!--
-    <div class="button-bar">
-        <button>Load</button>
-        <button>Compare</button>
-    </div>
-    -->
     <div id="machine-list-container" class="list-container">
         <ul class="load-machine-list">
             <li>3d_printer/
                 <ul class="load-machine-list">
-                    <li class="machine-list-item">Jubilee</li>
-                    <li onclick="window.strangeGui.loadMachineFromListItemDom(this, event)" class="machine-list-item current-machine-highlight">Prusa</li>
+                    <li class="machine-list-item">jubilee</li>
+                    <li onclick="window.strangeGui.loadMachineFromListItemDom(this, event)" class="machine-list-item current-machine-highlight">prusa</li>
                     <li>
-                        Ultimaker/
+                        ultimaker/
                         <ul id="load-machine-list">
                             <li>v3.0</li>
                             <li>v2.0</li>
@@ -76,17 +70,19 @@
             </li>
             <li>plotter/
                 <ul class="load-machine-list">
-                    <li onclick="window.strangeGui.loadMachineFromListItemDom(this, event)">Axidraw</li>
+                    <li onclick="window.strangeGui.loadMachineFromListItemDom(this, event);">axidraw</li>
                 </ul>
             </li>
-            <li onclick="window.strangeGui.loadMachineFromListItemDom(this, event)">(New Machine)</li>
+            <li onclick="window.strangeGui.loadMachineFromListItemDom(this, event);">(new machine)</li>
+            <li>(delete machine)</li>
         </ul>
     </div>
     <pre id="gc-container-1" class="gc-container code-field" contenteditable="false">
     </pre>
-    <pre id="gc-container-2" class="hidden gc-container code-field" contenteditable="false">
-        Second program goes here
-    </pre>
+    <div id="new-machine-button-bar" class="button-bar hidden">
+        <button>save machine</button>
+        <button onclick="window.strangeGui.decompileGCText();">compile</button>
+    </div>
 </div>
 <div id="results-pad">
     <div class="result-pane">

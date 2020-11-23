@@ -53,6 +53,14 @@ class StrangeGui {
         return renderModelPane;
     }
 
+    decompileGCText() {
+        let gcDom = document.getElementById('gc-container-1');
+        let gcText = gcDom.innerText;
+        let machine = window.compiler
+            .decompileIntoScene(window.strangeScene, gcText);
+        window.kinematics.reinitializeForMachine(machine);
+    }
+
     loadMachineFromListItemDom(listItemDom, event) {
         // TODO: use ids not names for machine identifiers
         let machineName = listItemDom.innerText.toLowerCase();
@@ -97,7 +105,20 @@ class StrangeGui {
                 .getElementsByClassName(highlightClassName)[0];
             oldHighlightedListItemDom.classList.remove(highlightClassName);
             listItemDom.classList.add(highlightClassName);
-            this.__inflateSceneFromGCText();
+            let newMachineSwap = machineName === '(new machine)';
+            let nmbbId = 'new-machine-button-bar';
+            let newMachineButtonBar = document.getElementById(nmbbId);
+            if (newMachineSwap) {
+                gcDom.setAttribute('contenteditable', true);
+                gcDom.classList.add('red-border');
+                newMachineButtonBar.classList.remove('hidden');
+            }
+            else {
+                gcDom.setAttribute('contenteditable', false);
+                gcDom.classList.remove('red-border');
+                newMachineButtonBar.classList.add('hidden');
+            }
+            this.__inflateSceneFromGCText(!newMachineSwap);
         }
     }
 
@@ -105,13 +126,15 @@ class StrangeGui {
         window.compiler.decompileAsPreview(window.strangeScene, newText);
     }
 
-    __inflateSceneFromGCText(inflateAsPreview) {
+    __inflateSceneFromGCText(inflateWithKinematics) {
         let gcDom = document.getElementById('gc-container-1');
         let gcText = gcDom.innerText;
         let newMachine = window.compiler.decompileIntoScene(window
             .strangeScene,
             gcText);
-        window.kinematics.reinitializeForMachine(newMachine);
+        if (inflateWithKinematics) {
+            window.kinematics.reinitializeForMachine(newMachine);
+        }
     }
 
     makeLoadStlPromise = (filepath) => {
