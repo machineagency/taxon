@@ -49,8 +49,7 @@ let attachRoutesWithDBAndStart = (db) => {
     });
 
     app.get('/machine', (req, res) => {
-        const idOfMachineToFind = ObjectID(req.body['_id']);
-        console.log(idOfMachineToFind);
+        const idOfMachineToFind = ObjectID(req.query.id);
         db.collection('machines').find({
             '_id': idOfMachineToFind
         })
@@ -69,6 +68,25 @@ let attachRoutesWithDBAndStart = (db) => {
     });
 
     app.put('/machine', (req, res) => {
+        const idOfMachineToFind = ObjectID(req.body._id);
+        db.collection('machines').replaceOne({
+            '_id': idOfMachineToFind
+        }, req.body)
+        .then((results) => {
+            res.status(200).json({
+                message: results
+            });
+        })
+        .catch((error) => {
+            res.status(500).json({
+                message: error
+            })
+        });
+    });
+
+    app.post('/machine', (req, res) => {
+        console.log('Posting...');
+        console.log(req.body);
         db.collection('machines').insertOne(req.body)
         .then((results) => {
             res.status(200).json({
@@ -83,7 +101,7 @@ let attachRoutesWithDBAndStart = (db) => {
     });
 
     app.delete('/machine', (req, res) => {
-        const idOfMachineToFind = ObjectID(req.body['_id']);
+        const idOfMachineToFind = ObjectID(req.query.id);
         db.collection('machines').deleteOne({
             '_id': idOfMachineToFind
         })
