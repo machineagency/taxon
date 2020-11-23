@@ -107,7 +107,23 @@ class StrangeGui {
         }
     }
 
-    deleteGCFromServer() {
+    async deleteGCFromServer() {
+        let gcDom = document.getElementById('gc-container-1');
+        let gcText = gcDom.innerText;
+        let gcJson = JSON.parse(gcText);
+        let gcId = gcJson._id;
+        let url = StrangeGui.serverURL + `/machine?id=${gcId}`;
+        let deleteRes = await fetch(url, {
+            method: 'DELETE'
+        });
+        if (deleteRes.ok) {
+            this.fetchAndRenderMachineNames();
+            let nmbbId = 'new-machine-button-bar';
+            let newMachineButtonBar = document.getElementById(nmbbId);
+            newMachineButtonBar.classList.add('hidden');
+            gcDom.classList.remove('red-border');
+            gcDom.innerHTML = '';
+        }
     }
 
     decompileGCText() {
