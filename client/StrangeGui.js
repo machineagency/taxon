@@ -6,6 +6,8 @@ import { STLLoader } from './build/STLLoader.js';
 
 class StrangeGui {
 
+    static serverURL = 'http://localhost:3000';
+
     constructor(kinematics) {
         if (kinematics === undefined) {
             console.error('Need kinematics to inflate the GUI');
@@ -15,6 +17,7 @@ class StrangeGui {
         this.renderModelPane = this.__inflateModelContainerDom();
         this.makeLoadStlPromise('./pikachu.stl');
         this.renderModelPane();
+        this.fetchAndRenderMachineNames();
     }
 
     __inflateModelContainerDom() {
@@ -51,6 +54,32 @@ class StrangeGui {
             mcRenderer.render(scene, camera);
         };
         return renderModelPane;
+    }
+
+    fetchAndRenderMachineNames() {
+        const url = StrangeGui.serverURL + '/machines';
+        fetch(url, {
+            method: 'GET'
+        })
+        .then((response) => {
+            if (response.ok) {
+                response.json()
+                .then((responseJson) => {
+                    let machineList = responseJson.machines;
+                    let machineNames = machineList.map(m => m.name);
+                    let mListDom = document.getElementById('load-machine-list');
+                    machineNames.forEach((mName) => {
+                        let mLi = document.createElement('li');
+                        mLi.innerText = mName;
+                        mLi.onclick = () => {
+                            window.strangeGui
+                                .loadMachineFromListItemDom(mLi, event);
+                        };
+                        mListDom.appendChild(mLi);
+                    });
+                });
+            }
+        });
     }
 
     decompileGCText() {
@@ -103,7 +132,9 @@ class StrangeGui {
             gcDom.innerText = newText;
             let oldHighlightedListItemDom = document
                 .getElementsByClassName(highlightClassName)[0];
-            oldHighlightedListItemDom.classList.remove(highlightClassName);
+            if (oldHighlightedListItemDom !== undefined) {
+                oldHighlightedListItemDom.classList.remove(highlightClassName);
+            }
             listItemDom.classList.add(highlightClassName);
             let newMachineSwap = machineName === '(new machine)';
             let nmbbId = 'new-machine-button-bar';

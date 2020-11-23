@@ -1471,10 +1471,12 @@ class Kinematics {
         this.strangeScene = strangeScene;
         this.strangeAnimator = new StrangeAnimator(strangeScene);
         this.suppressedNodes = [];
-        this.machine = this.strangeScene.machine;
-        this.__buildTreeForMachine(this.machine);
+        if (this.strangeScene.machine !== undefined) {
+            this.machine = this.strangeScene.machine;
+            this.__buildTreeForMachine(this.machine);
 
-        this.machine.workEnvelope = this.determineWorkEnvelope();
+            this.machine.workEnvelope = this.determineWorkEnvelope();
+        }
     }
 
     reinitializeForMachine(newMachine) {
@@ -2500,8 +2502,6 @@ let makeLoadStlPromise = (filepath, strangeScene) => {
 function main() {
     let ss = new StrangeScene();
     let compiler = new Compiler();
-    // let machine = window.testInstantiateMachineFromJSClasses(ss, 'axidraw');
-    let machine = compiler.decompileIntoScene(ss, TestPrograms.prusaMachine);
     let kinematics = new Kinematics(ss);
     ss.instructionQueue = new InstructionQueue();
     ss.instructionQueue.setKinematics(kinematics);
@@ -2509,8 +2509,6 @@ function main() {
     jobFile.setKinematics(kinematics);
     jobFile.loadFromString(TestPrograms.pikachuPrintStart);
     jobFile.renderToDom();
-    let domProgramContainer = document.getElementById('gc-container-1');
-    domProgramContainer.innerHTML = TestPrograms.prusaMachine;
     window.strangeScene = ss;
     window.kinematics = kinematics;
     window.compiler = compiler;
