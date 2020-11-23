@@ -85,6 +85,31 @@ class StrangeGui {
         });
     }
 
+    async saveGCToServer() {
+        // TODO: static check that the machine compiles/is well-formed
+        let gcDom = document.getElementById('gc-container-1');
+        let gcText = gcDom.innerText;
+        let url = StrangeGui.serverURL + '/machine';
+        let postMachineRes = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: gcText
+        });
+        if (postMachineRes.ok) {
+            this.fetchAndRenderMachineNames();
+            let nmbbId = 'new-machine-button-bar';
+            let newMachineButtonBar = document.getElementById(nmbbId);
+            newMachineButtonBar.classList.add('hidden');
+            gcDom.classList.remove('red-border');
+            gcDom.innerHTML = '';
+        }
+    }
+
+    deleteGCFromServer() {
+    }
+
     decompileGCText() {
         let gcDom = document.getElementById('gc-container-1');
         let gcText = gcDom.innerText;
