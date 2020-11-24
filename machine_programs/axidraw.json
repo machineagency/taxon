@@ -1,5 +1,7 @@
 {
-    "name": "axidraw",
+    "name": "axidraw-v3",
+    "machineType": "plotter",
+    "price": 475,
     "buildEnvironment": {
         "width": 500,
         "length": 500

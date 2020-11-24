@@ -4,6 +4,8 @@ class TestPrograms {
 
     static newMachine = `{
   "name": "newMachine",
+  "machineType": "genericMachine",
+  "price": 0,
   "buildEnvironment": {
     "width": 500,
     "length": 500
