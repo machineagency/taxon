@@ -2228,6 +2228,24 @@ class Compiler {
             width: machine.buildEnvironment.width,
             length: machine.buildEnvironment.length
         };
+        let progWorkEnvelope;
+        if (machine.workEnvelope === undefined) {
+            progWorkEnvelope = {};
+        }
+        else {
+            progWorkEnvelope = {
+                shape: machine.workEnvelope.shape,
+                width: machine.workEnvelope.width || 0,
+                height: machine.workEnvelope.height || 0,
+                length: machine.workEnvelope.length || 0,
+                position: {
+                    x: machine.workEnvelope.position.x,
+                    y: machine.workEnvelope.position.y,
+                    z: machine.workEnvelope.position.z
+                }
+            };
+        }
+
         let progBlocks = machine.blocks.map((block) => {
             let progBlock = {
                 id: block.id,
@@ -2332,24 +2350,9 @@ class Compiler {
         });
         references['axes'] = axisBlockGroupsReduced;
 
-        if (machine.workEnvelope === undefined) {
-            kinematics.determineWorkEnvelope();
-        }
-        let progWorkEnvelope = {
-            shape: machine.workEnvelope.shape,
-            width: machine.workEnvelope.width || 0,
-            height: machine.workEnvelope.height || 0,
-            length: machine.workEnvelope.length || 0,
-            position: {
-                x: machine.workEnvelope.position.x,
-                y: machine.workEnvelope.position.y,
-                z: machine.workEnvelope.position.z
-            }
-        };
-        references['workEnvelope'] = progWorkEnvelope;
-
         progObj['name'] = machine['name'];
         progObj['buildEnvironment'] = progBuildEnvironment;
+        progObj['workEnvelope'] = progWorkEnvelope;
         progObj['motors'] = progMotors;
         progObj['blocks'] = progBlocks;
         progObj['connections'] = progConnections;
@@ -2386,6 +2389,13 @@ class Compiler {
             length: progObj.buildEnvironment.length
         });
         be.id = progObj.buildEnvironment.id;
+        let we = new WorkEnvelope(machine, {
+            shape: progObj.workEnvelope.shape,
+            width: progObj.workEnvelope.width,
+            length: progObj.workEnvelope.length,
+            height: progObj.workEnvelope.height,
+        });
+        we.id = progObj.workEnvelope.id;
         progObj.motors.forEach((motorData) => {
             let motor = new Motor(motorData.name, machine, {
                 width: motorData.dimensions.width,
