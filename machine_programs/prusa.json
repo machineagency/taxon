@@ -1,5 +1,7 @@
 {
-    "name": "prusa",
+    "name": "prusa-i3-mk3",
+    "machineType": "printer3d",
+    "price": 749,
     "buildEnvironment": {
         "width": 500,
         "length": 500
