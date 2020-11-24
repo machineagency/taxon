@@ -2351,6 +2351,8 @@ class Compiler {
         references['axes'] = axisBlockGroupsReduced;
 
         progObj['name'] = machine['name'];
+        progObj['machineType'] = machine['machineType'];
+        progObj['price'] = machine['price'];
         progObj['buildEnvironment'] = progBuildEnvironment;
         progObj['workEnvelope'] = progWorkEnvelope;
         progObj['motors'] = progMotors;
@@ -2384,6 +2386,8 @@ class Compiler {
     decompileIntoMachineObjFromProg(machine, machineProg) {
         let progObj = JSON.parse(machineProg);
         machine.name = progObj.name;
+        machine.machineType = progObj.machineType;
+        machine.price = progObj.price;
         let be = new BuildEnvironment(machine, {
             width: progObj.buildEnvironment.width,
             length: progObj.buildEnvironment.length
