@@ -341,17 +341,6 @@
                     "name": "z leadscrew b"
                 }
             ]
-        },
-        "workEnvelope": {
-            "shape": "box",
-            "width": 165,
-            "height": 150,
-            "length": 210,
-            "position": {
-                "x": 0,
-                "y": 87.6,
-                "z": 0
-            }
         }
     }
 }

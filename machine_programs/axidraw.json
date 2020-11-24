@@ -217,17 +217,6 @@
                     "name": "Bottom"
                 }
             ]
-        },
-        "workEnvelope": {
-            "shape": "rectangle",
-            "width": 250,
-            "height": 0,
-            "length": 250,
-            "position": {
-                "x": -92.5,
-                "y": 12.6,
-                "z": 0
-            }
         }
     }
 }
