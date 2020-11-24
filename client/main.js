@@ -1159,7 +1159,9 @@ class BuildEnvironment extends StrangeComponent {
         let geom = BuildEnvironment.geometryFactories
                     .buildEnvironment(this.dimensions);
         let material = new THREE.MeshLambertMaterial({
-            color : BuildEnvironment.color
+            color : BuildEnvironment.color,
+            transparent: true,
+            opacity: 0.5
         });
         this.mesh = new THREE.Mesh(geom, material);
         this.mesh.isBuildEnvironmentMesh = true;
