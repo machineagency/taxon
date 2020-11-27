@@ -336,6 +336,15 @@ class Machine {
         return block;
     }
 
+    findBlockWithName(name) {
+        let motorsAndOtherBlocks = this.motors.concat(this.blocks);
+        let block = motorsAndOtherBlocks.find(block => block.name === name);
+        if (block === undefined) {
+            console.warn(`Couldn't find block named: ${name}.`);
+        }
+        return block;
+    }
+
     getTool() {
         return this.blocks.find((b) => b.componentType === 'Tool');
     }
@@ -991,12 +1000,7 @@ class StrangeComponent {
         }
     };
 
-    static makeId() {
-        return '_' + Math.random().toString(36).substr(2, 9);
-    }
-
     constructor(name, parentMachine, dimensions) {
-        this.id = StrangeComponent.makeId();
         this.name = name;
         this._dimensions = dimensions;
         this.geometries = [];
@@ -1566,12 +1570,12 @@ class Kinematics {
 
     __buildSubtree(currKNode) {
         currKNode.block.visited = true;
-        let currAddBlockId = currKNode.block.id;
+        let currAddBlockName = currKNode.block.name;
         let baseBlockConnections = this.machine.connections.filter((conn) => {
-            return conn.addBlock.id === currAddBlockId;
+            return conn.addBlock.name=== currAddBlockName;
         });
         let baseBlocks = baseBlockConnections.map((conn) => {
-            return this.machine.findBlockWithId(conn.baseBlock.id);
+            return this.machine.findBlockWithName(conn.baseBlock.name);
         });
         let baseBlockNodes = baseBlocks.map((block) => {
             return new KNode(block, currKNode);
@@ -1592,11 +1596,11 @@ class Kinematics {
 
         // Deal with any orphan blocks, but do not recurse on them
         let orphans = this.machine.connections.filter((conn) => {
-            return conn.baseBlock.id === currAddBlockId
+            return conn.baseBlock.name === currAddBlockName
                     && !conn.addBlock.visited;
         });
         let orphanBlocks = orphans.map((conn) => {
-            return this.machine.findBlockWithId(conn.addBlock.id);
+            return this.machine.findBlockWithName(conn.addBlock.name);
         });
         let orphanBlockNodes = orphanBlocks.map((block) => {
             return new KNode(block);
@@ -2253,7 +2257,6 @@ class Compiler {
 
         let progBlocks = machine.blocks.map((block) => {
             let progBlock = {
-                id: block.id,
                 name: block.name,
                 componentType: block.componentType,
                 dimensions: block.dimensions
@@ -2262,8 +2265,7 @@ class Compiler {
                 progBlock.axes = block.axes;
                 progBlock.drivingMotors = block.drivingMotors.map((motor) => {
                     return {
-                        id: motor.id,
-                        name: name.id
+                        name: motor.name
                     };
                 });
                 progBlock.attributes = block.attributes;
@@ -2279,7 +2281,6 @@ class Compiler {
         });
         let progMotors = machine.motors.map((motor) => {
             let progMotor = {
-                id: motor.id,
                 name: motor.name,
                 componentType: motor.componentType,
                 dimensions: motor.dimensions,
@@ -2288,7 +2289,6 @@ class Compiler {
             }
             progMotor.drivenStages = motor.drivenStages.map((stage) => {
                 return {
-                    id: stage.id,
                     name: stage.name
                 };
             });
@@ -2299,19 +2299,13 @@ class Compiler {
                     z: motor.position.z
                 };
             }
-            if (motor.pairMotor !== undefined) {
-                progMotor.pairMotorId = motor.pairMotor.id;
-                progMotor.pairMotorType = motor.pairMotor.pairMotorType;
-            }
             return progMotor;
         });
         let progConnections = machine.connections.map((connection) => {
             return {
-                baseBlock: connection.baseBlock.id,
                 baseBlockName: connection.baseBlock.name,
                 baseBlockFace: connection.baseBlockFace,
                 baseBlockEnd: connection.baseBlockEnd,
-                addBlock: connection.addBlock.id,
                 addBlockName: connection.addBlock.name,
                 addBlockFace: connection.addBlockFace,
                 addBlockEnd: connection.addBlockEnd
@@ -2326,7 +2320,6 @@ class Compiler {
                                         .map((blockGroupArr) => {
             return blockGroupArr.map((block) => {
                 return {
-                    id: block.id,
                     name: block.name
                 }
             });
@@ -2364,7 +2357,7 @@ class Compiler {
         progObj['motors'] = progMotors;
         progObj['blocks'] = progBlocks;
         progObj['connections'] = progConnections;
-        progObj['references'] = references;
+        // progObj['references'] = references;
 
         let indentSpaces = 2;
         return JSON.stringify(progObj, undefined, indentSpaces);
@@ -2398,21 +2391,18 @@ class Compiler {
             width: progObj.buildEnvironment.width,
             length: progObj.buildEnvironment.length
         });
-        be.id = progObj.buildEnvironment.id;
         let we = new WorkEnvelope(machine, {
             shape: progObj.workEnvelope.shape,
             width: progObj.workEnvelope.width,
             length: progObj.workEnvelope.length,
             height: progObj.workEnvelope.height,
         });
-        we.id = progObj.workEnvelope.id;
         progObj.motors.forEach((motorData) => {
             let motor = new Motor(motorData.name, machine, {
                 width: motorData.dimensions.width,
                 height: motorData.dimensions.height,
                 length: motorData.dimensions.length,
             });
-            motor.id = motorData.id;
             motor.kinematics = motorData.kinematics;
             motor.invertSteps = motorData.invertSteps;
             if (motorData.position !== undefined) {
@@ -2441,7 +2431,6 @@ class Compiler {
                 height: blockData.dimensions.height,
                 length: blockData.dimensions.length,
             });
-            block.id = blockData.id;
             if (blockData.position !== undefined) {
                 let position = new THREE.Vector3(blockData.position.x,
                                             blockData.position.y,
@@ -2449,53 +2438,37 @@ class Compiler {
                 block.position = position;
             }
             if (block.type === 'LinearStage' || block.type === 'Tool') {
+                block.setAxes(blockData.axes);
                 block.setAtrributes(blockData.attributes);
             }
         });
         progObj.connections.forEach((connectionData) => {
             machine.setConnection({
-                baseBlock: machine.findBlockWithId(connectionData.baseBlock),
+                baseBlock: machine.findBlockWithName(connectionData.baseBlockName),
                 baseBlockFace: connectionData.baseBlockFace,
                 baseBlockEnd: connectionData.baseBlockEnd,
-                addBlock: machine.findBlockWithId(connectionData.addBlock),
+                addBlock: machine.findBlockWithName(connectionData.addBlockName),
                 addBlockFace: connectionData.addBlockFace,
                 addBlockEnd: connectionData.addBlockEnd
             });
         });
         // Once we have Blocks and Motors instantiated, set their pointers:
         // Paired motors, driven stages, driving motors
-        let motorPairs = [];
-        let pairedMotorIds = [];
         progObj.motors.forEach((motorData) => {
-            let motor = machine.findBlockWithId(motorData.id)
+            let motor = machine.findBlockWithName(motorData.name)
             motor.drivenStages = motorData.drivenStages.map((stageData) => {
-                return machine.findBlockWithId(stageData.id);
+                return machine.findBlockWithName(stageData.name);
             });
-            if (motorData.pairMotorId !== undefined) {
-                motor.pairMotorType = motorData.pairMotorType;
-                // If this is the first of a pair, operate on both for pairing
-                if (!pairedMotorIds.includes(motorData.id)
-                    && !pairedMotorIds.includes(motorData.pairMotorId)) {
-                    let pairMotor = machine.
-                                        findBlockWithId(motorData.pairMotorId);
-                    motor.pairMotor = pairMotor;
-                    pairMotor.pairMotor = motor;
-                    motorPairs.push([motor, pairMotor]);
-                    pairedMotorIds.push(motorData.id);
-                    pairedMotorIds.push(motorData.pairMotorId);
-                }
-            }
         });
         progObj.blocks.forEach((blockData) => {
             if (blockData.componentType === 'LinearStage') {
-                let block = machine.findBlockWithId(blockData.id)
+                let block = machine.findBlockWithName(blockData.name)
                 block.drivingMotors = blockData.drivingMotors
                                         .map((motorData) => {
-                    return machine.findBlockWithId(motorData.id);
+                    return machine.findBlockWithName(motorData.name);
                 });
             }
         });
-        machine.pairedMotors = motorPairs;
 
         return machine;
     }
