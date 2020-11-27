@@ -24,6 +24,7 @@ mongoClient.connect(url, { useUnifiedTopology: true })
         console.log('Connected to Database');
         const db = client.db('strange-machine');
         if (DO_SEED_DATABASE) {
+            console.log('Seeding the dabase');
             seedDatabase(db);
         }
         attachRoutesWithDBAndStart(db);
@@ -138,11 +139,15 @@ let seedDatabase = (db) => {
                 throw err;
             }
             files.forEach((filename) => {
+                if (filename[0] === '.') {
+                    return;
+                }
                 let fullFilename = MACHINE_DIR + filename;
                 fs.readFile(fullFilename, (err, data) => {
                     if (err) {
                         throw err;
                     }
+                    console.log(fullFilename);
                     let machineObj = JSON.parse(data);
                     db.collection('machines').insertOne(machineObj)
                     .catch((error) => {

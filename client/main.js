@@ -1369,10 +1369,15 @@ class LinearStage extends Block {
             driveMechanism: attributes.driveMechanism || '',
             stepDisplacementRatio: attributes.stepDisplacementRatio || 0
         };
+        this.axes = [];
         this.drivingMotors = [];
         this.baseBlock = true;
         parentMachine.addBlock(this);
         this.renderDimensions();
+    }
+
+    setAxes(axes) {
+        this.axes = axes;
     }
 
     setDrivingMotors(motors) {
@@ -2254,6 +2259,7 @@ class Compiler {
                 dimensions: block.dimensions
             }
             if (block.componentType === 'LinearStage') {
+                progBlock.axes = block.axes;
                 progBlock.drivingMotors = block.drivingMotors.map((motor) => {
                     return {
                         id: motor.id,
