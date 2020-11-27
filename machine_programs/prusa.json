@@ -29,9 +29,7 @@
             "kinematics": "directDrive",
             "invertSteps": false,
             "drivenStages": [
-                {
-                    "name": "z leadscrew a"
-                }
+                "z leadscrew a"
             ],
             "position": {
                 "x": 35,
@@ -50,9 +48,7 @@
             "kinematics": "directDrive",
             "invertSteps": false,
             "drivenStages": [
-                {
-                    "name": "z leadscrew b"
-                }
+                "z leadscrew b"
             ],
             "position": {
                 "x": 35,
@@ -71,9 +67,7 @@
             "kinematics": "directDrive",
             "invertSteps": true,
             "drivenStages": [
-                {
-                    "name": "platform belt"
-                }
+                "platform belt"
             ]
         },
         {
@@ -87,9 +81,7 @@
             "kinematics": "directDrive",
             "invertSteps": false,
             "drivenStages": [
-                {
-                    "name": "carriage belt"
-                }
+                "carriage belt"
             ]
         }
     ],
@@ -114,9 +106,7 @@
                 "length": 25
             },
             "drivingMotors": [
-                {
-                    "name": "platform belt motor"
-                }
+                "platform belt motor"
             ],
             "attributes": {
                 "driveMechanism": "timingBelt",
@@ -138,9 +128,7 @@
                 "length": 210
             },
             "drivingMotors": [
-                {
-                    "name": "carriage belt motor"
-                }
+                "carriage belt motor"
             ],
             "attributes": {
                 "driveMechanism": "timingBelt",
@@ -157,9 +145,7 @@
                 "length": 10
             },
             "drivingMotors": [
-                {
-                    "name": "leadscrew motor a"
-                }
+                "leadscrew motor a"
             ],
             "attributes": {
                 "driveMechanism": "leadscrew",
@@ -176,9 +162,7 @@
                 "length": 10
             },
             "drivingMotors": [
-                {
-                    "name": "leadscrew motor b"
-                }
+                "leadscrew motor b"
             ],
             "attributes": {
                 "driveMechanism": "leadscrew",
@@ -277,39 +261,6 @@
             "addBlockFace": "-x",
             "addBlockEnd": "0"
         }
-    ],
-    "references": {
-        "parallelBlockGroups": [
-            [
-                {
-                    "name": "z leadscrew a"
-                },
-                {
-                    "name": "z leadscrew b"
-                }
-            ]
-        ],
-        "pairedMotorGroups": [],
-        "axes": {
-            "x": [
-                {
-                    "name": "platform belt"
-                }
-            ],
-            "z": [
-                {
-                    "name": "carriage belt"
-                }
-            ],
-            "y": [
-                {
-                    "name": "z leadscrew a"
-                },
-                {
-                    "name": "z leadscrew b"
-                }
-            ]
-        }
-    }
+    ]
 }
 

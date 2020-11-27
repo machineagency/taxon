@@ -340,7 +340,7 @@ class Machine {
         let motorsAndOtherBlocks = this.motors.concat(this.blocks);
         let block = motorsAndOtherBlocks.find(block => block.name === name);
         if (block === undefined) {
-            console.warn(`Couldn't find block named: ${name}.`);
+            console.trace(`Couldn't find block named: ${name}.`);
         }
         return block;
     }
@@ -2264,9 +2264,7 @@ class Compiler {
             if (block.componentType === 'LinearStage') {
                 progBlock.axes = block.axes;
                 progBlock.drivingMotors = block.drivingMotors.map((motor) => {
-                    return {
-                        name: motor.name
-                    };
+                    return motor.name;
                 });
                 progBlock.attributes = block.attributes;
             }
@@ -2288,9 +2286,7 @@ class Compiler {
                 invertSteps: motor.invertSteps
             }
             progMotor.drivenStages = motor.drivenStages.map((stage) => {
-                return {
-                    name: stage.name
-                };
+                return stage.name;
             });
             if (motor.baseBlock) {
                 progMotor.position = {
@@ -2319,9 +2315,7 @@ class Compiler {
         references['parallelBlockGroups'] = machine.findParallelBlockGroups()
                                         .map((blockGroupArr) => {
             return blockGroupArr.map((block) => {
-                return {
-                    name: block.name
-                }
+                return block.name;
             });
         });
         references['pairedMotorGroups'] = machine.pairedMotors.map((group) => {
@@ -2456,16 +2450,16 @@ class Compiler {
         // Paired motors, driven stages, driving motors
         progObj.motors.forEach((motorData) => {
             let motor = machine.findBlockWithName(motorData.name)
-            motor.drivenStages = motorData.drivenStages.map((stageData) => {
-                return machine.findBlockWithName(stageData.name);
+            motor.drivenStages = motorData.drivenStages.map((stageName) => {
+                return machine.findBlockWithName(stageName);
             });
         });
         progObj.blocks.forEach((blockData) => {
             if (blockData.componentType === 'LinearStage') {
                 let block = machine.findBlockWithName(blockData.name)
                 block.drivingMotors = blockData.drivingMotors
-                                        .map((motorData) => {
-                    return machine.findBlockWithName(motorData.name);
+                                        .map((motorName) => {
+                    return machine.findBlockWithName(motorName);
                 });
             }
         });
