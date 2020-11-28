@@ -1364,10 +1364,13 @@ class Platform extends Block {
     }
 }
 
-class LinearStage extends Block {
+class Stage extends Block {
     static caseColor = 0x222222;
     constructor(name, parentMachine, dimensions, attributes = {}) {
         super(name, parentMachine, dimensions);
+        if (this.constructor === Stage) {
+            throw new Error('Can\'t instantiate abstract class Stage.');
+        }
         this.componentType = 'LinearStage';
         this.attributes = {
             driveMechanism: attributes.driveMechanism || '',
@@ -1377,7 +1380,6 @@ class LinearStage extends Block {
         this.drivingMotors = [];
         this.baseBlock = true;
         parentMachine.addBlock(this);
-        this.renderDimensions();
     }
 
     setAxes(axes) {
@@ -1396,6 +1398,15 @@ class LinearStage extends Block {
         let newStepDisplacementRatio = newAttributes.stepDisplacementRatio || 0;
         this.attributes.driveMechanism = newDriveMechanism;
         this.attributes.stepDisplacementRatio = newStepDisplacementRatio;
+    }
+}
+
+class LinearStage extends Stage {
+    static caseColor = 0x222222;
+    constructor(name, parentMachine, dimensions, attributes = {}) {
+        super(name, parentMachine, dimensions, attributes);
+        this.componentType = 'LinearStage';
+        this.renderDimensions();
     }
 
     renderDimensions() {
