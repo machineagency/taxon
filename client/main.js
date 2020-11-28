@@ -2356,41 +2356,6 @@ class Compiler {
             }
         });
 
-        // NOTE: extras are for the reader's enjoyment only, as they are
-        // Generated from the "driving" properties. As a result, they don't
-        // need to be decompiled
-        let references = {};
-        references['parallelBlockGroups'] = machine.findParallelBlockGroups()
-                                        .map((blockGroupArr) => {
-            return blockGroupArr.map((block) => {
-                return block.name;
-            });
-        });
-        references['pairedMotorGroups'] = machine.pairedMotors.map((group) => {
-            return group.map((motor) => {
-                return {
-                    id: motor.id,
-                    name: motor.name,
-                    kinematics: motor.kinematics
-                }
-            });
-        });
-
-        let kinematics = new Kinematics(window.strangeScene);
-        let axisBlockGroups = kinematics.determineMachineAxes();
-        let axisBlockGroupsReduced = {};
-        Object.keys(axisBlockGroups).forEach((axisName) => {
-            let blockGroup = axisBlockGroups[axisName];
-            let blockGroupReduced = blockGroup.map((block) => {
-                return {
-                    id: block.id,
-                    name: block.name
-                };
-            });
-            axisBlockGroupsReduced[axisName] = blockGroupReduced;
-        });
-        references['axes'] = axisBlockGroupsReduced;
-
         progObj['name'] = machine['name'];
         progObj['machineType'] = machine['machineType'];
         progObj['price'] = machine['price'];
@@ -2399,7 +2364,6 @@ class Compiler {
         progObj['motors'] = progMotors;
         progObj['blocks'] = progBlocks;
         progObj['connections'] = progConnections;
-        // progObj['references'] = references;
 
         let indentSpaces = 2;
         return JSON.stringify(progObj, undefined, indentSpaces);
