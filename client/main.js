@@ -1446,8 +1446,36 @@ class RotaryStage {
     // TODO
 }
 
-class CompoundStage {
-    // TODO
+class DoubleStage extends Stage {
+    static caseColor = 0x222222;
+    constructor(name, parentMachine, dimensions, attributes = {}) {
+        super(name, parentMachine, dimensions, attributes);
+        this.componentType = 'DoubleStage';
+        this.renderDimensions();
+    }
+
+    renderDimensions() {
+        this.removeMeshGroupFromScene();
+        this.caseGeom = BuildEnvironment.geometryFactories
+                                .stageCase(this.dimensions);
+        this.edgesGeom = new THREE.EdgesGeometry(this.caseGeom);
+        this.caseMaterial = new THREE.MeshLambertMaterial({
+            color : DoubleStage.caseColor,
+            transparent: true,
+            opacity: 0.05
+        });
+        this.edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x222222
+        });
+        this.caseMesh = new THREE.Mesh(this.caseGeom, this.caseMaterial);
+        this.wireSegments = new THREE.LineSegments(this.edgesGeom,
+                                this.edgesMaterial);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.caseMesh);
+        this.meshGroup.add(this.wireSegments);
+        this.geometries = [this.caseGeom, this.edgesGeom]
+        this.addMeshGroupToScene();
+    }
 }
 
 class Motor extends Block {
