@@ -1366,6 +1366,7 @@ class Platform extends Block {
 
 class Stage extends Block {
     static caseColor = 0x222222;
+    static validKinematicsNames = [ 'directDrive', 'hBot', 'coreXY' ];
     constructor(name, parentMachine, dimensions, attributes = {}) {
         super(name, parentMachine, dimensions);
         if (this.constructor === Stage) {
@@ -1384,6 +1385,14 @@ class Stage extends Block {
 
     setAxes(axes) {
         this.axes = axes;
+    }
+
+    setKinematics(kinematicsName) {
+        if (Stage.validKinematicsNames.indexOf(kinematicsName) === -1) {
+            console.error(`Invalid kinematics ${kinematicsName} for ${this.name}`);
+            return;
+        }
+        this.kinematics = kinematicsName;
     }
 
     setDrivingMotors(motors) {
@@ -2277,7 +2286,8 @@ class Compiler {
                 progBlock.drivingMotors = block.drivingMotors.map((motor) => {
                     return motor.name;
                 });
-                progBlock.attributes = block.attributes;
+                progBlock.setKinematics(block.kinematics);
+                progBlock.setAttributes(block.attributes);
             }
             if (block.baseBlock) {
                 progBlock.position = {
@@ -2293,7 +2303,6 @@ class Compiler {
                 name: motor.name,
                 componentType: motor.componentType,
                 dimensions: motor.dimensions,
-                kinematics: motor.kinematics,
                 invertSteps: motor.invertSteps
             }
             progMotor.drivenStages = motor.drivenStages.map((stage) => {
@@ -2408,7 +2417,6 @@ class Compiler {
                 height: motorData.dimensions.height,
                 length: motorData.dimensions.length,
             });
-            motor.kinematics = motorData.kinematics;
             motor.invertSteps = motorData.invertSteps;
             if (motorData.position !== undefined) {
                 let position = new THREE.Vector3(motorData.position.x,
@@ -2442,9 +2450,10 @@ class Compiler {
                                             blockData.position.z);
                 block.position = position;
             }
-            if (block.type === 'LinearStage' || block.type === 'Tool') {
+            if (block instanceof Stage) {
                 block.setAxes(blockData.axes);
-                block.setAtrributes(blockData.attributes);
+                block.setAttributes(blockData.attributes);
+                block.setKinematics(blockData.kinematics);
             }
         });
         progObj.connections.forEach((connectionData) => {
