@@ -1446,11 +1446,11 @@ class RotaryStage {
     // TODO
 }
 
-class DoubleStage extends Stage {
+class CrossStage extends Stage {
     static caseColor = 0x222222;
     constructor(name, parentMachine, dimensions, attributes = {}) {
         super(name, parentMachine, dimensions, attributes);
-        this.componentType = 'DoubleStage';
+        this.componentType = 'CrossStage';
         this.renderDimensions();
     }
 
@@ -1460,7 +1460,7 @@ class DoubleStage extends Stage {
                                 .stageCase(this.dimensions);
         this.edgesGeom = new THREE.EdgesGeometry(this.caseGeom);
         this.caseMaterial = new THREE.MeshLambertMaterial({
-            color : DoubleStage.caseColor,
+            color : CrossStage.caseColor,
             transparent: true,
             opacity: 0.05
         });
@@ -2428,8 +2428,8 @@ class Compiler {
             if (blockData.componentType === 'LinearStage') {
                 CurrentBlockConstructor = LinearStage;
             }
-            if (blockData.componentType === 'DoubleStage') {
-                CurrentBlockConstructor = DoubleStage;
+            if (blockData.componentType === 'CrossStage') {
+                CurrentBlockConstructor = CrossStage;
             }
             if (blockData.componentType === 'Platform') {
                 CurrentBlockConstructor = Platform;
