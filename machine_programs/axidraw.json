@@ -92,7 +92,7 @@
         {
             "baseBlockName": "Bottom-Top",
             "baseBlockFace": "+x",
-            "baseBlockEnd": "0",
+            "baseBlockEnd": "+y",
             "addBlockName": "Servo",
             "addBlockFace": "-x",
             "addBlockEnd": "0"
