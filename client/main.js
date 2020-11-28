@@ -2428,6 +2428,9 @@ class Compiler {
             if (blockData.componentType === 'LinearStage') {
                 CurrentBlockConstructor = LinearStage;
             }
+            if (blockData.componentType === 'DoubleStage') {
+                CurrentBlockConstructor = DoubleStage;
+            }
             if (blockData.componentType === 'Platform') {
                 CurrentBlockConstructor = Platform;
             }
