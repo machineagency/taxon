@@ -28,7 +28,7 @@
             },
             "invertSteps": false,
             "drivenStages": [
-                "z leadscrew a"
+                "z leadscrews"
             ],
             "position": {
                 "x": 35,
@@ -46,7 +46,7 @@
             },
             "invertSteps": false,
             "drivenStages": [
-                "z leadscrew b"
+                "z leadscrews"
             ],
             "position": {
                 "x": 35,
@@ -83,7 +83,6 @@
     ],
     "blocks": [
         {
-            "id": "_bccb07fca",
             "name": "build plate",
             "componentType": "Platform",
             "dimensions": {
@@ -134,34 +133,16 @@
             }
         },
         {
-            "name": "z leadscrew a",
-            "componentType": "LinearStage",
+            "name": "z leadscrews",
+            "componentType": "ParallelStage",
             "axes": [ "y" ],
             "dimensions": {
                 "width": 10,
                 "height": 150,
-                "length": 10
+                "length": 210
             },
             "drivingMotors": [
-                "leadscrew motor a"
-            ],
-            "kinematics": "directDrive",
-            "attributes": {
-                "driveMechanism": "leadscrew",
-                "stepDisplacementRatio": 0.5
-            }
-        },
-        {
-            "name": "z leadscrew b",
-            "componentType": "LinearStage",
-            "axes": [ "y" ],
-            "dimensions": {
-                "width": 10,
-                "height": 150,
-                "length": 10
-            },
-            "drivingMotors": [
-                "leadscrew motor b"
+                "leadscrew motor a", "leadscrew motor b"
             ],
             "kinematics": "directDrive",
             "attributes": {
@@ -193,17 +174,17 @@
             "baseBlockName": "leadscrew motor a",
             "baseBlockFace": "-y",
             "baseBlockEnd": "0",
-            "addBlockName": "z leadscrew a",
+            "addBlockName": "z leadscrews",
             "addBlockFace": "+y",
-            "addBlockEnd": "0"
+            "addBlockEnd": "+z"
         },
         {
-            "baseBlockName": "leadscrew motor b",
-            "baseBlockFace": "-y",
+            "baseBlockName": "z leadscrews",
+            "baseBlockFace": "+y",
             "baseBlockEnd": "0",
-            "addBlockName": "z leadscrew b",
-            "addBlockFace": "+y",
-            "addBlockEnd": "0"
+            "addBlockName": "leadscrew motor b",
+            "addBlockFace": "-y",
+            "addBlockEnd": "-z"
         },
         {
             "baseBlockName": "platform belt",
@@ -222,20 +203,12 @@
             "addBlockEnd": "0"
         },
         {
-            "baseBlockName": "z leadscrew a",
+            "baseBlockName": "z leadscrews",
             "baseBlockFace": "+x",
             "baseBlockEnd": "0",
             "addBlockName": "carriage belt",
             "addBlockFace": "-x",
             "addBlockEnd": "+z"
-        },
-        {
-            "baseBlockName": "z leadscrew b",
-            "baseBlockFace": "+x",
-            "baseBlockEnd": "0",
-            "addBlockName": "carriage belt",
-            "addBlockFace": "-x",
-            "addBlockEnd": "-z"
         },
         {
             "baseBlockName": "carriage belt",
