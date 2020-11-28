@@ -1388,7 +1388,8 @@ class Stage extends Block {
     }
 
     setKinematics(kinematicsName) {
-        if (Stage.validKinematicsNames.indexOf(kinematicsName) === -1) {
+        const childValidKinematicsNames = this.constructor.validKinematicsNames;
+        if (childValidKinematicsNames.indexOf(kinematicsName) === -1) {
             console.error(`Invalid kinematics ${kinematicsName} for ${this.name}`);
             return;
         }
@@ -1412,6 +1413,7 @@ class Stage extends Block {
 
 class LinearStage extends Stage {
     static caseColor = 0x222222;
+    static validKinematicsNames = [ 'directDrive' ];
     constructor(name, parentMachine, dimensions, attributes = {}) {
         super(name, parentMachine, dimensions, attributes);
         this.componentType = 'LinearStage';
@@ -1446,8 +1448,42 @@ class RotaryStage {
     // TODO
 }
 
+class ParallelStage extends Stage {
+    static caseColor = 0x222222;
+    static validKinematicsNames = [ 'directDrive' ];
+    constructor(name, parentMachine, dimensions, attributes = {}) {
+        super(name, parentMachine, dimensions, attributes);
+        this.componentType = 'CrossStage';
+        this.renderDimensions();
+    }
+
+    renderDimensions() {
+        this.removeMeshGroupFromScene();
+        this.caseGeom = BuildEnvironment.geometryFactories
+                                .stageCase(this.dimensions);
+        this.edgesGeom = new THREE.EdgesGeometry(this.caseGeom);
+        this.caseMaterial = new THREE.MeshLambertMaterial({
+            color : CrossStage.caseColor,
+            transparent: true,
+            opacity: 0.05
+        });
+        this.edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x222222
+        });
+        this.caseMesh = new THREE.Mesh(this.caseGeom, this.caseMaterial);
+        this.wireSegments = new THREE.LineSegments(this.edgesGeom,
+                                this.edgesMaterial);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.caseMesh);
+        this.meshGroup.add(this.wireSegments);
+        this.geometries = [this.caseGeom, this.edgesGeom]
+        this.addMeshGroupToScene();
+    }
+}
+
 class CrossStage extends Stage {
     static caseColor = 0x222222;
+    static validKinematicsNames = [ 'hBot', 'coreXY' ];
     constructor(name, parentMachine, dimensions, attributes = {}) {
         super(name, parentMachine, dimensions, attributes);
         this.componentType = 'CrossStage';
