@@ -26,7 +26,6 @@
                 "height": 25,
                 "length": 25
             },
-            "kinematics": "directDrive",
             "invertSteps": false,
             "drivenStages": [
                 "z leadscrew a"
@@ -45,7 +44,6 @@
                 "height": 25,
                 "length": 25
             },
-            "kinematics": "directDrive",
             "invertSteps": false,
             "drivenStages": [
                 "z leadscrew b"
@@ -64,7 +62,6 @@
                 "height": 25,
                 "length": 25
             },
-            "kinematics": "directDrive",
             "invertSteps": true,
             "drivenStages": [
                 "platform belt"
@@ -78,7 +75,6 @@
                 "height": 25,
                 "length": 25
             },
-            "kinematics": "directDrive",
             "invertSteps": false,
             "drivenStages": [
                 "carriage belt"
@@ -108,6 +104,7 @@
             "drivingMotors": [
                 "platform belt motor"
             ],
+            "kinematics": "directDrive",
             "attributes": {
                 "driveMechanism": "timingBelt",
                 "stepDisplacementRatio": 0.7
@@ -130,6 +127,7 @@
             "drivingMotors": [
                 "carriage belt motor"
             ],
+            "kinematics": "directDrive",
             "attributes": {
                 "driveMechanism": "timingBelt",
                 "stepDisplacementRatio": 0.5
@@ -147,6 +145,7 @@
             "drivingMotors": [
                 "leadscrew motor a"
             ],
+            "kinematics": "directDrive",
             "attributes": {
                 "driveMechanism": "leadscrew",
                 "stepDisplacementRatio": 0.5
@@ -164,6 +163,7 @@
             "drivingMotors": [
                 "leadscrew motor b"
             ],
+            "kinematics": "directDrive",
             "attributes": {
                 "driveMechanism": "leadscrew",
                 "stepDisplacementRatio": 0.5

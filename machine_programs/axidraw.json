@@ -26,7 +26,6 @@
                 "height": 50,
                 "length": 50
             },
-            "kinematics": "hBot",
             "invertSteps": false,
             "drivenStages": [
                 "Bottom-Top"
@@ -40,7 +39,6 @@
                 "height": 50,
                 "length": 50
             },
-            "kinematics": "hBot",
             "invertSteps": false,
             "drivenStages": [
                 "Bottom-Top"
@@ -77,6 +75,7 @@
             "drivingMotors": [
                 "Motor A", "Motor B"
             ],
+            "kinematics" : "hBot",
             "attributes": {
                 "driveMechanism": "timingBelt",
                 "stepDisplacementRatio": "0.7"
@@ -86,7 +85,7 @@
                 "y": 37.6,
                 "z": 0
             }
-        },
+        }
     ],
     "connections": [
         {
