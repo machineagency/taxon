@@ -67,6 +67,7 @@
         {
             "name": "Bottom-Top",
             "componentType": "DoubleStage",
+            "axes": [ "x", "z" ],
             "dimensions": {
                 "width": 250,
                 "height": 50,
