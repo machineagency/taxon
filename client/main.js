@@ -351,10 +351,6 @@ class Machine {
         return this.blocks.find((b) => b.componentType === 'Platform');
     }
 
-    renderRulerForComponent(component) {
-        this.ruler.displayInSceneForComponent(this, component)
-    }
-
     clearMachineFromScene() {
         if (this.buildEnvironment !== undefined) {
             this.buildEnvironment.removeMeshGroupFromScene();
@@ -1259,6 +1255,8 @@ class Platform extends Block {
 }
 
 class Stage extends Block {
+    static arrowPosColor = 0xe44242;
+    static arrowNegColor = 0x4478ff;
     static caseColor = 0x222222;
     static validKinematicsNames = [ 'directDrive', 'hBot', 'coreXY' ];
     constructor(name, parentMachine, dimensions, attributes = {}) {
@@ -1308,6 +1306,7 @@ class Stage extends Block {
 class LinearStage extends Stage {
     static caseColor = 0x222222;
     static validKinematicsNames = [ 'directDrive' ];
+
     constructor(name, parentMachine, dimensions, attributes = {}) {
         super(name, parentMachine, dimensions, attributes);
         this.componentType = 'LinearStage';
@@ -1335,6 +1334,30 @@ class LinearStage extends Stage {
         this.meshGroup.add(this.wireSegments);
         this.geometries = [this.caseGeom, this.edgesGeom]
         this.addMeshGroupToScene();
+    }
+
+    renderArrows() {
+        const arrowLen = 50;
+        if (this.axes.length === 1) {
+            let axis = this.axes[0];
+            let dir;
+            if (axis === 'x') {
+                dir = new THREE.Vector3(1, 0, 0);
+            }
+            if (axis === 'y') {
+                dir = new THREE.Vector3(0, 1, 0);
+            }
+            if (axis === 'z') {
+                dir = new THREE.Vector3(0, 0, 1);
+            }
+            let negDir = dir.clone().negate();
+            let posArrow = new THREE.ArrowHelper(dir, this.position,
+                                arrowLen, Stage.arrowPosColor);
+            let negArrow = new THREE.ArrowHelper(negDir, this.position,
+                                arrowLen, Stage.arrowNegColor);
+            this.meshGroup.add(posArrow);
+            this.meshGroup.add(negArrow);
+        }
     }
 }
 
@@ -1373,6 +1396,30 @@ class ParallelStage extends Stage {
         this.geometries = [this.caseGeom, this.edgesGeom]
         this.addMeshGroupToScene();
     }
+
+    renderArrows() {
+        const arrowLen = 50;
+        if (this.axes.length === 1) {
+            let axis = this.axes[0];
+            let dir;
+            if (axis === 'x') {
+                dir = new THREE.Vector3(1, 0, 0);
+            }
+            if (axis === 'y') {
+                dir = new THREE.Vector3(0, 1, 0);
+            }
+            if (axis === 'z') {
+                dir = new THREE.Vector3(0, 0, 1);
+            }
+            let negDir = dir.clone().negate();
+            let posArrow = new THREE.ArrowHelper(dir, this.position,
+                                arrowLen, Stage.arrowPosColor);
+            let negArrow = new THREE.ArrowHelper(negDir, this.position,
+                                arrowLen, Stage.arrowNegColor);
+            this.meshGroup.add(posArrow);
+            this.meshGroup.add(negArrow);
+        }
+    }
 }
 
 class CrossStage extends Stage {
@@ -1405,6 +1452,31 @@ class CrossStage extends Stage {
         this.meshGroup.add(this.wireSegments);
         this.geometries = [this.caseGeom, this.edgesGeom]
         this.addMeshGroupToScene();
+    }
+
+    renderArrows() {
+        const arrowLen = 50;
+        // TODO
+        if (false) {
+            let axis = this.axes[0];
+            let dir;
+            if (axis === 'x') {
+                dir = new THREE.Vector3(1, 0, 0);
+            }
+            if (axis === 'y') {
+                dir = new THREE.Vector3(0, 1, 0);
+            }
+            if (axis === 'z') {
+                dir = new THREE.Vector3(0, 0, 1);
+            }
+            let negDir = dir.clone().negate();
+            let posArrow = new THREE.ArrowHelper(dir, this.position,
+                                arrowLen, this.arrowPosColor);
+            let negArrow = new THREE.ArrowHelper(negDir, this.position,
+                                arrowLen, this.arrowNegColor);
+            this.meshGroup.add(posArrow);
+            this.meshGroup.add(negArrow);
+        }
     }
 }
 
@@ -2382,6 +2454,7 @@ class Compiler {
                 block.setAxes(blockData.axes);
                 block.setAttributes(blockData.attributes);
                 block.setKinematics(blockData.kinematics);
+                block.renderArrows();
             }
         });
         progObj.connections.forEach((connectionData) => {
