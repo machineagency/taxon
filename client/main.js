@@ -2450,7 +2450,7 @@ function main() {
     window.kinematics = kinematics;
     window.compiler = compiler;
     window.jobFile = jobFile;
-    window.strangeGui = new StrangeGui(kinematics);
+    window.strangeGui = new StrangeGui(ss, kinematics);
     window.testPrograms = TestPrograms;
 
     let animate = () => {
@@ -2463,14 +2463,13 @@ function main() {
     animate();
 }
 
-window.testInstantiateMachineFromJSClasses = (strangeScene, machineName) => {
-    // For debugging purposes—generate a machine from internal JS API
-    // as done in the presetLoaders. MachineName in { 'axidraw', 'prusa' }
-    let machine = new Machine(machineName, strangeScene);
-    machine.presetLoaders[machineName]();
-    strangeScene.machine = machine;
-    return machine;
-}
+window.testTooltip = () => {
+    console.log(window.strangeGui);
+    let someComponent = window.strangeScene.machine.blocks[2];
+    let tooltip = window.strangeGui.addTooltipForComponent(someComponent);
+    tooltip.show();
+    return tooltip;
+};
 
 window.testMotor = () => {
     let machine = window.strangeScene.machine;

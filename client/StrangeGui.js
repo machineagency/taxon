@@ -8,10 +8,11 @@ class StrangeGui {
 
     static serverURL = 'http://localhost:3000';
 
-    constructor(kinematics) {
-        if (kinematics === undefined) {
-            console.error('Need kinematics to inflate the GUI');
+    constructor(strangeScene, kinematics) {
+        if (strangeScene === undefined || kinematics === undefined) {
+            console.error('Need strangeScene and kinematics to inflate the GUI');
         }
+        this.strangeScene = strangeScene;
         this.kinematics = kinematics;
         this.tooltips = [];
         this.modelContainerDom = document.getElementById('model-container');
@@ -24,11 +25,18 @@ class StrangeGui {
     addTooltipForComponent(component) {
         let newTooltip = new Tooltip(component, this);
         this.tooltips.push(newTooltip);
-        newTooltip.render();
+        return newTooltip;
     }
 
     removeTooltipForComponent(component) {
         // TODO
+    }
+
+    __addToScene(threeObj) {
+        this.strangeScene.addSceneObjectDirectly(threeObj);
+    }
+
+    __removeFromScene(threeObj) {
     }
 
     __inflateModelContainerDom() {
@@ -268,18 +276,53 @@ class StrangeGui {
 
 class Tooltip {
 
+    static arrowPosColor = 0xe44242;
+    static arrowNegColor = 0x4478ff;
+
     constructor(component, parentGui) {
         this.component = component;
         this.parentGui = parentGui;
         this.isVisible = false;
     }
 
-    render() {
+    show() {
         this.isVisible = true;
+        this.__render();
     }
 
     hide() {
         this.isVisible = false;
+    }
+
+    __render() {
+        const arrowLen = 50;
+        let componentAxes = this.component.axes;
+        if (componentAxes.length === 0) {
+            // TODO
+        }
+        else if (componentAxes.length === 1) {
+            let axis = componentAxes[0];
+            let dir;
+            if (axis === 'x') {
+                dir = new THREE.Vector3(1, 0, 0);
+            }
+            if (axis === 'y') {
+                dir = new THREE.Vector3(0, 1, 0);
+            }
+            if (axis === 'z') {
+                dir = new THREE.Vector3(0, 0, 1);
+            }
+            let negDir = dir.clone().negate();
+            let posArrow = new THREE.ArrowHelper(dir, this.component.position,
+                                arrowLen, Tooltip.arrowPosColor);
+            let negArrow = new THREE.ArrowHelper(negDir, this.component.position,
+                                arrowLen, Tooltip.arrowNegColor);
+            this.parentGui.__addToScene(posArrow);
+            this.parentGui.__addToScene(negArrow);
+        }
+        else {
+            // TODO
+        }
     }
 
 }
