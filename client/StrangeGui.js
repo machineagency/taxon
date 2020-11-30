@@ -13,11 +13,22 @@ class StrangeGui {
             console.error('Need kinematics to inflate the GUI');
         }
         this.kinematics = kinematics;
+        this.tooltips = [];
         this.modelContainerDom = document.getElementById('model-container');
         this.renderModelPane = this.__inflateModelContainerDom();
         this.makeLoadStlPromise('./pikachu.stl');
         this.renderModelPane();
         this.fetchAndRenderMachineNames();
+    }
+
+    addTooltipForComponent(component) {
+        let newTooltip = new Tooltip(component, this);
+        this.tooltips.push(newTooltip);
+        newTooltip.render();
+    }
+
+    removeTooltipForComponent(component) {
+        // TODO
     }
 
     __inflateModelContainerDom() {
@@ -253,6 +264,24 @@ class StrangeGui {
         });
         return loadPromise;
     };
+}
+
+class Tooltip {
+
+    constructor(component, parentGui) {
+        this.component = component;
+        this.parentGui = parentGui;
+        this.isVisible = false;
+    }
+
+    render() {
+        this.isVisible = true;
+    }
+
+    hide() {
+        this.isVisible = false;
+    }
+
 }
 
 export { StrangeGui };
