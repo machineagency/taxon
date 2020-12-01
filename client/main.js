@@ -1692,6 +1692,24 @@ class Kinematics {
         return traverse(node, []);
     }
 
+    pathsFromNodeToLeaves(node) {
+        let traverse = (currNode, pathSoFarList) => {
+            if (currNode.childNodes.length === 0) {
+                let terminatedPaths = pathSoFarList.map((pathSoFar) => {
+                    return pathSoFar.concat(currNode);
+                });
+                return terminatedPaths;
+            }
+            // Invariant: on the descent, PSFL.length === 1 ie one path
+            let pathWithCurrNodeCopy = pathSoFarList[0].concat(currNode);
+            let newPathSoFarList = currNode.childNodes.map((childNode) => {
+                return traverse(childNode, [pathWithCurrNodeCopy]);
+            }).flat();
+            return newPathSoFarList;
+        };
+        return traverse(node, [[]]);
+    }
+
     determineAxisNameForBlock(block) {
         let dims;
         if (block.componentType === 'Tool'
