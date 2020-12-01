@@ -179,11 +179,11 @@
             "addBlockEnd": "+z"
         },
         {
-            "baseBlockName": "z leadscrews",
-            "baseBlockFace": "+y",
+            "baseBlockName": "leadscrew motor b",
+            "baseBlockFace": "-y",
             "baseBlockEnd": "0",
-            "addBlockName": "leadscrew motor b",
-            "addBlockFace": "-y",
+            "addBlockName": "z leadscrews",
+            "addBlockFace": "+y",
             "addBlockEnd": "-z"
         },
         {
