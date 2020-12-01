@@ -1456,9 +1456,7 @@ class CrossStage extends Stage {
 
     renderArrows() {
         const arrowLen = 50;
-        // TODO
-        if (false) {
-            let axis = this.axes[0];
+        this.axes.forEach((axis) => {
             let dir;
             if (axis === 'x') {
                 dir = new THREE.Vector3(1, 0, 0);
@@ -1471,12 +1469,12 @@ class CrossStage extends Stage {
             }
             let negDir = dir.clone().negate();
             let posArrow = new THREE.ArrowHelper(dir, this.position,
-                                arrowLen, this.arrowPosColor);
+                                arrowLen, Stage.arrowPosColor);
             let negArrow = new THREE.ArrowHelper(negDir, this.position,
-                                arrowLen, this.arrowNegColor);
+                                arrowLen, Stage.arrowNegColor);
             this.meshGroup.add(posArrow);
             this.meshGroup.add(negArrow);
-        }
+        });
     }
 }
 
