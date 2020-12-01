@@ -2476,8 +2476,8 @@ class Compiler {
             });
         });
         progObj.blocks.forEach((blockData) => {
-            if (blockData.componentType === 'LinearStage') {
-                let block = machine.findBlockWithName(blockData.name)
+            let block = machine.findBlockWithName(blockData.name)
+            if (block instanceof Stage) {
                 block.drivingMotors = blockData.drivingMotors
                                         .map((motorName) => {
                     return machine.findBlockWithName(motorName);
