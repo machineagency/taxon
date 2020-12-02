@@ -102,7 +102,6 @@ class StrangeGui {
         });
         let chainGroups = arrowChains.map((arrowChain) => {
             let group = new THREE.Group();
-            console.log(arrowChain);
             arrowChain.forEach((arrow) => {
                 if (arrow !== undefined) {
                     group.add(arrow);
