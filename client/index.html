@@ -55,7 +55,13 @@
 <div id="program-pad" data-mode="single">
     <div id="machine-list-container" class="list-container">
         <ul id="pre-machine-list" class="load-machine-list">
-            <li onclick="window.strangeGui.setGCToNew();">(new machine)</li>
+            <!-- <li onclick="window.strangeGui.setGCToNew();">(new machine)</li> -->
+            <li>
+                <label for="new-machine-input">(new machine)</label>
+                <input id="new-machine-input" type="file" accept="application/JSON"
+                       style="position: fixed; top: -100em"
+                       onchange="window.strangeGui.uploadNewMachine(this.files[0]);">
+            </li>
             <li onclick="window.strangeGui.deleteGCFromServer();">(delete machine)</li>
         </ul>
         <ul id="load-machine-list" class="load-machine-list">

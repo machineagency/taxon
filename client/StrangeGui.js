@@ -197,6 +197,28 @@ class StrangeGui {
         window.kinematics.reinitializeForMachine(machine);
     }
 
+    async uploadNewMachine(machineFile) {
+        let fileReader = new FileReader();
+        fileReader.addEventListener('load', async (event) => {
+            let fileText = event.target.result;
+            let url = StrangeGui.serverURL + '/machine';
+            let postMachineRes = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: fileText
+            });
+            if (postMachineRes.ok) {
+                this.fetchAndRenderMachineNames();
+            }
+            else {
+                console.error(postMachineRes.statusText);
+            }
+        });
+        fileReader.readAsText(machineFile);
+    }
+
     setGCToNew() {
         let highlightClassName = 'current-machine-highlight';
         let gcDom = document.getElementById('gc-container-1');
