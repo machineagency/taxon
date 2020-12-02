@@ -1,6 +1,7 @@
 'use strict';
 
 import * as THREE from './build/three.module.js';
+import { STLLoader } from './build/STLLoader.js';
 import { OrbitControls } from './build/OrbitControls.js';
 import { TransformControls } from './build/TransformControls.js';
 import { Line2 } from './build/lines/Line2.js';
@@ -95,6 +96,31 @@ class StrangeScene {
         });
         this.renderer.render(this.scene, this.camera);
     }
+
+    loadStl(filepath) {
+        let loadPromise = new Promise(resolve => {
+            let loader = new STLLoader();
+            let stlMesh;
+            return loader.load(filepath, (stlGeom) => {
+                let material = new THREE.MeshLambertMaterial({
+                    color : BuildEnvironment.color
+                });
+                stlMesh = new THREE.Mesh(stlGeom, material);
+                stlMesh.scale.set(10, 10, 10);
+                stlMesh.isLoadedStl = true;
+                if (this.model instanceof THREE.Object3D) {
+                    this.removeFromScene(this.model);
+                }
+                this.model = stlMesh;
+                this.scene.add(stlMesh);
+                resolve(stlMesh);
+            }, undefined, (errorMsg) => {
+                console.log(errorMsg);
+            });
+        });
+        return loadPromise;
+    };
+
 }
 
 class InstructionQueue {
@@ -2504,26 +2530,6 @@ class Compiler {
         return machine;
     }
 }
-
-let makeLoadStlPromise = (filepath, strangeScene) => {
-    let loadPromise = new Promise(resolve => {
-        let loader = new THREE.STLLoader();
-        let stlMesh;
-        return loader.load(filepath, (stlGeom) => {
-            let material = new THREE.MeshLambertMaterial({
-                color : BuildEnvironment.color
-            });
-            stlMesh = new THREE.Mesh(stlGeom, material);
-            stlMesh.scale.set(10, 10, 10);
-            stlMesh.isLoadedStl = true;
-            strangeScene.scene.add(stlMesh);
-            resolve(stlMesh);
-        }, undefined, (errorMsg) => {
-            console.log(errorMsg);
-        });
-    });
-    return loadPromise;
-};
 
 function main() {
     let ss = new StrangeScene();

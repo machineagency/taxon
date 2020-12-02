@@ -197,6 +197,11 @@ class StrangeGui {
         window.kinematics.reinitializeForMachine(machine);
     }
 
+    uploadModel(modelFile) {
+        let modelURL = URL.createObjectURL(modelFile);
+        this.strangeScene.loadStl(modelURL);
+    }
+
     async uploadNewMachine(machineFile) {
         let fileReader = new FileReader();
         fileReader.addEventListener('load', async (event) => {
@@ -290,9 +295,6 @@ class StrangeGui {
             listItemDom.classList.add(highlightClassName);
             gcDom.setAttribute('contenteditable', false);
             gcDom.classList.remove('red-border');
-            let nmbbId = 'new-machine-button-bar';
-            let newMachineButtonBar = document.getElementById(nmbbId);
-            newMachineButtonBar.classList.add('hidden');
             this.__inflateSceneFromGCText(true);
         }
     }

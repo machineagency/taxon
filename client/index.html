@@ -55,7 +55,6 @@
 <div id="program-pad" data-mode="single">
     <div id="machine-list-container" class="list-container">
         <ul id="pre-machine-list" class="load-machine-list">
-            <!-- <li onclick="window.strangeGui.setGCToNew();">(new machine)</li> -->
             <li>
                 <label for="new-machine-input">(new machine)</label>
                 <input id="new-machine-input" type="file" accept="application/JSON"
@@ -67,11 +66,21 @@
         <ul id="load-machine-list" class="load-machine-list">
         </ul>
     </div>
+    <pre id="query-container" class="code-field" contenteditable="false">
+(query and filter will go here)
+    </pre>
     <pre id="gc-container-1" class="gc-container code-field" contenteditable="false">
     </pre>
-    <div id="new-machine-button-bar" class="button-bar hidden">
-        <button onclick="window.strangeGui.saveGCToServer();">save machine</button>
-        <button onclick="window.strangeGui.decompileGCText();">compile</button>
+    <pre id="model-check-container" class="code-field" contenteditable="false">
+analysis goes here.
+no model uploaded yet.
+    </pre>
+    <div id="new-machine-button-bar" class="button-bar">
+        <input id="new-model-input" type="file" accept=".stl"
+               style="position: fixed; top: -100em"
+               onchange="window.strangeGui.uploadModel(this.files[0]);">
+        <label id="upload-model-btn" for="new-model-input">upload model</label>
+        <button>static check</button>
     </div>
 </div>
 <div id="results-pad">

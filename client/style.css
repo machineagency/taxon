@@ -21,6 +21,10 @@ button {
     cursor: pointer;
 }
 
+label {
+    cursor: pointer;
+}
+
 input[type="file"] {
     background-color: white;
     border: none;
@@ -124,6 +128,35 @@ input[type="file"] {
 #r-container {
     height: 200px;
     margin-top: 20px;
+}
+
+#query-container {
+    height: 50px;
+    padding-top: 10px;
+    padding-left: 20px;
+    border: 1px dashed #ffffff;
+}
+
+#model-check-container {
+    height: 50px;
+    padding-top: 10px;
+    padding-left: 20px;
+    border: 1px dashed #ffffff;
+}
+
+#upload-model-btn {
+    background-color: white;
+    border: none;
+    color: black;
+    font-family: Monospace;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    width: 100px;
+    padding: 10px 0px 10px 0px;
+    outline: none;
+    cursor: pointer;
 }
 
 .gc-container {
