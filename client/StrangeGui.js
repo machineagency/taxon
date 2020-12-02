@@ -8,6 +8,7 @@ class StrangeGui {
 
     static serverURL = 'http://localhost:3000';
 
+
     constructor(strangeScene, kinematics) {
         if (strangeScene === undefined || kinematics === undefined) {
             console.error('Need strangeScene and kinematics to inflate the GUI');
