@@ -1656,28 +1656,28 @@ class Kinematics {
         currKNode.addOrphanNodes(orphanBlockNodes);
     }
 
-    findNodeWithBlockId(blockId) {
-        let dfs = (currNode, targetId) => {
-            if (currNode.block.id === targetId) {
+    findNodeWithBlockName(blockName) {
+        let dfs = (currNode, targetName) => {
+            if (currNode.block.name === targetName) {
                 return currNode;
             }
             let maybeMatchingOrphan = currNode.orphanNodes.find((oNode) => {
-                return oNode.block.id === blockId;
+                return oNode.block.name === blockName;
             });
             if (maybeMatchingOrphan !== undefined) {
                 return maybeMatchingOrphan;
             }
             let maybeResults = currNode.childNodes.map((childNode) => {
-                return dfs(childNode, targetId);
+                return dfs(childNode, targetName);
             });
             return maybeResults.find((result) => result !== undefined);
         };
         let rootResults = this.rootKNodes.map((rootKNode) => {
-            return dfs(rootKNode, blockId);
+            return dfs(rootKNode, blockName);
         });
         let result = rootResults.find((result) => result !== undefined);
         if (result === undefined) {
-            console.warn(`Cannot find block in kinematic tree with id ${blockId}`);
+            console.warn(`Cannot find block in kinematic tree: ${blockName}`);
         }
         return result;
     }
