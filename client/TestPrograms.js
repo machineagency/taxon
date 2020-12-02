@@ -121,6 +121,7 @@ class TestPrograms {
       "id": "_4jqi7hfnt",
       "name": "platform belt",
       "componentType": "LinearStage",
+      "axes": [ "x" ],
       "dimensions": {
         "width": 165,
         "height": 25,
@@ -145,6 +146,7 @@ class TestPrograms {
       "id": "_mop0u2z1w",
       "name": "carriage belt",
       "componentType": "LinearStage",
+      "axes": [ "z" ],
       "dimensions": {
         "width": 12.5,
         "height": 25,
@@ -164,6 +166,7 @@ class TestPrograms {
       "id": "_xqtko21l8",
       "name": "z leadscrew a",
       "componentType": "LinearStage",
+      "axes": [ "y" ],
       "dimensions": {
         "width": 10,
         "height": 150,
@@ -183,6 +186,7 @@ class TestPrograms {
       "id": "_c1nf4uf24",
       "name": "z leadscrew b",
       "componentType": "LinearStage",
+      "axes": [ "y" ],
       "dimensions": {
         "width": 10,
         "height": 150,

@@ -19,7 +19,6 @@
     },
     "motors": [
         {
-            "id": "_wspzkqtt4",
             "name": "leadscrew motor a",
             "componentType": "Motor",
             "dimensions": {
@@ -27,13 +26,9 @@
                 "height": 25,
                 "length": 25
             },
-            "kinematics": "directDrive",
             "invertSteps": false,
             "drivenStages": [
-                {
-                    "id": "_xqtko21l8",
-                    "name": "z leadscrew a"
-                }
+                "z leadscrews"
             ],
             "position": {
                 "x": 35,
@@ -42,7 +37,6 @@
             }
         },
         {
-            "id": "_76jz1l8m3",
             "name": "leadscrew motor b",
             "componentType": "Motor",
             "dimensions": {
@@ -50,13 +44,9 @@
                 "height": 25,
                 "length": 25
             },
-            "kinematics": "directDrive",
             "invertSteps": false,
             "drivenStages": [
-                {
-                    "id": "_c1nf4uf24",
-                    "name": "z leadscrew b"
-                }
+                "z leadscrews"
             ],
             "position": {
                 "x": 35,
@@ -65,7 +55,6 @@
             }
         },
         {
-            "id": "_3dg6fxkhj",
             "name": "platform belt motor",
             "componentType": "Motor",
             "dimensions": {
@@ -73,17 +62,12 @@
                 "height": 25,
                 "length": 25
             },
-            "kinematics": "directDrive",
             "invertSteps": true,
             "drivenStages": [
-                {
-                    "id": "_4jqi7hfnt",
-                    "name": "platform belt"
-                }
+                "platform belt"
             ]
         },
         {
-            "id": "_1ixp2wekj",
             "name": "carriage belt motor",
             "componentType": "Motor",
             "dimensions": {
@@ -91,19 +75,14 @@
                 "height": 25,
                 "length": 25
             },
-            "kinematics": "directDrive",
             "invertSteps": false,
             "drivenStages": [
-                {
-                    "id": "_mop0u2z1w",
-                    "name": "carriage belt"
-                }
+                "carriage belt"
             ]
         }
     ],
     "blocks": [
         {
-            "id": "_bccb07fca",
             "name": "build plate",
             "componentType": "Platform",
             "dimensions": {
@@ -113,19 +92,18 @@
             }
         },
         {
-            "id": "_4jqi7hfnt",
             "name": "platform belt",
             "componentType": "LinearStage",
+            "axes": [ "x" ],
             "dimensions": {
                 "width": 165,
                 "height": 25,
                 "length": 25
             },
             "drivingMotors": [
-                {
-                    "id": "_3dg6fxkhj"
-                }
+                "platform belt motor"
             ],
+            "kinematics": "directDrive",
             "attributes": {
                 "driveMechanism": "timingBelt",
                 "stepDisplacementRatio": 0.7
@@ -137,64 +115,42 @@
             }
         },
         {
-            "id": "_mop0u2z1w",
             "name": "carriage belt",
             "componentType": "LinearStage",
+            "axes": [ "z" ],
             "dimensions": {
                 "width": 12.5,
                 "height": 25,
                 "length": 210
             },
             "drivingMotors": [
-                {
-                    "id": "_1ixp2wekj"
-                }
+                "carriage belt motor"
             ],
+            "kinematics": "directDrive",
             "attributes": {
                 "driveMechanism": "timingBelt",
                 "stepDisplacementRatio": 0.5
             }
         },
         {
-            "id": "_xqtko21l8",
-            "name": "z leadscrew a",
-            "componentType": "LinearStage",
+            "name": "z leadscrews",
+            "componentType": "ParallelStage",
+            "axes": [ "y" ],
             "dimensions": {
                 "width": 10,
                 "height": 150,
-                "length": 10
+                "length": 210
             },
             "drivingMotors": [
-                {
-                    "id": "_wspzkqtt4"
-                }
+                "leadscrew motor a", "leadscrew motor b"
             ],
+            "kinematics": "directDrive",
             "attributes": {
                 "driveMechanism": "leadscrew",
                 "stepDisplacementRatio": 0.5
             }
         },
         {
-            "id": "_c1nf4uf24",
-            "name": "z leadscrew b",
-            "componentType": "LinearStage",
-            "dimensions": {
-                "width": 10,
-                "height": 150,
-                "length": 10
-            },
-            "drivingMotors": [
-                {
-                    "id": "_76jz1l8m3"
-                }
-            ],
-            "attributes": {
-                "driveMechanism": "leadscrew",
-                "stepDisplacementRatio": 0.5
-            }
-        },
-        {
-            "id": "_qbpp87ejx",
             "name": "hotend",
             "componentType": "ToolAssembly",
             "dimensions": {
@@ -204,7 +160,6 @@
             }
         },
         {
-            "id": "_9j7xrk6xl",
             "name": "extruder",
             "componentType": "Tool",
             "dimensions": {
@@ -216,134 +171,68 @@
     ],
     "connections": [
         {
-            "baseBlock": "_wspzkqtt4",
             "baseBlockName": "leadscrew motor a",
             "baseBlockFace": "-y",
             "baseBlockEnd": "0",
-            "addBlock": "_xqtko21l8",
-            "addBlockName": "z leadscrew a",
+            "addBlockName": "z leadscrews",
             "addBlockFace": "+y",
-            "addBlockEnd": "0"
+            "addBlockEnd": "+z"
         },
         {
-            "baseBlock": "_76jz1l8m3",
             "baseBlockName": "leadscrew motor b",
             "baseBlockFace": "-y",
             "baseBlockEnd": "0",
-            "addBlock": "_c1nf4uf24",
-            "addBlockName": "z leadscrew b",
+            "addBlockName": "z leadscrews",
             "addBlockFace": "+y",
-            "addBlockEnd": "0"
+            "addBlockEnd": "-z"
         },
         {
-            "baseBlock": "_4jqi7hfnt",
             "baseBlockName": "platform belt",
             "baseBlockFace": "+x",
             "baseBlockEnd": "0",
-            "addBlock": "_3dg6fxkhj",
             "addBlockName": "platform belt motor",
             "addBlockFace": "-x",
             "addBlockEnd": "0"
         },
         {
-            "baseBlock": "_4jqi7hfnt",
             "baseBlockName": "platform belt",
             "baseBlockFace": "-y",
             "baseBlockEnd": "0",
-            "addBlock": "_bccb07fca",
             "addBlockName": "build plate",
             "addBlockFace": "+y",
             "addBlockEnd": "0"
         },
         {
-            "baseBlock": "_xqtko21l8",
-            "baseBlockName": "z leadscrew a",
+            "baseBlockName": "z leadscrews",
             "baseBlockFace": "+x",
             "baseBlockEnd": "0",
-            "addBlock": "_mop0u2z1w",
             "addBlockName": "carriage belt",
             "addBlockFace": "-x",
             "addBlockEnd": "+z"
         },
         {
-            "baseBlock": "_c1nf4uf24",
-            "baseBlockName": "z leadscrew b",
-            "baseBlockFace": "+x",
-            "baseBlockEnd": "0",
-            "addBlock": "_mop0u2z1w",
-            "addBlockName": "carriage belt",
-            "addBlockFace": "-x",
-            "addBlockEnd": "-z"
-        },
-        {
-            "baseBlock": "_mop0u2z1w",
             "baseBlockName": "carriage belt",
             "baseBlockFace": "+z",
             "baseBlockEnd": "0",
-            "addBlock": "_1ixp2wekj",
             "addBlockName": "carriage belt motor",
             "addBlockFace": "-x",
             "addBlockEnd": "+x"
         },
         {
-            "baseBlock": "_mop0u2z1w",
             "baseBlockName": "carriage belt",
             "baseBlockFace": "+x",
             "baseBlockEnd": "0",
-            "addBlock": "_qbpp87ejx",
             "addBlockName": "hotend",
             "addBlockFace": "-x",
             "addBlockEnd": "0"
         },
         {
-            "baseBlock": "_qbpp87ejx",
             "baseBlockName": "hotend",
             "baseBlockFace": "+x",
             "baseBlockEnd": "0",
-            "addBlock": "_9j7xrk6xl",
             "addBlockName": "extruder",
             "addBlockFace": "-x",
             "addBlockEnd": "0"
         }
-    ],
-    "references": {
-        "parallelBlockGroups": [
-            [
-                {
-                    "id": "_xqtko21l8",
-                    "name": "z leadscrew a"
-                },
-                {
-                    "id": "_c1nf4uf24",
-                    "name": "z leadscrew b"
-                }
-            ]
-        ],
-        "pairedMotorGroups": [],
-        "axes": {
-            "x": [
-                {
-                    "id": "_4jqi7hfnt",
-                    "name": "platform belt"
-                }
-            ],
-            "z": [
-                {
-                    "id": "_mop0u2z1w",
-                    "name": "carriage belt"
-                }
-            ],
-            "y": [
-                {
-                    "id": "_xqtko21l8",
-                    "name": "z leadscrew a"
-                },
-                {
-                    "id": "_c1nf4uf24",
-                    "name": "z leadscrew b"
-                }
-            ]
-        }
-    }
+    ]
 }
-

@@ -12,14 +12,12 @@ import { TestPrograms } from './TestPrograms.js';
 
 class StrangeScene {
     constructor() {
-        // this.domContainer = document.getElementById('container');
         this.scene = this.initScene();
         this.camera = this.initCamera(this.scene, true);
         this.renderer = this.initRenderer();
         this.clock = new THREE.Clock();
         this.mixers = [];
         this.controls = this.initControls(this.camera, this.renderer);
-        this.ruler = new Ruler();
         this.instructionQueue = new InstructionQueue();
     }
 
@@ -336,16 +334,21 @@ class Machine {
         return block;
     }
 
+    findBlockWithName(name) {
+        let motorsAndOtherBlocks = this.motors.concat(this.blocks);
+        let block = motorsAndOtherBlocks.find(block => block.name === name);
+        if (block === undefined) {
+            console.trace(`Couldn't find block named: ${name}.`);
+        }
+        return block;
+    }
+
     getTool() {
         return this.blocks.find((b) => b.componentType === 'Tool');
     }
 
     getPlatform() {
         return this.blocks.find((b) => b.componentType === 'Platform');
-    }
-
-    renderRulerForComponent(component) {
-        this.ruler.displayInSceneForComponent(this, component)
     }
 
     clearMachineFromScene() {
@@ -843,110 +846,6 @@ class Machine {
     };
 }
 
-class Ruler {
-    static lineMaterial = new LineMaterial({
-        color: 0x4478ff,
-        linewidth: 0.0025
-    });
-
-    constructor() {
-        this.geometries = [];
-        this.lines = [];
-        this.numbers = [];
-    }
-
-    displayInSceneForComponent(strangeScene, component) {
-        if (component instanceof LinearStage) {
-            this._displayForLinearStage(strangeScene, component);
-        }
-    }
-
-    _displayForLinearStage(strangeScene, stage) {
-        let offset = 10;
-        let bbox = stage.computeComponentBoundingBox();
-        let xLength = bbox.max.x - bbox.min.x;
-        let yLength = bbox.max.y - bbox.min.y;
-        let zLength = bbox.max.z - bbox.min.z;
-        let xLineGeom = new LineGeometry();
-        let yLineGeom = new LineGeometry();
-        let zLineGeom = new LineGeometry();
-        xLineGeom.setPositions([-xLength / 2, 0, 0, xLength / 2, 0, 0]);
-        yLineGeom.setPositions([0, -yLength / 2, 0, 0, yLength / 2, 0]);
-        zLineGeom.setPositions([0, 0, -zLength / 2, 0, 0, zLength / 2]);
-        let xLine = new Line2(xLineGeom, Ruler.lineMaterial);
-        let yLine = new Line2(yLineGeom, Ruler.lineMaterial);
-        let zLine = new Line2(zLineGeom, Ruler.lineMaterial);
-        this.geometries.push(xLineGeom);
-        this.geometries.push(yLineGeom);
-        this.geometries.push(zLineGeom);
-        this.lines.push(xLine);
-        this.lines.push(yLine);
-        this.lines.push(zLine);
-        let lineGroup = new THREE.Group([xLine, yLine, zLine]);
-        lineGroup.add(xLine);
-        lineGroup.add(yLine);
-        lineGroup.add(zLine);
-        lineGroup.applyQuaternion(stage.meshGroup.quaternion);
-        strangeScene.scene.add(lineGroup);
-        xLine.position.setZ(xLine.position.z + zLength / 2 + offset);
-        zLine.position.setX(zLine.position.x - xLength / 2 - offset);
-        yLine.position.setZ(yLine.position.z + zLength / 2);
-        yLine.position.setX(yLine.position.x - xLength / 2 - offset);
-        yLine.position.setY(yLine.position.y + yLength / 2);
-        lineGroup.position.set(stage.position.x,
-                               stage.position.y - yLength / 2,
-                               stage.position.z);
-        let fontLoader = new THREE.FontLoader();
-        // TODO: put this in own function
-        fontLoader.load('build/fonts/inter_medium.json', (font) => {
-            let yToXQuat = new THREE.Quaternion();
-            let xToZQuat = new THREE.Quaternion();
-            yToXQuat.setFromAxisAngle(new THREE.Vector3(1, 0, 0),
-                                      -Math.PI / 2);
-            xToZQuat.setFromAxisAngle(new THREE.Vector3(0, 1, 0),
-                                      -Math.PI / 2);
-            let fontMaterial = new THREE.MeshBasicMaterial({
-                color: Ruler.lineMaterial.color
-            });
-            let fontProps = {
-                font: font,
-                size: 12,
-                height: 0
-            };
-            let xLengthFontGeom = new THREE.TextGeometry(`${xLength}`, fontProps);
-            let zLengthFontGeom = new THREE.TextGeometry(`${zLength}`, fontProps);
-            let yLengthFontGeom = new THREE.TextGeometry(`${yLength}`, fontProps);
-            let xFontMesh = new THREE.Mesh(xLengthFontGeom, fontMaterial);
-            let zFontMesh = new THREE.Mesh(zLengthFontGeom, fontMaterial);
-            let yFontMesh = new THREE.Mesh(yLengthFontGeom, fontMaterial);
-            let fontMeshGroup = new THREE.Group();
-            fontMeshGroup.add(xFontMesh);
-            fontMeshGroup.add(zFontMesh);
-            fontMeshGroup.add(yFontMesh);
-            xFontMesh.applyQuaternion(yToXQuat);
-            zFontMesh.applyQuaternion(yToXQuat);
-            zFontMesh.applyQuaternion(xToZQuat);
-            yFontMesh.applyQuaternion(xToZQuat);
-            zFontMesh.position.set(zLine.position.x - offset * 2,
-                                   zLine.position.y,
-                                   zLine.position.z);
-            xFontMesh.position.set(xLine.position.x,
-                                   xLine.position.y,
-                                   xLine.position.z + offset * 2);
-            yFontMesh.position.set(yLine.position.x,
-                                   yLine.position.y + offset,
-                                   yLine.position.z + offset);
-            // TODO: make accessor method for quaternion
-            fontMeshGroup.applyQuaternion(stage.meshGroup.quaternion);
-            fontMeshGroup.applyQuaternion(stage.meshGroup.quaternion);
-            strangeScene.scene.add(fontMeshGroup);
-        });
-    }
-
-    clearDisplay() {
-    }
-}
-
 class StrangeComponent {
     static geometryFactories = {
         stageCase: (d) =>
@@ -991,12 +890,7 @@ class StrangeComponent {
         }
     };
 
-    static makeId() {
-        return '_' + Math.random().toString(36).substr(2, 9);
-    }
-
     constructor(name, parentMachine, dimensions) {
-        this.id = StrangeComponent.makeId();
         this.name = name;
         this._dimensions = dimensions;
         this.geometries = [];
@@ -1360,19 +1254,38 @@ class Platform extends Block {
     }
 }
 
-class LinearStage extends Block {
+class Stage extends Block {
+    static arrowPosColor = 0xe44242;
+    static arrowNegColor = 0x4478ff;
     static caseColor = 0x222222;
+    static validKinematicsNames = [ 'directDrive', 'hBot', 'coreXY' ];
     constructor(name, parentMachine, dimensions, attributes = {}) {
         super(name, parentMachine, dimensions);
+        if (this.constructor === Stage) {
+            throw new Error('Can\'t instantiate abstract class Stage.');
+        }
         this.componentType = 'LinearStage';
         this.attributes = {
             driveMechanism: attributes.driveMechanism || '',
             stepDisplacementRatio: attributes.stepDisplacementRatio || 0
         };
+        this.axes = [];
         this.drivingMotors = [];
         this.baseBlock = true;
         parentMachine.addBlock(this);
-        this.renderDimensions();
+    }
+
+    setAxes(axes) {
+        this.axes = axes;
+    }
+
+    setKinematics(kinematicsName) {
+        const childValidKinematicsNames = this.constructor.validKinematicsNames;
+        if (childValidKinematicsNames.indexOf(kinematicsName) === -1) {
+            console.error(`Invalid kinematics ${kinematicsName} for ${this.name}`);
+            return;
+        }
+        this.kinematics = kinematicsName;
     }
 
     setDrivingMotors(motors) {
@@ -1387,6 +1300,17 @@ class LinearStage extends Block {
         let newStepDisplacementRatio = newAttributes.stepDisplacementRatio || 0;
         this.attributes.driveMechanism = newDriveMechanism;
         this.attributes.stepDisplacementRatio = newStepDisplacementRatio;
+    }
+}
+
+class LinearStage extends Stage {
+    static caseColor = 0x222222;
+    static validKinematicsNames = [ 'directDrive' ];
+
+    constructor(name, parentMachine, dimensions, attributes = {}) {
+        super(name, parentMachine, dimensions, attributes);
+        this.componentType = 'LinearStage';
+        this.renderDimensions();
     }
 
     renderDimensions() {
@@ -1411,14 +1335,147 @@ class LinearStage extends Block {
         this.geometries = [this.caseGeom, this.edgesGeom]
         this.addMeshGroupToScene();
     }
+
+    renderArrows() {
+        const arrowLen = 50;
+        if (this.axes.length === 1) {
+            let axis = this.axes[0];
+            let dir;
+            if (axis === 'x') {
+                dir = new THREE.Vector3(1, 0, 0);
+            }
+            if (axis === 'y') {
+                dir = new THREE.Vector3(0, 1, 0);
+            }
+            if (axis === 'z') {
+                dir = new THREE.Vector3(0, 0, 1);
+            }
+            let negDir = dir.clone().negate();
+            let posArrow = new THREE.ArrowHelper(dir, this.position,
+                                arrowLen, Stage.arrowPosColor);
+            let negArrow = new THREE.ArrowHelper(negDir, this.position,
+                                arrowLen, Stage.arrowNegColor);
+            this.meshGroup.add(posArrow);
+            this.meshGroup.add(negArrow);
+        }
+    }
 }
 
 class RotaryStage {
     // TODO
 }
 
-class CompoundStage {
-    // TODO
+class ParallelStage extends Stage {
+    static caseColor = 0x222222;
+    static validKinematicsNames = [ 'directDrive' ];
+    constructor(name, parentMachine, dimensions, attributes = {}) {
+        super(name, parentMachine, dimensions, attributes);
+        this.componentType = 'CrossStage';
+        this.renderDimensions();
+    }
+
+    renderDimensions() {
+        this.removeMeshGroupFromScene();
+        this.caseGeom = BuildEnvironment.geometryFactories
+                                .stageCase(this.dimensions);
+        this.edgesGeom = new THREE.EdgesGeometry(this.caseGeom);
+        this.caseMaterial = new THREE.MeshLambertMaterial({
+            color : CrossStage.caseColor,
+            transparent: true,
+            opacity: 0.05
+        });
+        this.edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x222222
+        });
+        this.caseMesh = new THREE.Mesh(this.caseGeom, this.caseMaterial);
+        this.wireSegments = new THREE.LineSegments(this.edgesGeom,
+                                this.edgesMaterial);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.caseMesh);
+        this.meshGroup.add(this.wireSegments);
+        this.geometries = [this.caseGeom, this.edgesGeom]
+        this.addMeshGroupToScene();
+    }
+
+    renderArrows() {
+        const arrowLen = 50;
+        if (this.axes.length === 1) {
+            let axis = this.axes[0];
+            let dir;
+            if (axis === 'x') {
+                dir = new THREE.Vector3(1, 0, 0);
+            }
+            if (axis === 'y') {
+                dir = new THREE.Vector3(0, 1, 0);
+            }
+            if (axis === 'z') {
+                dir = new THREE.Vector3(0, 0, 1);
+            }
+            let negDir = dir.clone().negate();
+            let posArrow = new THREE.ArrowHelper(dir, this.position,
+                                arrowLen, Stage.arrowPosColor);
+            let negArrow = new THREE.ArrowHelper(negDir, this.position,
+                                arrowLen, Stage.arrowNegColor);
+            this.meshGroup.add(posArrow);
+            this.meshGroup.add(negArrow);
+        }
+    }
+}
+
+class CrossStage extends Stage {
+    static caseColor = 0x222222;
+    static validKinematicsNames = [ 'hBot', 'coreXY' ];
+    constructor(name, parentMachine, dimensions, attributes = {}) {
+        super(name, parentMachine, dimensions, attributes);
+        this.componentType = 'CrossStage';
+        this.renderDimensions();
+    }
+
+    renderDimensions() {
+        this.removeMeshGroupFromScene();
+        this.caseGeom = BuildEnvironment.geometryFactories
+                                .stageCase(this.dimensions);
+        this.edgesGeom = new THREE.EdgesGeometry(this.caseGeom);
+        this.caseMaterial = new THREE.MeshLambertMaterial({
+            color : CrossStage.caseColor,
+            transparent: true,
+            opacity: 0.05
+        });
+        this.edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x222222
+        });
+        this.caseMesh = new THREE.Mesh(this.caseGeom, this.caseMaterial);
+        this.wireSegments = new THREE.LineSegments(this.edgesGeom,
+                                this.edgesMaterial);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.caseMesh);
+        this.meshGroup.add(this.wireSegments);
+        this.geometries = [this.caseGeom, this.edgesGeom]
+        this.addMeshGroupToScene();
+    }
+
+    renderArrows() {
+        const arrowLen = 50;
+        this.axes.forEach((axis) => {
+            let dir;
+            if (axis === 'x') {
+                dir = new THREE.Vector3(1, 0, 0);
+            }
+            if (axis === 'y') {
+                dir = new THREE.Vector3(0, 1, 0);
+            }
+            if (axis === 'z') {
+                dir = new THREE.Vector3(0, 0, 1);
+            }
+            let negDir = dir.clone().negate();
+            let posArrow = new THREE.ArrowHelper(dir, this.position,
+                                arrowLen, Stage.arrowPosColor);
+            let negArrow = new THREE.ArrowHelper(negDir, this.position,
+                                arrowLen, Stage.arrowNegColor);
+            this.meshGroup.add(posArrow);
+            this.meshGroup.add(negArrow);
+        });
+    }
 }
 
 class Motor extends Block {
@@ -1561,12 +1618,12 @@ class Kinematics {
 
     __buildSubtree(currKNode) {
         currKNode.block.visited = true;
-        let currAddBlockId = currKNode.block.id;
+        let currAddBlockName = currKNode.block.name;
         let baseBlockConnections = this.machine.connections.filter((conn) => {
-            return conn.addBlock.id === currAddBlockId;
+            return conn.addBlock.name=== currAddBlockName;
         });
         let baseBlocks = baseBlockConnections.map((conn) => {
-            return this.machine.findBlockWithId(conn.baseBlock.id);
+            return this.machine.findBlockWithName(conn.baseBlock.name);
         });
         let baseBlockNodes = baseBlocks.map((block) => {
             return new KNode(block, currKNode);
@@ -1587,11 +1644,11 @@ class Kinematics {
 
         // Deal with any orphan blocks, but do not recurse on them
         let orphans = this.machine.connections.filter((conn) => {
-            return conn.baseBlock.id === currAddBlockId
+            return conn.baseBlock.name === currAddBlockName
                     && !conn.addBlock.visited;
         });
         let orphanBlocks = orphans.map((conn) => {
-            return this.machine.findBlockWithId(conn.addBlock.id);
+            return this.machine.findBlockWithName(conn.addBlock.name);
         });
         let orphanBlockNodes = orphanBlocks.map((block) => {
             return new KNode(block);
@@ -1599,28 +1656,28 @@ class Kinematics {
         currKNode.addOrphanNodes(orphanBlockNodes);
     }
 
-    findNodeWithBlockId(blockId) {
-        let dfs = (currNode, targetId) => {
-            if (currNode.block.id === targetId) {
+    findNodeWithBlockName(blockName) {
+        let dfs = (currNode, targetName) => {
+            if (currNode.block.name === targetName) {
                 return currNode;
             }
             let maybeMatchingOrphan = currNode.orphanNodes.find((oNode) => {
-                return oNode.block.id === blockId;
+                return oNode.block.name === blockName;
             });
             if (maybeMatchingOrphan !== undefined) {
                 return maybeMatchingOrphan;
             }
             let maybeResults = currNode.childNodes.map((childNode) => {
-                return dfs(childNode, targetId);
+                return dfs(childNode, targetName);
             });
             return maybeResults.find((result) => result !== undefined);
         };
         let rootResults = this.rootKNodes.map((rootKNode) => {
-            return dfs(rootKNode, blockId);
+            return dfs(rootKNode, blockName);
         });
         let result = rootResults.find((result) => result !== undefined);
         if (result === undefined) {
-            console.warn(`Cannot find block in kinematic tree with id ${blockId}`);
+            console.warn(`Cannot find block in kinematic tree: ${blockName}`);
         }
         return result;
     }
@@ -1633,6 +1690,24 @@ class Kinematics {
             return traverse(currNode.parentNode, pathSoFar.concat(currNode))
         };
         return traverse(node, []);
+    }
+
+    pathsFromNodeToLeaves(node) {
+        let traverse = (currNode, pathSoFarList) => {
+            if (currNode.childNodes.length === 0) {
+                let terminatedPaths = pathSoFarList.map((pathSoFar) => {
+                    return pathSoFar.concat(currNode);
+                });
+                return terminatedPaths;
+            }
+            // Invariant: on the descent, PSFL.length === 1 ie one path
+            let pathWithCurrNodeCopy = pathSoFarList[0].concat(currNode);
+            let newPathSoFarList = currNode.childNodes.map((childNode) => {
+                return traverse(childNode, [pathWithCurrNodeCopy]);
+            }).flat();
+            return newPathSoFarList;
+        };
+        return traverse(node, [[]]);
     }
 
     determineAxisNameForBlock(block) {
@@ -2248,19 +2323,17 @@ class Compiler {
 
         let progBlocks = machine.blocks.map((block) => {
             let progBlock = {
-                id: block.id,
                 name: block.name,
                 componentType: block.componentType,
                 dimensions: block.dimensions
             }
             if (block.componentType === 'LinearStage') {
+                progBlock.axes = block.axes;
                 progBlock.drivingMotors = block.drivingMotors.map((motor) => {
-                    return {
-                        id: motor.id,
-                        name: name.id
-                    };
+                    return motor.name;
                 });
-                progBlock.attributes = block.attributes;
+                progBlock.setKinematics(block.kinematics);
+                progBlock.setAttributes(block.attributes);
             }
             if (block.baseBlock) {
                 progBlock.position = {
@@ -2273,18 +2346,13 @@ class Compiler {
         });
         let progMotors = machine.motors.map((motor) => {
             let progMotor = {
-                id: motor.id,
                 name: motor.name,
                 componentType: motor.componentType,
                 dimensions: motor.dimensions,
-                kinematics: motor.kinematics,
                 invertSteps: motor.invertSteps
             }
             progMotor.drivenStages = motor.drivenStages.map((stage) => {
-                return {
-                    id: stage.id,
-                    name: stage.name
-                };
+                return stage.name;
             });
             if (motor.baseBlock) {
                 progMotor.position = {
@@ -2293,62 +2361,18 @@ class Compiler {
                     z: motor.position.z
                 };
             }
-            if (motor.pairMotor !== undefined) {
-                progMotor.pairMotorId = motor.pairMotor.id;
-                progMotor.pairMotorType = motor.pairMotor.pairMotorType;
-            }
             return progMotor;
         });
         let progConnections = machine.connections.map((connection) => {
             return {
-                baseBlock: connection.baseBlock.id,
                 baseBlockName: connection.baseBlock.name,
                 baseBlockFace: connection.baseBlockFace,
                 baseBlockEnd: connection.baseBlockEnd,
-                addBlock: connection.addBlock.id,
                 addBlockName: connection.addBlock.name,
                 addBlockFace: connection.addBlockFace,
                 addBlockEnd: connection.addBlockEnd
             }
         });
-
-        // NOTE: extras are for the reader's enjoyment only, as they are
-        // Generated from the "driving" properties. As a result, they don't
-        // need to be decompiled
-        let references = {};
-        references['parallelBlockGroups'] = machine.findParallelBlockGroups()
-                                        .map((blockGroupArr) => {
-            return blockGroupArr.map((block) => {
-                return {
-                    id: block.id,
-                    name: block.name
-                }
-            });
-        });
-        references['pairedMotorGroups'] = machine.pairedMotors.map((group) => {
-            return group.map((motor) => {
-                return {
-                    id: motor.id,
-                    name: motor.name,
-                    kinematics: motor.kinematics
-                }
-            });
-        });
-
-        let kinematics = new Kinematics(window.strangeScene);
-        let axisBlockGroups = kinematics.determineMachineAxes();
-        let axisBlockGroupsReduced = {};
-        Object.keys(axisBlockGroups).forEach((axisName) => {
-            let blockGroup = axisBlockGroups[axisName];
-            let blockGroupReduced = blockGroup.map((block) => {
-                return {
-                    id: block.id,
-                    name: block.name
-                };
-            });
-            axisBlockGroupsReduced[axisName] = blockGroupReduced;
-        });
-        references['axes'] = axisBlockGroupsReduced;
 
         progObj['name'] = machine['name'];
         progObj['machineType'] = machine['machineType'];
@@ -2358,7 +2382,6 @@ class Compiler {
         progObj['motors'] = progMotors;
         progObj['blocks'] = progBlocks;
         progObj['connections'] = progConnections;
-        progObj['references'] = references;
 
         let indentSpaces = 2;
         return JSON.stringify(progObj, undefined, indentSpaces);
@@ -2392,22 +2415,18 @@ class Compiler {
             width: progObj.buildEnvironment.width,
             length: progObj.buildEnvironment.length
         });
-        be.id = progObj.buildEnvironment.id;
         let we = new WorkEnvelope(machine, {
             shape: progObj.workEnvelope.shape,
             width: progObj.workEnvelope.width,
             length: progObj.workEnvelope.length,
             height: progObj.workEnvelope.height,
         });
-        we.id = progObj.workEnvelope.id;
         progObj.motors.forEach((motorData) => {
             let motor = new Motor(motorData.name, machine, {
                 width: motorData.dimensions.width,
                 height: motorData.dimensions.height,
                 length: motorData.dimensions.length,
             });
-            motor.id = motorData.id;
-            motor.kinematics = motorData.kinematics;
             motor.invertSteps = motorData.invertSteps;
             if (motorData.position !== undefined) {
                 let position = new THREE.Vector3(motorData.position.x,
@@ -2427,6 +2446,12 @@ class Compiler {
             if (blockData.componentType === 'LinearStage') {
                 CurrentBlockConstructor = LinearStage;
             }
+            if (blockData.componentType === 'ParallelStage') {
+                CurrentBlockConstructor = ParallelStage;
+            }
+            if (blockData.componentType === 'CrossStage') {
+                CurrentBlockConstructor = CrossStage;
+            }
             if (blockData.componentType === 'Platform') {
                 CurrentBlockConstructor = Platform;
             }
@@ -2435,61 +2460,46 @@ class Compiler {
                 height: blockData.dimensions.height,
                 length: blockData.dimensions.length,
             });
-            block.id = blockData.id;
             if (blockData.position !== undefined) {
                 let position = new THREE.Vector3(blockData.position.x,
                                             blockData.position.y,
                                             blockData.position.z);
                 block.position = position;
             }
-            if (block.type === 'LinearStage' || block.type === 'Tool') {
-                block.setAtrributes(blockData.attributes);
+            if (block instanceof Stage) {
+                block.setAxes(blockData.axes);
+                block.setAttributes(blockData.attributes);
+                block.setKinematics(blockData.kinematics);
+                block.renderArrows();
             }
         });
         progObj.connections.forEach((connectionData) => {
             machine.setConnection({
-                baseBlock: machine.findBlockWithId(connectionData.baseBlock),
+                baseBlock: machine.findBlockWithName(connectionData.baseBlockName),
                 baseBlockFace: connectionData.baseBlockFace,
                 baseBlockEnd: connectionData.baseBlockEnd,
-                addBlock: machine.findBlockWithId(connectionData.addBlock),
+                addBlock: machine.findBlockWithName(connectionData.addBlockName),
                 addBlockFace: connectionData.addBlockFace,
                 addBlockEnd: connectionData.addBlockEnd
             });
         });
         // Once we have Blocks and Motors instantiated, set their pointers:
         // Paired motors, driven stages, driving motors
-        let motorPairs = [];
-        let pairedMotorIds = [];
         progObj.motors.forEach((motorData) => {
-            let motor = machine.findBlockWithId(motorData.id)
-            motor.drivenStages = motorData.drivenStages.map((stageData) => {
-                return machine.findBlockWithId(stageData.id);
+            let motor = machine.findBlockWithName(motorData.name)
+            motor.drivenStages = motorData.drivenStages.map((stageName) => {
+                return machine.findBlockWithName(stageName);
             });
-            if (motorData.pairMotorId !== undefined) {
-                motor.pairMotorType = motorData.pairMotorType;
-                // If this is the first of a pair, operate on both for pairing
-                if (!pairedMotorIds.includes(motorData.id)
-                    && !pairedMotorIds.includes(motorData.pairMotorId)) {
-                    let pairMotor = machine.
-                                        findBlockWithId(motorData.pairMotorId);
-                    motor.pairMotor = pairMotor;
-                    pairMotor.pairMotor = motor;
-                    motorPairs.push([motor, pairMotor]);
-                    pairedMotorIds.push(motorData.id);
-                    pairedMotorIds.push(motorData.pairMotorId);
-                }
-            }
         });
         progObj.blocks.forEach((blockData) => {
-            if (blockData.componentType === 'LinearStage') {
-                let block = machine.findBlockWithId(blockData.id)
+            let block = machine.findBlockWithName(blockData.name)
+            if (block instanceof Stage) {
                 block.drivingMotors = blockData.drivingMotors
-                                        .map((motorData) => {
-                    return machine.findBlockWithId(motorData.id);
+                                        .map((motorName) => {
+                    return machine.findBlockWithName(motorName);
                 });
             }
         });
-        machine.pairedMotors = motorPairs;
 
         return machine;
     }
@@ -2529,7 +2539,7 @@ function main() {
     window.kinematics = kinematics;
     window.compiler = compiler;
     window.jobFile = jobFile;
-    window.strangeGui = new StrangeGui(kinematics);
+    window.strangeGui = new StrangeGui(ss, kinematics);
     window.testPrograms = TestPrograms;
 
     let animate = () => {
@@ -2542,14 +2552,13 @@ function main() {
     animate();
 }
 
-window.testInstantiateMachineFromJSClasses = (strangeScene, machineName) => {
-    // For debugging purposes—generate a machine from internal JS API
-    // as done in the presetLoaders. MachineName in { 'axidraw', 'prusa' }
-    let machine = new Machine(machineName, strangeScene);
-    machine.presetLoaders[machineName]();
-    strangeScene.machine = machine;
-    return machine;
-}
+window.testTooltip = () => {
+    console.log(window.strangeGui);
+    let someComponent = window.strangeScene.machine.blocks[2];
+    let tooltip = window.strangeGui.addTooltipForComponent(someComponent);
+    tooltip.show();
+    return tooltip;
+};
 
 window.testMotor = () => {
     let machine = window.strangeScene.machine;

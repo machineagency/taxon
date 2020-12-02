@@ -8,16 +8,36 @@ class StrangeGui {
 
     static serverURL = 'http://localhost:3000';
 
-    constructor(kinematics) {
-        if (kinematics === undefined) {
-            console.error('Need kinematics to inflate the GUI');
+
+    constructor(strangeScene, kinematics) {
+        if (strangeScene === undefined || kinematics === undefined) {
+            console.error('Need strangeScene and kinematics to inflate the GUI');
         }
+        this.strangeScene = strangeScene;
         this.kinematics = kinematics;
+        this.tooltips = [];
         this.modelContainerDom = document.getElementById('model-container');
         this.renderModelPane = this.__inflateModelContainerDom();
         this.makeLoadStlPromise('./pikachu.stl');
         this.renderModelPane();
         this.fetchAndRenderMachineNames();
+    }
+
+    addTooltipForComponent(component) {
+        let newTooltip = new Tooltip(component, this);
+        this.tooltips.push(newTooltip);
+        return newTooltip;
+    }
+
+    removeTooltipForComponent(component) {
+        // TODO
+    }
+
+    __addToScene(threeObj) {
+        this.strangeScene.addSceneObjectDirectly(threeObj);
+    }
+
+    __removeFromScene(threeObj) {
     }
 
     __inflateModelContainerDom() {
@@ -54,6 +74,45 @@ class StrangeGui {
             mcRenderer.render(scene, camera);
         };
         return renderModelPane;
+    }
+
+    drawKinematicPathToSceneForComponent(component) {
+        let arrowColor = 0x000000;
+        let maybeNode = this.kinematics.findNodeWithBlockName(component.name);
+        if (maybeNode === undefined) {
+            return;
+        }
+        let pathsList = this.kinematics.pathsFromNodeToLeaves(maybeNode);
+        let pathsPositionsList = pathsList.map((path) => {
+            return path.map(node => node.block.position);
+        });
+        let arrowChains = pathsPositionsList.map((pathPositions) => {
+            return pathPositions.map((_, positionIdx) => {
+                let basePos = pathPositions[positionIdx];
+                if (positionIdx < pathPositions.length - 1) {
+                    let endPos = pathPositions[positionIdx + 1];
+                    let difference = endPos.clone().sub(basePos);
+                    let length = difference.clone().length();
+                    let dir = difference.clone().normalize();
+                    let arrow = new THREE.ArrowHelper(dir, basePos, length,
+                                        arrowColor);
+                    return arrow;
+                }
+            });
+        });
+        let chainGroups = arrowChains.map((arrowChain) => {
+            let group = new THREE.Group();
+            console.log(arrowChain);
+            arrowChain.forEach((arrow) => {
+                if (arrow !== undefined) {
+                    group.add(arrow);
+                }
+            });
+            return group;
+        });
+        chainGroups.forEach((group) => {
+            strangeScene.addSceneObjectDirectly(group);
+        });
     }
 
     fetchAndRenderMachineNames() {
