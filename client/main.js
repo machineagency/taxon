@@ -179,6 +179,8 @@ class InstructionQueue {
         }
         if (this.isEmpty) {
             console.log('No more instructions to execute.');
+            let zeroGrid = this.kinematics.zeroGrid;
+            this.kinematics.strangeScene.removeFromScene(zeroGrid);
             return;
         }
         if (this.motorsBusy) {
