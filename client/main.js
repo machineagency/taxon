@@ -1797,36 +1797,33 @@ class Kinematics {
 
     __addDirectDriveIK(axesToCoords, motorNameToSteps) {
         let axisToStageLists = this.determineMachineAxes();
-        Object.keys(axisToStageLists).forEach((axisName) => {
-            let stages = axisToStageLists[axisName];
-            let axisMotors = stages.map((stage) => stage.drivingMotors).flat();
-            let axisMotorNames = axisMotors.map((motor) => motor.name);
-            let steps = axesToCoords[axisName] || 0;
-            axisMotorNames.forEach((motorName, motorIdx) => {
-                let motor = axisMotors[motorIdx];
-                if (motor.kinematics === 'directDrive') {
-                    let invert = motor.invertSteps ? -1 : 1;
-                    motorNameToSteps[motorName] = steps * invert;
-                }
+        let directDriveStages = this.machine.blocks.filter((block) => {
+            return block.kinematics === 'directDrive';
+        });
+        directDriveStages.forEach((stage) => {
+            console.assert(stage.axes.length === 1, stage);
+            stage.drivingMotors.forEach((motor) => {
+                let invert = motor.invertSteps ? -1 : 1;
+                let axis = stage.axes[0];
+                let steps = axesToCoords[axis];
+                motorNameToSteps[motor.name] = steps * invert;
             });
         });
     }
 
-    __addHBotIK(axesToCoords, motorIdToSteps) {
-        let axisToStageLists = this.determineMachineAxes();
-        let pairedMotors = this.pairedMotors;
-        this.machine.pairedMotors.forEach((motorPair) => {
-            let motorA = motorPair[0];
-            let motorB = motorPair[1];
-            // FIXME: good luck unhardcoding this one
-            // Note that in the axidraw case motorA (bottom) is on the z-axis,
-            // Don't get these backwards
-            let motorAAxis = 'z';
-            let motorBAxis = 'x';
-            let axisASteps = axesToCoords[motorAAxis];
-            let axisBSteps = axesToCoords[motorBAxis];
-            motorIdToSteps[motorA.id] = axisASteps + axisBSteps;
-            motorIdToSteps[motorB.id] = axisASteps - axisBSteps;
+    __addHBotIK(axesToCoords, motorNameToSteps) {
+        let axisToStageLists = this.determineMachineAxes()
+        let crossStages = this.machine.blocks.filter((block) => {
+            return block instanceof CrossStage;
+        });
+        crossStages.forEach((crossStage) => {
+            console.assert(crossStage.drivingMotors.length === 2, stage);
+            let motorA = crossStage.drivingMotors[0];
+            let motorB = crossStage.drivingMotors[1];
+            let axisASteps = axesToCoords[crossStage.axes[0]];
+            let axisBSteps = axesToCoords[crossStage.axes[1]];
+            motorNameToSteps[motorA.name] = axisASteps + axisBSteps;
+            motorNameToSteps[motorB.name] = axisASteps - axisBSteps;
         });
     }
 
@@ -1842,82 +1839,48 @@ class Kinematics {
     __turnMotorSteps(motor, steps) {
         // TODO: have step -> displacement conversion assigned in motor,
         // for now assume 1-to-1
+        // Invariants: drivenStages.length === 1
         let displacement = steps;
-        let drivenStages = motor.drivenStages;
-        if (motor.kinematics === 'hBot') {
-            // This motor must have two drivenStages, a relative base
-            // (SB) and a relative add (SA). SB and SA must have the
-            // complementary motor (MA or MB) as a drivingMotor.
-
-            // Given displacement operator d on a stage's native axis:
-            //     dSB = 0.5(dMA + dMB)
-            //     dSA = 0.5(dMA - dMB)
-            // For a single motor call, one of dMA or dMB will just be zero,
-            // but that will be handled in the subsequent motor call, which
-            // is the responsibility of the caller, although we can warn
-            // about this possibly.
-            // From there on, we can handle all child nodes of SB and SA
-            // as we do in the direct drive case.
-            let baseStage, addStage;
-            let plausibleMotorConfig = this.machine.connections.find((conn) => {
-                return conn.baseBlock.id === motor.drivenStages[0].id
-                    && conn.addBlock.id === motor.drivenStages[1].id;
-            });
-            if (plausibleMotorConfig !== undefined) {
-                baseStage = motor.drivenStages[0];
-                addStage = motor.drivenStages[1];
+        let stage = motor.drivenStages[0];
+        let drivenStageNode = this.findNodeWithBlockName(stage.name);
+        let path = this.pathFromNodeToRoot(drivenStageNode).slice(1);
+        let pathBlocks = path.map((node) => {
+            let orphanBlocks = node.orphanNodes.map((node) => node.block);
+            return [node.block].concat(orphanBlocks);
+        }).flat();
+        let pathBlockNames = pathBlocks.map((block) => block.name);
+        if (stage.kinematics === 'hBot' || stage.kinematics === 'coreXY') {
+            // Invariants: stage.drivingMotors.length === 2, same with axes
+            console.assert(stage.drivingMotors.length === 2, stage);
+            console.assert(stage.axes.length === 2, stage);
+            let motorIndexInPair = stage.drivingMotors.indexOf(motor);
+            if (motorIndexInPair === 0) {
+                let axis0displacement = 0.5 * displacement;
+                let axis1displacement = 0.5 * displacement;
+                this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks,
+                    stage.axes[0], axis0displacement);
+                this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks,
+                    stage.axes[1], axis1displacement);
             }
             else {
-                baseStage = motor.drivenStages[1];
-                addStage = motor.drivenStages[0];
-            }
-            let baseAxisName = this.determineAxisNameForBlock(baseStage);
-            let addAxisName = this.determineAxisNameForBlock(addStage);
-            let addStageNode = this.findNodeWithBlockId(addStage.id);
-            let path = this.pathFromNodeToRoot(addStageNode).slice(1);
-            let pathBlocks = path.map((node) => {
-                let orphanBlocks = node.orphanNodes.map((node) => node.block);
-                return [node.block].concat(orphanBlocks);
-            }).flat();
-            pathBlocks = [addStage].concat(pathBlocks);
-            if (motor.pairMotorType === 'a') {
-                this.strangeAnimator
-                    .setMoveBlocksOnAxisName(pathBlocks, baseAxisName,
-                                             0.5 * displacement, true);
-                this.strangeAnimator
-                    .setMoveBlocksOnAxisName(pathBlocks, addAxisName,
-                                             0.5 * displacement, true);
-            }
-            else if (motor.pairMotorType === 'b') {
-                this.strangeAnimator
-                    .setMoveBlocksOnAxisName(pathBlocks, baseAxisName,
-                                             0.5 * displacement, true);
-                this.strangeAnimator
-                    .setMoveBlocksOnAxisName(pathBlocks, addAxisName,
-                                             -0.5 * displacement, true);
-            }
-            else {
-                console.warn(`Invalid pair motor type ${motor.pairMotorType}`);
+                let axis0displacement = 0.5 * displacement;
+                let axis1displacement = -0.5 * displacement;
+                this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks,
+                    stage.axes[0], axis0displacement);
+                this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks,
+                    stage.axes[1], axis1displacement);
             }
         }
-        if (motor.kinematics === 'coreXy') {
-            // Same kinematics as HBot, but different pointer logistics
-            // For getting motors and stages (should have a compound stage).
-        }
-        if (motor.kinematics === 'directDrive') {
+        if (stage.kinematics === 'directDrive') {
             // Invariants: axes.length === 1
-            let stage = drivenStages[0];
-            let drivenStageNode = this.findNodeWithBlockName(stage.name);
-            let path = this.pathFromNodeToRoot(drivenStageNode).slice(1);
-            let pathBlocks = path.map((node) => {
-                let orphanBlocks = node.orphanNodes.map((node) => node.block);
-                return [node.block].concat(orphanBlocks);
-            }).flat();
-            let pathBlockNames = pathBlocks.map((block) => block.name);
-            let parallelBlockNames = drivenStageNode.parallelNodes
-                                        .map((node) => node.block.name);
             let axisName = stage.axes[0];
-            // console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. [${parallelBlockNames}] should have their driving motors turning.`);
+            // NOTE: we divide displacement by parallel stages by the number
+            // of motors to stop the stage from actuating too far. This is a
+            // bit of a kludge, but it is simpler than passing stage info
+            // into the animator.
+            if (stage instanceof ParallelStage) {
+                displacement /= stage.drivingMotors.length;
+            }
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          displacement);
         }
@@ -2001,11 +1964,11 @@ class StrangeAnimator {
     setMoveBlocksOnAxisName(blocks, axisName, displacement) {
         let currEndPos;
         blocks.forEach((block) => {
-            if (this.blockNameEndPositions[block.name] !== undefined) {
-                currEndPos = this.blockNameEndPositions[block.name];
+            if (this.blockNameEndPositions[block.name] === undefined) {
+                currEndPos = (new THREE.Vector3()).copy(block.position);
             }
             else {
-                currEndPos = (new THREE.Vector3()).copy(block.position);
+                currEndPos = this.blockNameEndPositions[block.name];
             }
 
             currEndPos[axisName] += displacement;
