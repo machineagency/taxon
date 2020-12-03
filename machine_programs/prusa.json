@@ -8,9 +8,9 @@
     },
     "workEnvelope": {
         "shape": "box",
-        "width": 165,
-        "height": 150,
-        "length": 210,
+        "width": 130,
+        "height": 110,
+        "length": 130,
         "position": {
             "x": 0,
             "y": 87.6,
