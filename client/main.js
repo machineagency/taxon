@@ -351,15 +351,6 @@ class Machine {
         this.motors.push(motor);
     }
 
-    findBlockWithId(id) {
-        let motorsAndOtherBlocks = this.motors.concat(this.blocks);
-        let block = motorsAndOtherBlocks.find(block => block.id === id);
-        if (block === undefined) {
-            console.warn(`Couldn't find block with ID: ${id}.`);
-        }
-        return block;
-    }
-
     findBlockWithName(name) {
         let motorsAndOtherBlocks = this.motors.concat(this.blocks);
         let block = motorsAndOtherBlocks.find(block => block.name === name);
@@ -1552,7 +1543,6 @@ class Kinematics {
         this.rootKNodes = [];
         this.strangeScene = strangeScene;
         this.strangeAnimator = new StrangeAnimator(strangeScene);
-        this.suppressedNodes = [];
         if (this.strangeScene.machine !== undefined) {
             this.machine = this.strangeScene.machine;
             this.__buildTreeForMachine(this.machine);
@@ -1561,7 +1551,6 @@ class Kinematics {
 
     reinitializeForMachine(newMachine) {
         this.rootKNodes = [];
-        this.suppressedNodes = [];
         this.machine = newMachine;
         this.__buildTreeForMachine(this.machine);
     }
@@ -1967,27 +1956,27 @@ class Kinematics {
         let validMove = this.verifyMoveInWorkEnvelope(axesToCoords);
         if (validMove) {
             let machine = this.strangeScene.machine;
-            let motorIdToSteps = {};
+            let motorNameToSteps = {};
             // TODO: make these return subobjects
-            this.__addDirectDriveIK(axesToCoords, motorIdToSteps);
-            this.__addHBotIK(axesToCoords, motorIdToSteps);
-            this.turnMotors(motorIdToSteps);
+            this.__addDirectDriveIK(axesToCoords, motorNameToSteps);
+            this.__addHBotIK(axesToCoords, motorNameToSteps);
+            this.turnMotors(motorNameToSteps);
         }
         return validMove;
     }
 
-    __addDirectDriveIK(axesToCoords, motorIdToSteps) {
+    __addDirectDriveIK(axesToCoords, motorNameToSteps) {
         let axisToStageLists = this.determineMachineAxes();
         Object.keys(axisToStageLists).forEach((axisName) => {
             let stages = axisToStageLists[axisName];
             let axisMotors = stages.map((stage) => stage.drivingMotors).flat();
-            let axisMotorIds = axisMotors.map((motor) => motor.id);
+            let axisMotorNames = axisMotors.map((motor) => motor.name);
             let steps = axesToCoords[axisName] || 0;
-            axisMotorIds.forEach((motorId, motorIdx) => {
+            axisMotorNames.forEach((motorName, motorIdx) => {
                 let motor = axisMotors[motorIdx];
                 if (motor.kinematics === 'directDrive') {
                     let invert = motor.invertSteps ? -1 : 1;
-                    motorIdToSteps[motorId] = steps * invert;
+                    motorNameToSteps[motorName] = steps * invert;
                 }
             });
         });
@@ -2011,17 +2000,13 @@ class Kinematics {
         });
     }
 
-    turnMotors(motorIdToSteps) {
-        let validMotorTurn = this.verifyParallelMotorSteps(motorIdToSteps);
-        if (validMotorTurn) {
-            Object.keys(motorIdToSteps).forEach((motorId) => {
-                let motor = this.strangeScene.machine.findBlockWithId(motorId);
-                let steps = motorIdToSteps[motorId];
-                this.__turnMotorSteps(motor, steps);
-            });
-            this.strangeAnimator.animateToBlockEndPositions();
-        }
-        this.suppressedNodes = [];
+    turnMotors(motorNameToSteps) {
+        Object.keys(motorNameToSteps).forEach((motorName) => {
+            let motor = this.strangeScene.machine.findBlockWithName(motorName);
+            let steps = motorNameToSteps[motorName];
+            this.__turnMotorSteps(motor, steps);
+        });
+        this.strangeAnimator.animateToBlockEndPositions();
     }
 
     __turnMotorSteps(motor, steps) {
@@ -2091,11 +2076,7 @@ class Kinematics {
         }
         if (motor.kinematics === 'directDrive') {
             let stage = drivenStages[0];
-            let drivenStageNode = this.findNodeWithBlockId(stage.id);
-            if (this.suppressedNodes.find((node) => node.block.id
-                                            === drivenStageNode.block.id)) {
-                return;
-            }
+            let drivenStageNode = this.findNodeWithBlockName(stage.name);
             let path = this.pathFromNodeToRoot(drivenStageNode).slice(1);
             let pathBlocks = path.map((node) => {
                 let orphanBlocks = node.orphanNodes.map((node) => node.block);
@@ -2108,9 +2089,6 @@ class Kinematics {
             // console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. [${parallelBlockNames}] should have their driving motors turning.`);
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          displacement);
-            drivenStageNode.parallelNodes.forEach((pNode) => {
-                this.suppressedNodes.push(pNode);
-            });
         }
     }
 }
@@ -2166,14 +2144,14 @@ class StrangeAnimator {
 
     constructor(strangeScene) {
         this.strangeScene = strangeScene;
-        this.blockIdEndPositions = {};
+        this.blockNameEndPositions = {};
         // Note that mixers must stay in StrangeScene for rendering
     }
 
     animateToBlockEndPositions() {
-        let actions = Object.keys(this.blockIdEndPositions).map((blockId) => {
-            let block = this.strangeScene.machine.findBlockWithId(blockId);
-            let endPos = this.blockIdEndPositions[block.id];
+        let actions = Object.keys(this.blockNameEndPositions).map((blockName) => {
+            let block = this.strangeScene.machine.findBlockWithName(blockName);
+            let endPos = this.blockNameEndPositions[block.name];
             let mixerClipPair = this.makeMoveMixerClipPair(block, endPos);
             let mixer = mixerClipPair[0];
             this.strangeScene.mixers.push(mixer);
@@ -2186,21 +2164,21 @@ class StrangeAnimator {
         actions.forEach((action) => {
             action.play();
         });
-        this.blockIdEndPositions = {};
+        this.blockNameEndPositions = {};
     }
 
     setMoveBlocksOnAxisName(blocks, axisName, displacement) {
         let currEndPos;
         blocks.forEach((block) => {
-            if (this.blockIdEndPositions[block.id] !== undefined) {
-                currEndPos = this.blockIdEndPositions[block.id];
+            if (this.blockNameEndPositions[block.name] !== undefined) {
+                currEndPos = this.blockNameEndPositions[block.name];
             }
             else {
                 currEndPos = (new THREE.Vector3()).copy(block.position);
             }
 
             currEndPos[axisName] += displacement;
-            this.blockIdEndPositions[block.id] = currEndPos;
+            this.blockNameEndPositions[block.name] = currEndPos;
         });
     }
 
@@ -2538,7 +2516,7 @@ function main() {
     ss.instructionQueue.setKinematics(kinematics);
     let jobFile = new JobFile(ss);
     jobFile.setKinematics(kinematics);
-    jobFile.loadFromString(TestPrograms.pikachuPrintStart);
+    jobFile.loadFromString(TestPrograms.testDrawJob);
     jobFile.renderToDom();
     window.strangeScene = ss;
     window.kinematics = kinematics;
