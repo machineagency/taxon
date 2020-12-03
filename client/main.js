@@ -1106,6 +1106,7 @@ class WorkEnvelope extends StrangeComponent {
         super(name, parentMachine, dimensions);
         this.componentType = 'WorkEnvelope';
         parentMachine.workEnvelope = this;
+        this.renderDimensions();
     }
 
     get shape() {
@@ -1127,7 +1128,7 @@ class WorkEnvelope extends StrangeComponent {
         let material = new THREE.MeshLambertMaterial({
             color : WorkEnvelope.color,
             transparent : true,
-            opacity : 0.5
+            opacity : 0.25
         });
         this.mesh = new THREE.Mesh(geom, material);
         this.meshGroup = new THREE.Group();
@@ -1136,25 +1137,7 @@ class WorkEnvelope extends StrangeComponent {
         if (this.dimensions.shape === 'rectangle') {
             this.rotateToXYPlane();
         }
-        let wePosition = this.getWEPositionForMachine();
-        this.meshGroup.position.copy(wePosition);
         this.addMeshGroupToScene();
-    }
-
-    getWEPositionForMachine() {
-        const eps = 0.1;
-        let toolPos = this.parentMachine.getTool().position;
-        let baseSurface = this.parentMachine.getPlatform()
-                            || this.parentMachine.buildEnvironment;
-        let basePos = baseSurface.position;
-        let baseHeight = baseSurface.height;
-        let baseOffset = baseHeight / 2;
-        let weOffset = this.height / 2;
-        let wePosition = basePos.clone().add(new THREE.Vector3(
-                            toolPos.x,
-                            baseOffset + weOffset + eps,
-                            toolPos.z));
-        return wePosition;
     }
 }
 
@@ -2457,6 +2440,12 @@ class Compiler {
             length: progObj.workEnvelope.length,
             height: progObj.workEnvelope.height,
         });
+        let wePosition = new THREE.Vector3(
+            progObj.workEnvelope.position.x,
+            progObj.workEnvelope.position.y,
+            progObj.workEnvelope.position.z
+        );
+        we.position.copy(wePosition);
         progObj.motors.forEach((motorData) => {
             let motor = new Motor(motorData.name, machine, {
                 width: motorData.dimensions.width,
