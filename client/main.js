@@ -130,6 +130,7 @@ class InstructionQueue {
     constructor() {
         this.arr = [];
         this.unsetMotorsBusy();
+        this.currInstIdx = -1;
     }
 
     get length() {
@@ -150,6 +151,10 @@ class InstructionQueue {
 
     setKinematics(kinematics) {
         this.kinematics = kinematics;
+    }
+
+    setJobFile(jobFile) {
+        this.jobFile = jobFile;
     }
 
     enqueueInstruction(instruction) {
@@ -177,16 +182,24 @@ class InstructionQueue {
             console.error('No kinematics set for instruction queue.');
             return;
         }
+        if (this.jobFile === undefined) {
+            console.error('No jobFile set for instruction queue.');
+            return;
+        }
         if (this.isEmpty) {
-            console.log('No more instructions to execute.');
+            let m = 'No more instructions to execute.';
+            window.strangeGui.writeMessageToJobLog(m);
+            this.currInstIdx = -1;
             let zeroGrid = this.kinematics.zeroGrid;
             this.kinematics.strangeScene.removeFromScene(zeroGrid);
+            jobFile.removeDomHighlight();
             return;
         }
         if (this.motorsBusy) {
             console.warn(`Motors are busy. Next instruction: ${this.peekNext()}.`);
             return;
         }
+        this.currInstIdx += 1;
         let nextInst = this.arr.splice(0, 1)[0];
         this.__executeInst(nextInst);
     }
@@ -205,6 +218,7 @@ class InstructionQueue {
             return;
         }
         console.log(`Executing: ${inst}`);
+        jobFile.setDomHighlightToInstIdx(this.currInstIdx);
         this.setMotorsBusy();
         let tokens = inst.split(' ');
         let opcode = tokens[0];
@@ -252,6 +266,10 @@ class InstructionQueue {
         let moveSuccessResult = this.kinematics.moveTool(axesToCoords);
         if (!moveSuccessResult) {
             this.unsetMotorsBusy();
+            this.jobFile.highlightCurrInstAsError();
+            let zeroGrid = this.kinematics.zeroGrid;
+            this.kinematics.strangeScene.removeFromScene(zeroGrid);
+            this.currInstIdx = -1;
         }
     }
 
@@ -2018,7 +2036,41 @@ class JobFile {
     }
 
     renderToDom() {
-        this.jobContainerDom.innerText = this.text;
+        this.jobContainerDom.innerHTML = '';
+        this.gcodes.forEach((gcode, idx) => {
+            let gcodeDiv = document.createElement('div');
+            gcodeDiv.innerText = gcode;
+            this.jobContainerDom.appendChild(gcodeDiv);
+        });
+    }
+
+    setDomHighlightToInstIdx(idx) {
+        const highlightId = 'gcode-highlight';
+        let oldGcodeDom = document.getElementById(highlightId);
+        if (oldGcodeDom !== null) {
+            oldGcodeDom.classList = [];
+            oldGcodeDom.id = '';
+        }
+        let gcodeDom = this.jobContainerDom.children[idx];
+        gcodeDom.id = highlightId;
+    }
+
+    highlightCurrInstAsError() {
+        const highlightId = 'gcode-highlight';
+        let oldGcodeDom = document.getElementById(highlightId);
+        if (oldGcodeDom !== null) {
+            oldGcodeDom.classList = [];
+            oldGcodeDom.classList.add('error-highlight');
+        }
+    }
+
+    removeDomHighlight() {
+        const highlightId = 'gcode-highlight';
+        let oldGcodeDom = document.getElementById(highlightId);
+        if (oldGcodeDom !== null) {
+            oldGcodeDom.id = '';
+            oldGcodeDom.classList = [];
+        }
     }
 
     loadFromString(jobString) {
@@ -2074,12 +2126,32 @@ class JobFile {
     runJob() {
         if (this.kinematics === undefined) {
             console.error('Cannot run job without setting kinematics first.');
+            return;
         }
-        console.log('Running GCode file...');
+        if (this.kinematics.machine === undefined) {
+            let e = 'Please pick a machine first, then try again.';
+            window.strangeGui.writeErrorToJobLog(e);
+            return;
+        }
+        window.strangeGui.clearJobLog();
+        window.strangeGui.writeMessageToJobLog('Running GCode file...');
         let iq = this.strangeScene.instructionQueue;
         iq.setKinematics(this.kinematics);
+        iq.setJobFile(this);
         iq.setQueueFromArray(this.gcodes);
         iq.executeNextInstruction();
+    }
+
+    loadAndRunExample(exampleShape) {
+        let jobText;
+        if (exampleShape === 'box') {
+            jobText = TestPrograms.testDrawJob;
+        }
+        if (exampleShape === 'cube') {
+            jobText = TestPrograms.testPrintJob;
+        }
+        this.loadFromString(jobText);
+        this.runJob();
     }
 }
 
@@ -2311,8 +2383,6 @@ function main() {
     ss.instructionQueue.setKinematics(kinematics);
     let jobFile = new JobFile(ss);
     jobFile.setKinematics(kinematics);
-    // jobFile.loadFromString(TestPrograms.testDrawJob);
-    // jobFile.renderToDom();
     window.strangeScene = ss;
     window.kinematics = kinematics;
     window.compiler = compiler;

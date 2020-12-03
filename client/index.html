@@ -48,13 +48,11 @@ No messages.
     </pre>
     <!-- <button>Slice (Cura)</button> -->
     <pre id="job-container" class="code-field" contenteditable="false">
+No G-Code loaded.
     </pre>
     <div class="button-bar">
-        <input id="job-file-input" type="file" accept=".gcode"
-               style="position: fixed; top: -100em"
-               onchange="window.jobFile.loadFromInputDom();">
-        <label id="upload-model-btn" for="job-file-input">upload job</label>
-        <button onclick="window.jobFile.runJob();">run job</button>
+        <button onclick="window.jobFile.loadAndRunExample('box')">draw box</button>
+        <button onclick="window.jobFile.loadAndRunExample('cube')">draw cube</button>
     </div>
 </div>
 
