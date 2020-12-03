@@ -47,8 +47,11 @@
     <pre id="job-container" class="code-field" contenteditable="false">
     </pre>
     <div class="button-bar">
-        <input id="job-file-input" type="file" onchange="window.jobFile.loadFromInputDom();"/>
-        <button onclick="window.jobFile.runJob();">Run</button>
+        <input id="job-file-input" type="file" accept=".gcode"
+               style="position: fixed; top: -100em"
+               onchange="window.jobFile.loadFromInputDom();">
+        <label id="upload-model-btn" for="job-file-input">upload job</label>
+        <button onclick="window.jobFile.runJob();">run job</button>
     </div>
 </div>
 

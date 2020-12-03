@@ -2347,7 +2347,7 @@ function main() {
     ss.instructionQueue.setKinematics(kinematics);
     let jobFile = new JobFile(ss);
     jobFile.setKinematics(kinematics);
-    jobFile.loadFromString(TestPrograms.testPrintJob);
+    jobFile.loadFromString(TestPrograms.testDrawJob);
     jobFile.renderToDom();
     window.strangeScene = ss;
     window.kinematics = kinematics;
