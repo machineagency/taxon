@@ -1280,7 +1280,6 @@ class Stage extends Block {
         if (this.constructor === Stage) {
             throw new Error('Can\'t instantiate abstract class Stage.');
         }
-        this.componentType = 'LinearStage';
         this.attributes = {
             driveMechanism: attributes.driveMechanism || '',
             stepDisplacementRatio: attributes.stepDisplacementRatio || 0
@@ -1720,42 +1719,6 @@ class Kinematics {
         return traverse(node, [[]]);
     }
 
-    determineAxisNameForBlock(block) {
-        let dims;
-        if (block.componentType === 'Tool'
-                || block.componentType === 'ToolAssembly'
-                || block.componentType === 'Motor') {
-            return '0';
-        }
-        if (block.quaternion.w !== 1) {
-            console.warn(`Determining axis for rotated block: ${block.name}.`);
-            let rotatedDimVect = new THREE.Vector3(block.dimensions.width,
-                                                   block.dimensions.height,
-                                                   block.dimensions.length)
-                                    .applyQuaternion(block.quaternion);
-            dims = {
-                width : rotatedDimVect.x,
-                height : rotatedDimVect.y,
-                length : rotatedDimVect.z,
-            };
-        }
-        else {
-            dims = block.dimensions;
-        }
-        let dimKeys = Object.keys(dims);
-        let dimValues = Object.values(dims);
-        let maxIdx = dimValues.reduce((maxIdxSoFar, val, currIdx, arr) => {
-            return val > arr[maxIdxSoFar] ? currIdx : maxIdxSoFar;
-        }, 0);
-        let maxDim = dimKeys[maxIdx];
-        let dimToAxisName = {
-            'width' : 'x',
-            'height' : 'y',
-            'length' : 'z'
-        };
-        return dimToAxisName[maxDim];
-    }
-
     determineMachineAxes() {
         let axisBlockPairs = this.machine.blocks.map((block) => {
             return [this.determineAxisNameForBlock(block), block];
@@ -1785,99 +1748,6 @@ class Kinematics {
         return this.rootKNodes.map((kNode) => kNode.block);
     }
 
-    determineWorkEnvelope() {
-        let gatherSubtreeRoms = (rootNode) => {
-            if (rootNode.childNodes.length === 0) {
-                return rootNode.calcNodeRangeOfMotion(this);
-            }
-            let childLists = rootNode.childNodes.map((childNode) => {
-                return gatherSubtreeRoms(childNode);
-            });
-            childLists.push(rootNode.calcNodeRangeOfMotion(this));
-            return childLists.flat();
-        };
-        let romLists = this.rootKNodes.map((rootNode) => {
-           return gatherSubtreeRoms(rootNode).filter((rom) => {
-               return rom.romAxis !== '0';
-           });
-        });
-        let upperBoundVector = new THREE.Vector3();
-        let lowerBoundVector = new THREE.Vector3();
-        let intervalListLists = this.rootKNodes.map((rootNode, rootIdx) => {
-            let romList = romLists[rootIdx];
-            let intervalList = romList.map((rom) => {
-                let intervalAxis = rom.romAxis;
-                let axisCenter = rootNode.block.position[intervalAxis];
-                let upperBound = axisCenter + rom.rom / 2;
-                let lowerBound = axisCenter - rom.rom / 2;
-                upperBoundVector[intervalAxis] = upperBound;
-                lowerBoundVector[intervalAxis] = lowerBound;
-                return {
-                    intervalAxis: intervalAxis,
-                    bounds: [lowerBound, upperBound]
-                }
-            });
-            return intervalList;
-        });
-        let weBox = new THREE.Box3(lowerBoundVector, upperBoundVector);
-        // TODO: intersect box with platform or BE
-        let platform = this.machine.getPlatform();
-        if (platform !== undefined) {
-            let platformDimVect = new THREE.Vector3(
-                -(weBox.max.x - (platform.width / 2)),
-                -platform.height / 2,
-                -(weBox.max.z - (platform.length / 2)));
-            weBox.expandByVector(platformDimVect);
-            weBox.translate(new THREE.Vector3(0, platform.height / 2, 0));
-        }
-        // Assemble WE from Box
-        let weBoxSize = new THREE.Vector3();
-        weBox.getSize(weBoxSize);
-        let we = new WorkEnvelope(this.machine, {
-            shape: weBoxSize.y === 0 ? 'rectangle' : 'box',
-            width: weBoxSize.x,
-            height: weBoxSize.y,
-            length: weBoxSize.z
-        });
-        let weBoxCenter = new THREE.Vector3();
-        weBox.getCenter(weBoxCenter);
-        we.position = weBoxCenter;
-        if (we.height === 0) {
-            let beTopPosition = new THREE.Vector3();
-            beTopPosition.setY(0.1 + this.machine.buildEnvironment.height
-                / 2);
-            we.position = beTopPosition;
-        }
-        return we;
-    }
-
-    determineWorkEnvelopeOld() {
-        // Assumptions: there is only one stage per axis that we care about
-        // NOTE: this is an approximation of the work envelope, it's
-        // not always accurate in non-common cases but it will do for now.
-        let axesToStages = this.determineMachineAxes();
-        let xDim = axesToStages['x'] ? axesToStages['x'][0].width : 0;
-        let yDim = axesToStages['y'] ? axesToStages['y'][0].height : 0;
-        let zDim = axesToStages['z'] ? axesToStages['z'][0].length : 0;
-        let shape = Object.keys(axesToStages).length === 3 ? 'box' : 'rectangle';
-        let we = new WorkEnvelope(this.machine, {
-            shape: shape,
-            width: xDim,
-            height: yDim,
-            length: zDim
-        });
-        let toolPosition = this.machine.getTool().position;
-        if (shape === 'rectangle') {
-            we.placeOnComponent(this.machine.buildEnvironment);
-            we.position.setX(toolPosition.x);
-            we.position.setZ(toolPosition.z);
-        }
-        else {
-            we.position = toolPosition;
-        }
-        return we;
-    }
-
     verifyMoveInWorkEnvelope(axesToCoords) {
         if (this.machine.workEnvelope === undefined) {
             this.determineWorkEnvelope();
@@ -1900,39 +1770,6 @@ class Kinematics {
         let size = new THREE.Vector3(we.width, we.height, we.length);
         bbox.setFromCenterAndSize(center, size);
         return bbox.containsPoint(unzeroedPoint);
-    }
-
-
-    verifyParallelMotorSteps(motorIdToSteps) {
-        let verificationPassed = true;
-        Object.keys(motorIdToSteps).forEach((motorId) => {
-            let motorSteps = motorIdToSteps[motorId];
-            let motor = this.machine.findBlockWithId(motorId);
-            if (motor.kinematics !== 'directDrive') {
-                return;
-            }
-            let drivenStages = motor.drivenStages;
-            let drivenStageNodes = drivenStages.map((stage) => {
-                return this.findNodeWithBlockId(stage.id);
-            });
-            let drivenStageParallelNodes = drivenStageNodes.map((node) => {
-                return node.parallelNodes;
-            }).flat();
-            drivenStageParallelNodes.forEach((parallelStageNode) => {
-                // A stage is driven by only one motor in direct drive case
-                let parallelMotor = parallelStageNode.block.drivingMotors[0];
-                let parallelSteps = motorIdToSteps[parallelMotor.id];
-                if (parallelSteps === undefined
-                    || parallelSteps !== motorSteps) {
-                    let mt = motor.name;
-                    let mp = parallelMotor.name;
-                    console.error(`Parallel step mismatch with ${mt} and ${mp}:\
-                                    ${motorSteps} versus ${parallelSteps}`);
-                    verificationPassed = false;
-                }
-            });
-        });
-        return verificationPassed;
     }
 
     moveTool(axesToCoords) {
@@ -2518,7 +2355,7 @@ function main() {
     ss.instructionQueue.setKinematics(kinematics);
     let jobFile = new JobFile(ss);
     jobFile.setKinematics(kinematics);
-    jobFile.loadFromString(TestPrograms.testDrawJob);
+    jobFile.loadFromString(TestPrograms.testPrintJob);
     jobFile.renderToDom();
     window.strangeScene = ss;
     window.kinematics = kinematics;
