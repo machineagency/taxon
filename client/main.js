@@ -1817,7 +1817,7 @@ class Kinematics {
             return block instanceof CrossStage;
         });
         crossStages.forEach((crossStage) => {
-            console.assert(crossStage.drivingMotors.length === 2, stage);
+            console.assert(crossStage.drivingMotors.length === 2, crossStage);
             let motorA = crossStage.drivingMotors[0];
             let motorB = crossStage.drivingMotors[1];
             let axisASteps = axesToCoords[crossStage.axes[0]];
