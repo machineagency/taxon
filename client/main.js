@@ -1106,7 +1106,6 @@ class WorkEnvelope extends StrangeComponent {
         super(name, parentMachine, dimensions);
         this.componentType = 'WorkEnvelope';
         parentMachine.workEnvelope = this;
-        // FIXME: come back to generating work envelope, hide for now.
     }
 
     get shape() {
@@ -1123,8 +1122,6 @@ class WorkEnvelope extends StrangeComponent {
     }
 
     renderDimensions() {
-        // For some reason this.position gets reset, so save it here;
-        let centerPosition = new THREE.Vector3().copy(this.position);
         this.removeMeshGroupFromScene();
         let geom = WorkEnvelope.geometryFactories.workEnvelope(this.dimensions);
         let material = new THREE.MeshLambertMaterial({
@@ -1139,8 +1136,25 @@ class WorkEnvelope extends StrangeComponent {
         if (this.dimensions.shape === 'rectangle') {
             this.rotateToXYPlane();
         }
-        this.meshGroup.position.copy(centerPosition);
+        let wePosition = this.getWEPositionForMachine();
+        this.meshGroup.position.copy(wePosition);
         this.addMeshGroupToScene();
+    }
+
+    getWEPositionForMachine() {
+        const eps = 0.1;
+        let toolPos = this.parentMachine.getTool().position;
+        let baseSurface = this.parentMachine.getPlatform()
+                            || this.parentMachine.buildEnvironment;
+        let basePos = baseSurface.position;
+        let baseHeight = baseSurface.height;
+        let baseOffset = baseHeight / 2;
+        let weOffset = this.height / 2;
+        let wePosition = basePos.clone().add(new THREE.Vector3(
+                            toolPos.x,
+                            baseOffset + weOffset + eps,
+                            toolPos.z));
+        return wePosition;
     }
 }
 
@@ -1559,8 +1573,6 @@ class Kinematics {
         if (this.strangeScene.machine !== undefined) {
             this.machine = this.strangeScene.machine;
             this.__buildTreeForMachine(this.machine);
-
-            this.machine.workEnvelope = this.determineWorkEnvelope();
         }
     }
 
@@ -1569,8 +1581,6 @@ class Kinematics {
         this.suppressedNodes = [];
         this.machine = newMachine;
         this.__buildTreeForMachine(this.machine);
-
-        this.machine.workEnvelope = this.determineWorkEnvelope();
     }
 
     zeroAtCurrentPosition() {
