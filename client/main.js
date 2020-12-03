@@ -1748,7 +1748,8 @@ class Kinematics {
                                                  axesToCoords['z']);
         let containResult = this.checkContainsPoint(toolGoalPosition);
         if (!containResult) {
-            console.error(`Move to ${axesToCoords.x} ${axesToCoords.y} ${axesToCoords.z} is outside work envelope.`);
+            let e = `Move to ${axesToCoords.x} ${axesToCoords.y} ${axesToCoords.z} is outside work envelope.`;
+            window.strangeGui.writeErrorToJobLog(e);
         }
         return containResult;
     }
@@ -2310,8 +2311,8 @@ function main() {
     ss.instructionQueue.setKinematics(kinematics);
     let jobFile = new JobFile(ss);
     jobFile.setKinematics(kinematics);
-    jobFile.loadFromString(TestPrograms.testDrawJob);
-    jobFile.renderToDom();
+    // jobFile.loadFromString(TestPrograms.testDrawJob);
+    // jobFile.renderToDom();
     window.strangeScene = ss;
     window.kinematics = kinematics;
     window.compiler = compiler;

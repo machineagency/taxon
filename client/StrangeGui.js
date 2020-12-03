@@ -17,6 +17,7 @@ class StrangeGui {
         this.kinematics = kinematics;
         this.tooltips = [];
         this.modelContainerDom = document.getElementById('model-container');
+        this.jobLogDom = document.getElementById('job-log');
         this.renderModelPane = this.__inflateModelContainerDom();
         this.makeLoadStlPromise('./pikachu.stl');
         this.renderModelPane();
@@ -74,6 +75,24 @@ class StrangeGui {
             mcRenderer.render(scene, camera);
         };
         return renderModelPane;
+    }
+
+    writeMessageToJobLog(stringToWrite) {
+        this.jobLogDom.innerText = stringToWrite;
+        this.jobLogDom.classList.remove('red-border');
+        this.jobLogDom.classList.remove('red-text');
+    }
+
+    writeErrorToJobLog(stringToWrite) {
+        this.jobLogDom.innerText = stringToWrite;
+        this.jobLogDom.classList.add('red-border');
+        this.jobLogDom.classList.add('red-text');
+    }
+
+    clearJobLog() {
+        this.jobLogDom.innerText = 'No messages yet.';
+        this.jobLogDom.classList.remove('red-border');
+        this.jobLogDom.classList.remove('red-text');
     }
 
     drawKinematicPathToSceneForComponent(component) {

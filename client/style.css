@@ -120,9 +120,17 @@ input[type="file"] {
     border: 1px solid #e44242;
 }
 
+.red-text {
+    color: #e44242;
+}
+
 #job-container {
     overflow: scroll;
-    height: 200px;
+    height: 100px;
+}
+
+#job-log {
+    height: 25px;
 }
 
 #r-container {
@@ -205,6 +213,16 @@ input[type="file"] {
 
 .preview-machine-highlight {
     border: 1px solid #2ecc71;
+}
+
+#gcode-highlight {
+    color: #000000;
+    background-color: #ffffff;
+}
+
+#gcode-highlight.error-highlight {
+    color: #ffffff;
+    background-color: #e44242;
 }
 
 #results-pad {
