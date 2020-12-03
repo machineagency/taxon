@@ -1720,27 +1720,18 @@ class Kinematics {
     }
 
     determineMachineAxes() {
-        let axisBlockPairs = this.machine.blocks.map((block) => {
-            return [this.determineAxisNameForBlock(block), block];
-        }).filter((axisBlockPair) => {
-            let axisName = axisBlockPair[0];
-            let block = axisBlockPair[1]
-            return (block.componentType === 'LinearStage'
-                    || block.componentType === 'RotaryStage')
-                    && axisName !== '0';
+        let stages = this.machine.blocks.filter((block) => block.axes !== undefined);
+        let allAxes = stages.map((block) => block.axes).flat();
+        let uniqueAxes = allAxes.filter((axis, idx) => {
+            return allAxes.indexOf(axis) === idx;
         });
-        let axisToBlock = {};
-        axisBlockPairs.forEach((axisBlockPair) => {
-            let axisName = axisBlockPair[0];
-            let block = axisBlockPair[1];
-            if (axisToBlock[axisName] === undefined) {
-                axisToBlock[axisName] = [block];
-            }
-            else {
-                axisToBlock[axisName].push(block);
-            }
+        let axisToStageLists = {};
+        uniqueAxes.forEach((axis) => {
+            axisToStageLists[axis] = stages.filter((stage) => {
+                return stage.axes.indexOf(axis) !== -1;
+            });
         });
-        return axisToBlock;
+        return axisToStageLists;
     }
 
     determineMovingBlocks() {
@@ -1914,6 +1905,7 @@ class Kinematics {
             // For getting motors and stages (should have a compound stage).
         }
         if (motor.kinematics === 'directDrive') {
+            // Invariants: axes.length === 1
             let stage = drivenStages[0];
             let drivenStageNode = this.findNodeWithBlockName(stage.name);
             let path = this.pathFromNodeToRoot(drivenStageNode).slice(1);
@@ -1924,7 +1916,7 @@ class Kinematics {
             let pathBlockNames = pathBlocks.map((block) => block.name);
             let parallelBlockNames = drivenStageNode.parallelNodes
                                         .map((node) => node.block.name);
-            let axisName = this.determineAxisNameForBlock(stage);
+            let axisName = stage.axes[0];
             // console.log(`Turning motor "${motor.name}" by ${steps} steps actuates ${stage.name} ${displacement}mm in the ${axisName} direction, also: and chain [${pathBlockNames}]. [${parallelBlockNames}] should have their driving motors turning.`);
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          displacement);
@@ -2163,7 +2155,7 @@ class Compiler {
                 componentType: block.componentType,
                 dimensions: block.dimensions
             }
-            if (block.componentType === 'LinearStage') {
+            if (block instanceof Stage) {
                 progBlock.axes = block.axes;
                 progBlock.drivingMotors = block.drivingMotors.map((motor) => {
                     return motor.name;
