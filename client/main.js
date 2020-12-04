@@ -154,7 +154,28 @@ class StrangeScene {
     }
 
     rotateModelOverAxis(axis) {
-        // TODO
+        // NOTE: doesn't rotate around center of model, but rather
+        // the origin which is at a corner of the bounding box. This
+        // is not ideal behavior, but I'm not sure what I can do to
+        // fix this.
+        let rotQ = new THREE.Quaternion();
+        let eulerAngle
+        if (axis === 'x') {
+            eulerAngle = new THREE.Euler(Math.PI / 2, 0, 0);
+        }
+        else if (axis === 'y') {
+            eulerAngle = new THREE.Euler(0, Math.PI / 2, 0);
+        }
+        else if (axis === 'z') {
+            eulerAngle = new THREE.Euler(0, 0, Math.PI / 2);
+        }
+        else {
+            console.error('Must specify rotation axis');
+            return;
+        }
+        rotQ.setFromEuler(eulerAngle);
+        this.model.quaternion.multiply(rotQ);
+        this.modelBoxHelper.update();
     }
 
     checkModelFitsInWorkEnvelope() {
