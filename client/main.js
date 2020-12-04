@@ -112,10 +112,11 @@ class StrangeScene {
             let stlMesh;
             return loader.load(filepath, (stlGeom) => {
                 let material = new THREE.MeshLambertMaterial({
-                    color : BuildEnvironment.color
+                    color : BuildEnvironment.color,
+                    // Do not cull triangles with inward-pointing normals
+                    side: THREE.DoubleSide
                 });
                 stlMesh = new THREE.Mesh(stlGeom, material);
-                // stlMesh.scale.set(10, 10, 10);
                 stlMesh.isLoadedStl = true;
                 if (this.model instanceof THREE.Object3D) {
                     this.removeFromScene(this.model);
