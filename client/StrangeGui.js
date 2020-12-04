@@ -314,6 +314,7 @@ class StrangeGui {
             listItemDom.classList.add(highlightClassName);
             gcDom.setAttribute('contenteditable', false);
             gcDom.classList.remove('red-border');
+            this.strangeScene.positionModelOnWorkEnvelope();
             this.__inflateSceneFromGCText(true);
         }
     }

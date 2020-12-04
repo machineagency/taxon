@@ -12,6 +12,7 @@ import { StrangeGui } from './StrangeGui.js';
 import { TestPrograms } from './TestPrograms.js';
 
 class StrangeScene {
+    static modelBoxHelperColor = 0xe44242;
     constructor() {
         this.scene = this.initScene();
         this.camera = this.initCamera(this.scene, true);
@@ -98,6 +99,14 @@ class StrangeScene {
     }
 
     loadStl(filepath) {
+        if (this.machine === undefined) {
+            const e = 'Please pick a machine before uploading a model.';
+            window.strangeGui.writeErrorToJobLog(e);
+            return;
+        }
+        if (this.model !== undefined) {
+            this.clearModelFromScene();
+        }
         let loadPromise = new Promise(resolve => {
             let loader = new STLLoader();
             let stlMesh;
@@ -106,13 +115,19 @@ class StrangeScene {
                     color : BuildEnvironment.color
                 });
                 stlMesh = new THREE.Mesh(stlGeom, material);
-                stlMesh.scale.set(10, 10, 10);
+                // stlMesh.scale.set(10, 10, 10);
                 stlMesh.isLoadedStl = true;
                 if (this.model instanceof THREE.Object3D) {
                     this.removeFromScene(this.model);
                 }
                 this.model = stlMesh;
-                this.scene.add(stlMesh);
+                this.modelBoxHelper = new THREE.BoxHelper(stlMesh,
+                                        StrangeScene.modelBoxHelperColor);
+                this.modelBox3 = new THREE.Box3();
+                this.modelBox3.setFromObject(this.model);
+                this.scene.add(this.model);
+                this.scene.add(this.modelBoxHelper);
+                this.positionModelOnWorkEnvelope();
                 resolve(stlMesh);
             }, undefined, (errorMsg) => {
                 console.log(errorMsg);
@@ -120,6 +135,35 @@ class StrangeScene {
         });
         return loadPromise;
     };
+
+    positionModelOnWorkEnvelope() {
+        if (this.model === undefined) {
+            return;
+        }
+        let wePos = this.machine.workEnvelope.position.clone();
+        let xOff = (this.modelBox3.max.x - this.modelBox3.min.x) / 2;
+        let yOff = (this.modelBox3.max.y - this.modelBox3.min.y);
+        let zOff = (this.modelBox3.max.z - this.modelBox3.min.z) / 2;
+        // FIXME: the y axis is messed up, idk how to get the correct
+        // number in practice
+        let offVect = new THREE.Vector3(xOff, 0, zOff);
+        wePos.sub(offVect);
+        this.model.position.copy(wePos);
+        this.modelBoxHelper.update();
+    }
+
+    rotateModelOverAxis(axis) {
+        // TODO
+    }
+
+    clearModelFromScene() {
+        this.scene.remove(this.model);
+        this.scene.remove(this.modelBox3);
+        this.scene.remove(this.modelBoxHelper);
+        this.model = undefined;
+        this.modelBox3 = undefined;
+        this.modelBoxHelper = undefined;
+    }
 
 }
 
