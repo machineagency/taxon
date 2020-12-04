@@ -157,6 +157,17 @@ class StrangeScene {
         // TODO
     }
 
+    checkModelFitsInWorkEnvelope() {
+        console.assert(this.machine !== undefined, this);
+        console.assert(this.model !== undefined, this);
+        let origin = new THREE.Vector3();
+        let we = this.machine.workEnvelope;
+        let weSizeVect = new THREE.Vector3(we.width, we.height, we.length);
+        let weBox = new THREE.Box3();
+        weBox.setFromCenterAndSize(origin, weSizeVect);
+        return weBox.containsBox(this.modelBox3);
+    }
+
     clearModelFromScene() {
         this.scene.remove(this.model);
         this.scene.remove(this.modelBox3);
