@@ -18,6 +18,7 @@ class StrangeGui {
         this.tooltips = [];
         this.modelContainerDom = document.getElementById('model-container');
         this.jobLogDom = document.getElementById('job-log');
+        this.modelCheckDom = document.getElementById('model-check-container');
         this.renderModelPane = this.__inflateModelContainerDom();
         this.makeLoadStlPromise('./pikachu.stl');
         this.renderModelPane();
@@ -75,6 +76,10 @@ class StrangeGui {
             mcRenderer.render(scene, camera);
         };
         return renderModelPane;
+    }
+
+    writeMessageToModelCheck(stringToWrite) {
+        this.modelCheckDom.innerText = stringToWrite;
     }
 
     writeMessageToJobLog(stringToWrite) {

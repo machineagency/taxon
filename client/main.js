@@ -129,6 +129,7 @@ class StrangeScene {
                 this.scene.add(this.model);
                 this.scene.add(this.modelBoxHelper);
                 this.positionModelOnWorkEnvelope();
+                this.checkModelFitsInWorkEnvelope();
                 resolve(stlMesh);
             }, undefined, (errorMsg) => {
                 console.log(errorMsg);
@@ -176,6 +177,8 @@ class StrangeScene {
         rotQ.setFromEuler(eulerAngle);
         this.model.quaternion.multiply(rotQ);
         this.modelBoxHelper.update();
+        this.modelBox3.setFromObject(this.model);
+        this.checkModelFitsInWorkEnvelope();
     }
 
     checkModelFitsInWorkEnvelope() {
@@ -186,7 +189,16 @@ class StrangeScene {
         let weSizeVect = new THREE.Vector3(we.width, we.height, we.length);
         let weBox = new THREE.Box3();
         weBox.setFromCenterAndSize(origin, weSizeVect);
-        return weBox.containsBox(this.modelBox3);
+        let fitResult = weBox.containsBox(this.modelBox3);
+        let m;
+        if (fitResult) {
+            m = 'the model fits in the work envelope.';
+        }
+        else {
+            m = 'the model is to big for the work envelope.';
+        }
+        window.strangeGui.writeMessageToModelCheck(m);
+        return fitResult;
     }
 
     clearModelFromScene() {
