@@ -125,10 +125,15 @@ class StrangeScene {
                 this.modelBoxHelper = new THREE.BoxHelper(stlMesh,
                                         StrangeScene.modelBoxHelperColor);
                 this.modelBox3 = new THREE.Box3();
+                // NOTE: for some reason, we need to call Box3.setFromObject
+                // before calling it after positioning the model in the
+                // work envelope as well, otherwise we get an internal
+                // threejs error
                 this.modelBox3.setFromObject(this.model);
                 this.scene.add(this.model);
                 this.scene.add(this.modelBoxHelper);
                 this.positionModelOnWorkEnvelope();
+                this.modelBox3.setFromObject(this.model);
                 this.checkModelFitsInWorkEnvelope();
                 resolve(stlMesh);
             }, undefined, (errorMsg) => {
