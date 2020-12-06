@@ -164,6 +164,11 @@ class StrangeScene {
         // the origin which is at a corner of the bounding box. This
         // is not ideal behavior, but I'm not sure what I can do to
         // fix this.
+        if (this.machine === undefined || this.model === undefined) {
+            const m = 'Please pick a machine and model first.';
+            window.strangeGui.writeMessageToModelCheck(m);
+            return;
+        }
         let rotQ = new THREE.Quaternion();
         let eulerAngle
         if (axis === 'x') {
@@ -189,7 +194,7 @@ class StrangeScene {
     checkModelFitsInWorkEnvelope() {
         console.assert(this.machine !== undefined, this);
         console.assert(this.model !== undefined, this);
-        let origin = new THREE.Vector3();
+        let origin = this.machine.workEnvelope.position.clone();
         let we = this.machine.workEnvelope;
         let weSizeVect = new THREE.Vector3(we.width, we.height, we.length);
         let weBox = new THREE.Box3();
@@ -200,7 +205,7 @@ class StrangeScene {
             m = 'the model fits in the work envelope.';
         }
         else {
-            m = 'the model is to big for the work envelope.';
+            m = 'the model is too big for the work envelope.';
         }
         window.strangeGui.writeMessageToModelCheck(m);
         return fitResult;
