@@ -21,6 +21,10 @@ button {
     cursor: pointer;
 }
 
+button.narrow {
+    width: 35px;
+}
+
 label {
     cursor: pointer;
 }

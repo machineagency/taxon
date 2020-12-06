@@ -84,7 +84,9 @@ no model uploaded yet.
                style="position: fixed; top: -100em"
                onchange="window.strangeGui.uploadModel(this.files[0]);">
         <label id="upload-model-btn" for="new-model-input">upload model</label>
-        <button>static check</button>
+        <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('x');">rX</button>
+        <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('y');">rY</button>
+        <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('z');">rZ</button>
     </div>
 </div>
 <div id="results-pad">
