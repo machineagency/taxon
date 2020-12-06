@@ -165,10 +165,10 @@ class StrangeScene {
             eulerAngle = new THREE.Euler(Math.PI / 2, 0, 0);
         }
         else if (axis === 'y') {
-            eulerAngle = new THREE.Euler(0, Math.PI / 2, 0);
+            eulerAngle = new THREE.Euler(0, 0, Math.PI / 2);
         }
         else if (axis === 'z') {
-            eulerAngle = new THREE.Euler(0, 0, Math.PI / 2);
+            eulerAngle = new THREE.Euler(0, Math.PI / 2, 0);
         }
         else {
             console.error('Must specify rotation axis');
