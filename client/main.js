@@ -118,9 +118,6 @@ class StrangeScene {
                 });
                 stlMesh = new THREE.Mesh(stlGeom, material);
                 stlMesh.isLoadedStl = true;
-                if (this.model instanceof THREE.Object3D) {
-                    this.removeFromScene(this.model);
-                }
                 this.model = stlMesh;
                 this.modelBoxHelper = new THREE.BoxHelper(stlMesh,
                                         StrangeScene.modelBoxHelperColor);
@@ -135,6 +132,9 @@ class StrangeScene {
                 this.positionModelOnWorkEnvelope();
                 this.modelBox3.setFromObject(this.model);
                 this.checkModelFitsInWorkEnvelope();
+                let modelStats = this.calculateModelStats();
+                let m = JSON.stringify(modelStats, undefined, 2);
+                window.strangeGui.writeMessageToModelCheck(m);
                 resolve(stlMesh);
             }, undefined, (errorMsg) => {
                 console.log(errorMsg);
@@ -142,6 +142,19 @@ class StrangeScene {
         });
         return loadPromise;
     };
+
+    calculateModelStats() {
+        let stats = {
+            modelFileName : '',
+            fitsInWorkEnvelope : false,
+            materialMatches : false
+        };
+        let modelFileInputDom = document.getElementById('new-model-input');
+        let fileNameTokens = modelFileInputDom.value.split('\\');
+        stats.modelFileName = fileNameTokens[fileNameTokens.length - 1];
+        stats.fitsInWorkEnvelope = this.checkModelFitsInWorkEnvelope();
+        return stats;
+    }
 
     positionModelOnWorkEnvelope() {
         if (this.model === undefined) {
@@ -188,7 +201,10 @@ class StrangeScene {
         this.model.quaternion.multiply(rotQ);
         this.modelBoxHelper.update();
         this.modelBox3.setFromObject(this.model);
-        this.checkModelFitsInWorkEnvelope();
+        let modelStats = this.calculateModelStats();
+        modelStats.modelFileName = filepath;
+        let m = JSON.stringify(modelStats, undefined, 2);
+        window.strangeGui.writeMessageToModelCheck(m);
     }
 
     checkModelFitsInWorkEnvelope() {
@@ -200,14 +216,6 @@ class StrangeScene {
         let weBox = new THREE.Box3();
         weBox.setFromCenterAndSize(origin, weSizeVect);
         let fitResult = weBox.containsBox(this.modelBox3);
-        let m;
-        if (fitResult) {
-            m = 'the model fits in the work envelope.';
-        }
-        else {
-            m = 'the model is too big for the work envelope.';
-        }
-        window.strangeGui.writeMessageToModelCheck(m);
         return fitResult;
     }
 
