@@ -1,7 +1,11 @@
 {
     "name": "prusa-i3-mk3",
     "machineType": "printer3d",
-    "price": 749,
+    "vendorInfo": {
+        "price": 749,
+        "website": "https://www.prusa3d.com/",
+        "numUsers" : 5000
+    },
     "buildEnvironment": {
         "width": 500,
         "length": 500

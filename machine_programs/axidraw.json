@@ -1,7 +1,11 @@
 {
     "name": "axidraw-v3",
     "machineType": "plotter",
-    "price": 475,
+    "vendorInfo": {
+        "price": 475,
+        "website": "https://axidraw.com/",
+        "numUsers" : 1000
+    },
     "buildEnvironment": {
         "width": 500,
         "length": 500
