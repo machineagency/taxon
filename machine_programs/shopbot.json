@@ -80,21 +80,21 @@
              }
          },
          {
-             "name": "collet",
+             "name": "spindle",
              "componentType": "ToolAssembly",
              "dimensions": {
-                 "width": 12.5,
-                 "height": 25,
-                 "length": 25
+                 "width": 200,
+                 "height": 200,
+                 "length": 100
              }
          },
          {
              "name": "bit",
              "componentType": "Tool",
              "dimensions": {
-                 "width": 10,
-                 "height": 25,
-                 "length": 10
+                 "width": 25,
+                 "height": 100,
+                 "length": 25
              }
          }
     ],
@@ -113,7 +113,23 @@
             "baseBlockEnd": "0",
             "addBlockName": "plunge rail",
             "addBlockFace": "+z",
+            "addBlockEnd": "0"
+        },
+        {
+            "baseBlockName": "plunge rail",
+            "baseBlockFace": "-z",
+            "baseBlockEnd": "0",
+            "addBlockName": "spindle",
+            "addBlockFace": "+z",
             "addBlockEnd": "+y"
+        },
+        {
+            "baseBlockName": "spindle",
+            "baseBlockFace": "+y",
+            "baseBlockEnd": "0",
+            "addBlockName": "bit",
+            "addBlockFace": "-y",
+            "addBlockEnd": "0"
         }
     ]
 }
