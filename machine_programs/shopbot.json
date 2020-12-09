@@ -21,7 +21,47 @@
             "z": 0
         }
     },
-    "motors": [ ],
+    "motors": [
+        {
+            "name": "bed rail motor",
+            "componentType": "Motor",
+            "dimensions": {
+                "width": 25,
+                "height": 25,
+                "length": 25
+            },
+            "invertSteps": false,
+            "drivenStages": [
+                "bed rails"
+            ]
+        },
+        {
+            "name": "carriage rail motor",
+            "componentType": "Motor",
+            "dimensions": {
+                "width": 25,
+                "height": 25,
+                "length": 25
+            },
+            "invertSteps": false,
+            "drivenStages": [
+                "carriage rail"
+            ]
+        },
+        {
+            "name": "plunge rail motor",
+            "componentType": "Motor",
+            "dimensions": {
+                "width": 25,
+                "height": 25,
+                "length": 25
+            },
+            "invertSteps": false,
+            "drivenStages": [
+                "plunge rail"
+            ]
+        }
+    ],
     "blocks": [
          {
              "name": "bed rails",
