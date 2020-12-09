@@ -147,8 +147,32 @@ class StrangeGui {
         });
     }
 
+    buildFetchMachineUrl() {
+        const encodeParams = (paramObj) => {
+            return Object.entries(paramObj).map((kv) => {
+                return kv.map(encodeURIComponent).join("=");
+            }).join("&");
+        }
+        const baseUrl = StrangeGui.serverURL + '/machines';
+        const urlParams = {};
+        const filters = JSON.parse(this.filterDom.innerText);
+        if (window.strangeScene.machine !== undefined
+                && window.strangeScene.model !== undefined
+                && filters.checkModelFits) {
+            const mb = window.strangeScene.modelBox3;
+            urlParams.filter = true;
+            urlParams.width = mb.max.x - mb.min.x;
+            urlParams.height = mb.max.y - mb.min.y;
+            urlParams.length = mb.max.z - mb.min.z;
+        }
+        else {
+            urlParams.filter = false;
+        }
+        return baseUrl + '?' + encodeParams(urlParams);
+    }
+
     fetchAndRenderMachineNames() {
-        const url = StrangeGui.serverURL + '/machines';
+        let url = this.buildFetchMachineUrl();
         fetch(url, {
             method: 'GET'
         })
@@ -232,7 +256,10 @@ class StrangeGui {
 
     uploadModel(modelFile) {
         let modelURL = URL.createObjectURL(modelFile);
-        this.strangeScene.loadStl(modelURL);
+        this.strangeScene.loadStl(modelURL)
+        .then((_) => {
+            this.fetchAndRenderMachineNames();
+        });
     }
 
     async uploadNewMachine(machineFile) {
