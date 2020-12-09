@@ -1013,8 +1013,8 @@ class StrangeComponent {
                                     d.length, 2, 2, 2),
         connectionHandle: () => new THREE.SphereBufferGeometry(25, 32, 32),
         buildEnvironment: (dimensions) => new THREE.BoxBufferGeometry(
-                                             dimensions.length,
-                                             dimensions.width, 25, 2, 2, 2),
+                                             dimensions.width,
+                                             dimensions.length, 25, 2, 2, 2),
         workEnvelope: (dimensions) => {
             if (dimensions.shape === undefined) {
                 return new THREE.PlaneBufferGeometry(250, 250);
