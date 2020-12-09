@@ -997,16 +997,11 @@ class StrangeComponent {
         rotaryStageCase: () => new THREE.BoxBufferGeometry(150, 50, 150, 2, 2, 2),
         rotaryStagePlatform: () => new THREE.CylinderBufferGeometry(50, 50, 80, 10),
         tool: (dimensions) => {
-            if (dimensions.type === undefined) {
-                return new THREE.CylinderBufferGeometry(5, 5, 50, 10)
-            }
-            if (dimensions.type === 'pen') {
-                let radius = dimensions.width / 2;
-                let height = dimensions.height;
-                let numSegments = 10;
-                return new THREE.CylinderBufferGeometry(radius, radius, height,
-                                                        numSegments);
-            }
+            let radius = dimensions.width / 2;
+            let height = dimensions.height;
+            let numSegments = 10;
+            return new THREE.CylinderBufferGeometry(radius, radius, height,
+                                                    numSegments);
         },
         toolAssembly: (d) => new THREE.BoxBufferGeometry(d.width, d.height,
                                     d.length, 2, 2, 2),
