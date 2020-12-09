@@ -1,0 +1,18 @@
+{
+  "name": "blank-machine",
+  "machineType": "genericMachine",
+  "vendorInfo" : { },
+  "buildEnvironment": {
+    "width": 500,
+    "length": 500
+  },
+  "workEnvelope": {
+      "shape": "rectangle",
+      "width": 0,
+      "length": 0
+  },
+  "motors": [ ],
+  "blocks": [ ],
+  "connections": [ ],
+  "references": { }
+}
