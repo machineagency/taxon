@@ -13,6 +13,5 @@
   },
   "motors": [ ],
   "blocks": [ ],
-  "connections": [ ],
-  "references": { }
+  "connections": [ ]
 }
