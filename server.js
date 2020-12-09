@@ -34,8 +34,25 @@ mongoClient.connect(url, { useUnifiedTopology: true })
 // routes and start ========================================
 
 let attachRoutesWithDBAndStart = (db) => {
+
     app.get('/machines', (req, res) => {
-        db.collection('machines').find()
+        let dbFilterWorkEnvelope;
+        if (req.query.filter === 'true') {
+            const mWidth = parseInt((req.query.width || 0), 10);
+            const mHeight = parseInt((req.query.height || 0), 10);
+            const mLength = parseInt((req.query.length || 0), 10);
+            dbFilterWorkEnvelope = {
+                $and : [
+                    { 'workEnvelope.width' : { $gte : mWidth } },
+                    { 'workEnvelope.height' : { $gte : mHeight } },
+                    { 'workEnvelope.length' : { $gte : mLength } }
+                ]
+            };
+        }
+        else {
+            dbFilterWorkEnvelope = {};
+        }
+        db.collection('machines').find(dbFilterWorkEnvelope)
         .sort({ name: 1 })
         .toArray()
         .then((results) => {
