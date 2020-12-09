@@ -202,7 +202,6 @@ class StrangeScene {
         this.modelBoxHelper.update();
         this.modelBox3.setFromObject(this.model);
         let modelStats = this.calculateModelStats();
-        modelStats.modelFileName = filepath;
         let m = JSON.stringify(modelStats, undefined, 2);
         window.strangeGui.writeMessageToModelCheck(m);
     }
@@ -1477,9 +1476,15 @@ class LinearStage extends Stage {
     }
 
     renderArrows() {
-        const arrowLen = 50;
         if (this.axes.length === 1) {
             let axis = this.axes[0];
+            let axisToDim = {
+                'x': 'width',
+                'y': 'height',
+                'z': 'length'
+            };
+            let dim = axisToDim[axis];
+            let arrowLen = this.dimensions[dim] / 4;
             let dir;
             if (axis === 'x') {
                 dir = new THREE.Vector3(1, 0, 0);
@@ -1541,6 +1546,13 @@ class ParallelStage extends Stage {
         const arrowLen = 50;
         if (this.axes.length === 1) {
             let axis = this.axes[0];
+            let axisToDim = {
+                'x': 'width',
+                'y': 'height',
+                'z': 'length'
+            };
+            let dim = axisToDim[axis];
+            let arrowLen = this.dimensions[dim] / 4;
             let dir;
             if (axis === 'x') {
                 dir = new THREE.Vector3(1, 0, 0);
@@ -1597,6 +1609,13 @@ class CrossStage extends Stage {
     renderArrows() {
         const arrowLen = 50;
         this.axes.forEach((axis) => {
+            let axisToDim = {
+                'x': 'width',
+                'y': 'height',
+                'z': 'length'
+            };
+            let dim = axisToDim[axis];
+            let arrowLen = this.dimensions[dim] / 4;
             let dir;
             if (axis === 'x') {
                 dir = new THREE.Vector3(1, 0, 0);
