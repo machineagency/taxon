@@ -26,7 +26,7 @@
          {
              "name": "bed rails",
              "componentType": "ParallelStage",
-             "axes": [ "x" ],
+             "axes": [ "z" ],
              "dimensions": {
                  "width": 2310,
                  "height": 200,
@@ -34,7 +34,7 @@
              },
              "position" : {
                  "x": 0,
-                 "y": 325,
+                 "y": 125,
                  "z": 0
              },
              "drivingMotors": [
@@ -44,9 +44,77 @@
                  "driveMechanism": "rackAndPinion",
                  "stepDisplacementRatio": 0.5
              }
+         },
+         {
+             "name": "carriage rail",
+             "componentType": "LinearStage",
+             "axes": [ "x" ],
+             "dimensions": {
+                 "width": 2310,
+                 "height": 200,
+                 "length": 400
+             },
+             "drivingMotors": [
+             ],
+             "kinematics": "directDrive",
+             "attributes": {
+                 "driveMechanism": "rackAndPinion",
+                 "stepDisplacementRatio": 0.5
+             }
+         },
+         {
+             "name": "plunge rail",
+             "componentType": "LinearStage",
+             "axes": [ "y" ],
+             "dimensions": {
+                 "width": 200,
+                 "height": 400,
+                 "length": 100
+             },
+             "drivingMotors": [
+             ],
+             "kinematics": "directDrive",
+             "attributes": {
+                 "driveMechanism": "rackAndPinion",
+                 "stepDisplacementRatio": 0.5
+             }
+         },
+         {
+             "name": "collet",
+             "componentType": "ToolAssembly",
+             "dimensions": {
+                 "width": 12.5,
+                 "height": 25,
+                 "length": 25
+             }
+         },
+         {
+             "name": "bit",
+             "componentType": "Tool",
+             "dimensions": {
+                 "width": 10,
+                 "height": 25,
+                 "length": 10
+             }
          }
     ],
-    "connections": [ ],
-    "references": { }
+    "connections": [
+        {
+            "baseBlockName": "bed rails",
+            "baseBlockFace": "-y",
+            "baseBlockEnd": "-z",
+            "addBlockName": "carriage rail",
+            "addBlockFace": "+y",
+            "addBlockEnd": "0"
+        },
+        {
+            "baseBlockName": "carriage rail",
+            "baseBlockFace": "-z",
+            "baseBlockEnd": "0",
+            "addBlockName": "plunge rail",
+            "addBlockFace": "+z",
+            "addBlockEnd": "+y"
+        }
+    ]
 }
 
