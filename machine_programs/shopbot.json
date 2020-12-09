@@ -1,0 +1,29 @@
+{
+  "name": "shopbot-PRSalpha-96-60",
+  "machineType": "mill",
+  "vendorInfo" : {
+      "price": 31740,
+      "website": "https://www.shopbottools.com/products/alpha",
+      "numUsers" : 2000
+  },
+  "buildEnvironment": {
+    "width": 2310,
+    "length": 3050
+  },
+  "workEnvelope": {
+      "shape": "box",
+      "width": 1550,
+      "height": 200,
+      "length": 2670,
+      "position": {
+          "x": 0,
+          "y": 125,
+          "z": 0
+      }
+  },
+  "motors": [ ],
+  "blocks": [ ],
+  "connections": [ ],
+  "references": { }
+}
+
