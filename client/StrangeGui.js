@@ -19,6 +19,15 @@ class StrangeGui {
         this.modelContainerDom = document.getElementById('model-container');
         this.jobLogDom = document.getElementById('job-log');
         this.modelCheckDom = document.getElementById('model-check-container');
+        this.filterDom = document.getElementById('filter-container');
+        this.filterDom.addEventListener('input', (event) => {
+            try {
+                let filterObj = JSON.parse(this.filterDom.innerText);
+                this.fetchAndRenderMachineNames();
+            }
+            catch (e) {
+            }
+        });
         this.renderModelPane = this.__inflateModelContainerDom();
         this.makeLoadStlPromise('./pikachu.stl');
         this.renderModelPane();
