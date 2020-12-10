@@ -1711,7 +1711,9 @@ class Kinematics {
         // TODO: do for 2-axis machines
         let worldPosition = new THREE.Vector3();
         let tool = this.machine.getTool();
-        worldPosition.copy(tool.position);
+        let halfToolHeightVect = new THREE.Vector3(0, -tool.height / 2, 0);
+        let bottomOfToolPoint = tool.position.clone().add(halfToolHeightVect);
+        worldPosition.copy(bottomOfToolPoint);
         let maybePlatform = this.machine.getPlatform();
         if (maybePlatform !== undefined) {
             // TODO: make a Platform method that has user set motionAxis
