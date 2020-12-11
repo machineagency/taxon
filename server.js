@@ -36,14 +36,17 @@ mongoClient.connect(url, { useUnifiedTopology: true })
 let attachRoutesWithDBAndStart = (db) => {
 
     app.get('/machines', (req, res) => {
-        let dbFilterWorkEnvelope, dbFilterDriveMechanism;
+        let dbFilters, dbFilterWorkEnvelope, dbFilterDriveMechanism;
         if (req.query.filter === 'true') {
             const mWidth = parseInt((req.query.width || 0), 10);
             const mHeight = parseInt((req.query.height || 0), 10);
             const mLength = parseInt((req.query.length || 0), 10);
-            const includeLeadscrew = req.query.includeLeadscrew || true;
-            const includeTimingBelt = req.query.includeTimingBelt || true;
-            const includeRackAndPinion = req.query.includeRackAndPinion || true;
+            const includeLeadscrew = req.query.leadscrew === 'true';
+            const includeTimingBelt = req.query.timingBelt === 'true';
+            const includeRackAndPinion = req.query.rackAndPinion === 'true';
+            // MACHINE TYPE
+            // TODO: do machine type query, also make this entire thing another fn
+            // WORK ENVELOPE
             dbFilterWorkEnvelope = {
                 $and : [
                     { 'workEnvelope.width' : { $gte : mWidth } },
@@ -51,16 +54,35 @@ let attachRoutesWithDBAndStart = (db) => {
                     { 'workEnvelope.length' : { $gte : mLength } }
                 ]
             };
-            dbFilterDriveMechanism = {
+            // DRIVE MECHANISMS
+            let queryLeadscrew = {
                 'blocks' : { $elemMatch :
                     { 'attributes.driveMechanism' : 'leadscrew' }
                 }
             };
+            let queryTimingBelt = {
+                'blocks' : { $elemMatch :
+                    { 'attributes.driveMechanism' : 'timingBelt' }
+                }
+            };
+            let queryRackAndPinion = {
+                'blocks' : { $elemMatch :
+                    { 'attributes.driveMechanism' : 'rackAndPinion' }
+                }
+            };
+            let driveQueries = [];
+            if (includeLeadscrew) driveQueries.push(queryLeadscrew);
+            if (includeTimingBelt) driveQueries.push(queryTimingBelt);
+            if (includeRackAndPinion) driveQueries.push(queryRackAndPinion);
+            dbFilterDriveMechanism = { $and : driveQueries };
+            dbFilters = { $and : [
+                dbFilterWorkEnvelope, dbFilterDriveMechanism
+            ] };
         }
         else {
-            dbFilterWorkEnvelope = {};
+            dbFilters = {};
         }
-        db.collection('machines').find(dbFilterDriveMechanism)
+        db.collection('machines').find(dbFilters)
         .sort({ name: 1 })
         .toArray()
         .then((results) => {
