@@ -414,17 +414,26 @@ class Machine {
         }
     }
 
-    recolorAndMoveMachineForPreviewing() {
-        let previewMaterial = new THREE.MeshLambertMaterial({
-            color: 0x2ecc71,
+    recolorAndMoveMachineForPreviewing(recolorName) {
+        const color = recolorName === 'green' ? 0x2ecc71 : 0xe44242;
+        let previewMaterialWorkEnvelope = new THREE.MeshLambertMaterial({
+            color: color,
             transparent: true,
             opacity: 0.75
         });
+        let previewMaterialWire = new THREE.LineBasicMaterial({
+            color: color
+        });
         this.rootMeshGroup.traverse((child) => {
-            let shouldRecolor = (child instanceof THREE.Mesh)
-                && !child.isBuildEnvironmentMesh;
-            if (shouldRecolor) {
-                child.material = previewMaterial;
+            if (child.isWorkEnvelopeMesh) {
+                child.material = previewMaterialWorkEnvelope;
+            }
+            else if (child instanceof THREE.LineSegments) {
+                child.material = previewMaterialWire;
+            }
+            else if (child instanceof THREE.Mesh
+                        || child instanceof THREE.ArrowHelper) {
+                child.visible = false;
             }
         });
     }
@@ -1243,6 +1252,7 @@ class WorkEnvelope extends StrangeComponent {
             opacity : 0.25
         });
         this.mesh = new THREE.Mesh(geom, material);
+        this.mesh.isWorkEnvelopeMesh = true;
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.mesh);
         this.geometries = [geom];
@@ -2380,7 +2390,7 @@ class Compiler {
         }
         let machine = new Machine('', strangeScene, true);
         this.decompileIntoMachineObjFromProg(machine, machineProg);
-        machine.recolorAndMoveMachineForPreviewing();
+        machine.recolorAndMoveMachineForPreviewing('green');
         return machine;
     }
 
