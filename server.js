@@ -36,7 +36,7 @@ mongoClient.connect(url, { useUnifiedTopology: true })
 let attachRoutesWithDBAndStart = (db) => {
 
     app.get('/machines', (req, res) => {
-        let dbFilterWorkEnvelope;
+        let dbFilterWorkEnvelope, dbFilterDriveMechanism;
         if (req.query.filter === 'true') {
             const mWidth = parseInt((req.query.width || 0), 10);
             const mHeight = parseInt((req.query.height || 0), 10);
@@ -52,13 +52,15 @@ let attachRoutesWithDBAndStart = (db) => {
                 ]
             };
             dbFilterDriveMechanism = {
-                // OTL
+                'blocks' : { $elemMatch :
+                    { 'attributes.driveMechanism' : 'leadscrew' }
+                }
             };
         }
         else {
             dbFilterWorkEnvelope = {};
         }
-        db.collection('machines').find(dbFilterWorkEnvelope)
+        db.collection('machines').find(dbFilterDriveMechanism)
         .sort({ name: 1 })
         .toArray()
         .then((results) => {
