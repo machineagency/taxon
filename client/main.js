@@ -503,6 +503,14 @@ class Machine {
         return this.blocks.find((b) => b.componentType === 'Platform');
     }
 
+    hide() {
+        this.rootMeshGroup.visible = false;
+    }
+
+    show() {
+        this.rootMeshGroup.visible = true;
+    }
+
     clearMachineFromScene() {
         if (this.buildEnvironment !== undefined) {
             this.buildEnvironment.removeMeshGroupFromScene();

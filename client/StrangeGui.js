@@ -321,34 +321,43 @@ class StrangeGui {
             return;
         }
 
+        // Gather DOM elements for click logic
+        let highlightPreviewClassName = 'preview-machine-highlight';
+        let highlightClassName = 'current-machine-highlight';
+        let oldHighlightedPreviewListItemDom = document
+            .getElementsByClassName(highlightPreviewClassName)[0];
+        let gcDom = document.getElementById('gc-container-1');
+        let oldHighlightedListItemDom = document
+            .getElementsByClassName(highlightClassName)[0];
+
         // CASE: shift click to load or clear machine preview
         if (event.shiftKey) {
-            let highlightPreviewClassName = 'preview-machine-highlight';
-            let oldHighlightedListItemDom = document
-                .getElementsByClassName(highlightPreviewClassName)[0];
-            // CASE: click on existing preview removes it
-            if (oldHighlightedListItemDom === listItemDom) {
-                oldHighlightedListItemDom.classList
+            // CASE: click on existing preview removes it. This means we need
+            // to re-render the current machine in original colors
+            if (oldHighlightedPreviewListItemDom === listItemDom) {
+                oldHighlightedPreviewListItemDom.classList
                     .remove(highlightPreviewClassName);
                 window.strangeScene.previewMachine.clearMachineFromScene();
+                window.strangeScene.machine.clearMachineFromScene();
+                this.__inflateSceneFromGCText(true);
             }
             // CASE: click on new machine as preview (including curr machine)
+            // Load the preview machine in green and destructively recolor
+            // the current machine in red
             else {
                 listItemDom.classList.add(highlightPreviewClassName);
-                if (oldHighlightedListItemDom !== undefined) {
-                    oldHighlightedListItemDom.classList
+                if (oldHighlightedPreviewListItemDom !== undefined) {
+                    oldHighlightedPreviewListItemDom.classList
                         .remove(highlightPreviewClassName);
                 }
-                this.__inflateAsPreview(newText);
+                this.__inflateAsPreview(newText, 'green');
+                window.strangeScene.machine
+                      .recolorAndMoveMachineForPreviewing('red');
             }
         }
-        // CASE: bare click swaps current machine
+        // CASE: bare click swaps current machine and removes preview
         else {
-            let highlightClassName = 'current-machine-highlight';
-            let gcDom = document.getElementById('gc-container-1');
             gcDom.innerText = newText;
-            let oldHighlightedListItemDom = document
-                .getElementsByClassName(highlightClassName)[0];
             if (oldHighlightedListItemDom !== undefined) {
                 oldHighlightedListItemDom.classList.remove(highlightClassName);
             }
@@ -357,6 +366,12 @@ class StrangeGui {
             gcDom.classList.remove('red-border');
             this.__inflateSceneFromGCText(true);
             this.strangeScene.positionModelOnWorkEnvelope();
+
+            if (window.strangeScene.previewMachine !== undefined) {
+                oldHighlightedPreviewListItemDom.classList
+                    .remove(highlightPreviewClassName);
+                window.strangeScene.previewMachine.clearMachineFromScene();
+            }
         }
     }
 
