@@ -536,20 +536,6 @@ class Machine {
         }
     }
 
-    setPairABMotors(motorA, motorB) {
-        if (motorA.kinematics === 'directDrive'
-            || motorB.kinematics === 'directDrive') {
-            console.warn('Cannot set direct drive motors as pairs.');
-        }
-        else {
-            motorA.pairMotorType = 'a';
-            motorA.pairMotor = motorB;
-            motorB.pairMotorType = 'b';
-            motorB.pairMotor = motorA;
-        }
-        this.pairedMotors.push([motorA, motorB]);
-    }
-
     /**
      * Connects two components such that the center point on a face of some
      * addBlock becomes fixed to the center of the face of baseBlock.
