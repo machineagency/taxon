@@ -41,12 +41,18 @@ let attachRoutesWithDBAndStart = (db) => {
             const mWidth = parseInt((req.query.width || 0), 10);
             const mHeight = parseInt((req.query.height || 0), 10);
             const mLength = parseInt((req.query.length || 0), 10);
+            const includeLeadscrew = req.query.includeLeadscrew || true;
+            const includeTimingBelt = req.query.includeTimingBelt || true;
+            const includeRackAndPinion = req.query.includeRackAndPinion || true;
             dbFilterWorkEnvelope = {
                 $and : [
                     { 'workEnvelope.width' : { $gte : mWidth } },
                     { 'workEnvelope.height' : { $gte : mHeight } },
                     { 'workEnvelope.length' : { $gte : mLength } }
                 ]
+            };
+            dbFilterDriveMechanism = {
+                // OTL
             };
         }
         else {
