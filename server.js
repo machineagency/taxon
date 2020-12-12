@@ -44,6 +44,7 @@ let attachRoutesWithDBAndStart = (db) => {
             const includeLeadscrew = req.query.leadscrew === 'true';
             const includeTimingBelt = req.query.timingBelt === 'true';
             const includeRackAndPinion = req.query.rackAndPinion === 'true';
+            const includeXYPlatform = req.query.includeXYPlatform === 'true';
             // MACHINE TYPE
             // TODO: do machine type query, also make this entire thing another fn
             // WORK ENVELOPE
@@ -75,8 +76,18 @@ let attachRoutesWithDBAndStart = (db) => {
             if (includeTimingBelt) driveQueries.push(queryTimingBelt);
             if (includeRackAndPinion) driveQueries.push(queryRackAndPinion);
             dbFilterDriveMechanism = { $and : driveQueries };
+            // XY PLATFORM
+            let dbIncludeXYPlatform = {
+                'blocks' : { $elemMatch :
+                    { 'componentType' : 'Platform' }
+                }
+            };
+            // STRUCTURAL LOOP
+            // TODO: SL above, also should we make everything exclude instead?
             dbFilters = { $and : [
-                dbFilterWorkEnvelope, dbFilterDriveMechanism
+                dbFilterWorkEnvelope,
+                dbFilterDriveMechanism,
+                dbIncludeXYPlatform
             ] };
         }
         else {
