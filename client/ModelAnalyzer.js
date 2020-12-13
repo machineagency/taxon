@@ -18,8 +18,6 @@ class ModelAnalyzer {
         this.drawingContainerDom = document.getElementById('drawing-container');
         this.modelScene = this.__makeModelScene();
         this.drawingScene = this.__makeDrawingScene();
-        this.makeLoadStlPromise('./pikachu.stl', this.modelScene);
-        this.makeLoadStlPromise('./pikachu.stl', this.drawingScene);
     }
 
     makeLoadStlPromise = (filepath, scene) => {
@@ -32,7 +30,6 @@ class ModelAnalyzer {
                     wireframe: true
                 });
                 stlMesh = new THREE.Mesh(stlGeom, material);
-                stlMesh.scale.set(10, 10, 10);
                 stlMesh.isLoadedStl = true;
                 scene.add(stlMesh);
                 scene.render();
@@ -44,6 +41,37 @@ class ModelAnalyzer {
         return loadPromise;
     };
 
+    loadModelView = (meshFilepath) => {
+        this.makeLoadStlPromise(meshFilepath, this.modelScene);
+    };
+
+    loadDrawingViews = (meshFilepath) => {
+        const axisX = new THREE.Vector3(1, 0, 0);
+        const axisY = new THREE.Vector3(0, 1, 0);
+        const axisZ = new THREE.Vector3(0, 0, 1);
+        this.makeLoadStlPromise(meshFilepath, this.drawingScene)
+        .then((mesh) => {
+            mesh.translateY(50);
+            mesh.translateZ(-50);
+            this.drawingScene.render();
+        });
+        this.makeLoadStlPromise(meshFilepath, this.drawingScene)
+        .then((mesh) => {
+            mesh.translateY(50);
+            mesh.translateZ(50);
+            mesh.rotateOnAxis(axisY, Math.PI / 2);
+            this.drawingScene.render();
+        });
+        this.makeLoadStlPromise(meshFilepath, this.drawingScene)
+        .then((mesh) => {
+            mesh.translateY(-50);
+            mesh.translateZ(-50);
+            mesh.rotateOnAxis(axisY, Math.PI / 2);
+            mesh.rotateOnAxis(axisX, -Math.PI / 2);
+            this.drawingScene.render();
+        });
+    };
+
     __makeModelScene() {
         let domElement = this.modelContainerDom;
         let scene = new THREE.Scene();
@@ -51,7 +79,7 @@ class ModelAnalyzer {
         let viewSize = 50;
         let camera = new THREE.OrthographicCamera(-viewSize * aspect, viewSize * aspect,
             viewSize, -viewSize, -1000, 10000);
-        camera.zoom = 0.1;
+        camera.zoom = 1.0;
         camera.updateProjectionMatrix();
         camera.frustumCulled = false;
         camera.position.set(500, 500, 500); // I don't know why this works
@@ -93,11 +121,11 @@ class ModelAnalyzer {
         let viewSize = 50;
         let camera = new THREE.OrthographicCamera(-viewSize * aspect, viewSize * aspect,
             viewSize, -viewSize, -1000, 10000);
-        camera.zoom = 0.1;
+        camera.zoom = 0.5;
         camera.updateProjectionMatrix();
         camera.frustumCulled = false;
-        camera.position.set(500, 500, 500); // I don't know why this works
         camera.lookAt(scene.position);
+        camera.position.set(10, 0, 0); // I don't know why this works
         scene.add(camera);
         scene.background = new THREE.Color(0x000000);
         let gridHelper = new THREE.GridHelper(2000, 50, 0xe5e6e8, 0x444444);
@@ -130,16 +158,21 @@ class ModelAnalyzer {
 }
 
 const main = () => {
+    const pikachu = './pikachu.stl';
     const ma = new ModelAnalyzer();
-    console.log(ma);
+    window.ma = ma;
     let animate = () => {
         let maxFramerate = 20;
         setTimeout(() => {
             requestAnimationFrame(animate);
         }, 1000 / maxFramerate);
         ma.modelScene.render();
+        // FIXME: only animate drawing for debugging purposes
+        // remove this call when done
+        ma.drawingScene.render();
     };
-    ma.drawingScene.render();
+    ma.loadModelView(pikachu);
+    ma.loadDrawingViews(pikachu);
     animate();
 };
 
