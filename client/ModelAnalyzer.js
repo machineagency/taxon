@@ -16,12 +16,13 @@ class ModelAnalyzer {
     constructor() {
         this.modelContainerDom = document.getElementById('model-container');
         this.drawingContainerDom = document.getElementById('drawing-container');
-        this.renderModelScene = this.__makeModelSceneRenderer();
-        this.renderDrawingScene = this.__makeDrawingSceneRenderer();
-        this.makeLoadStlPromise('./pikachu.stl');
+        this.modelScene = this.__makeModelScene();
+        this.drawingScene = this.__makeDrawingScene();
+        this.makeLoadStlPromise('./pikachu.stl', this.modelScene);
+        this.makeLoadStlPromise('./pikachu.stl', this.drawingScene);
     }
 
-    makeLoadStlPromise = (filepath) => {
+    makeLoadStlPromise = (filepath, scene) => {
         let loadPromise = new Promise(resolve => {
             let loader = new STLLoader();
             let stlMesh;
@@ -33,7 +34,8 @@ class ModelAnalyzer {
                 stlMesh = new THREE.Mesh(stlGeom, material);
                 stlMesh.scale.set(10, 10, 10);
                 stlMesh.isLoadedStl = true;
-                this.modelScene.add(stlMesh);
+                scene.add(stlMesh);
+                scene.render();
                 resolve(stlMesh);
             }, undefined, (errorMsg) => {
                 console.log(errorMsg);
@@ -42,7 +44,7 @@ class ModelAnalyzer {
         return loadPromise;
     };
 
-    __makeModelSceneRenderer() {
+    __makeModelScene() {
         let domElement = this.modelContainerDom;
         let scene = new THREE.Scene();
         let aspect = domElement.offsetWidth / domElement.offsetHeight;
@@ -80,11 +82,50 @@ class ModelAnalyzer {
             controls.update();
             mcRenderer.render(scene, camera);
         };
-        return renderModelScene;
+        scene.render = renderModelScene;
+        return scene;
     }
 
-    __makeDrawingSceneRenderer() {
-        // TODO
+    __makeDrawingScene() {
+        let domElement = this.drawingContainerDom;
+        let scene = new THREE.Scene();
+        let aspect = domElement.offsetWidth / domElement.offsetHeight;
+        let viewSize = 50;
+        let camera = new THREE.OrthographicCamera(-viewSize * aspect, viewSize * aspect,
+            viewSize, -viewSize, -1000, 10000);
+        camera.zoom = 0.1;
+        camera.updateProjectionMatrix();
+        camera.frustumCulled = false;
+        camera.position.set(500, 500, 500); // I don't know why this works
+        camera.lookAt(scene.position);
+        scene.add(camera);
+        scene.background = new THREE.Color(0x000000);
+        let gridHelper = new THREE.GridHelper(2000, 50, 0xe5e6e8, 0x444444);
+        scene.add(gridHelper);
+        let controls = new OrbitControls(camera, domElement);
+        controls.rotateSpeed = 1.0;
+        controls.zoomSpeed = 0.8;
+        controls.panSpeed = 0.8;
+        controls.keys = [65, 83, 68];
+        scene.orbitControls = controls;
+
+        let dRenderer = new THREE.WebGLRenderer({ antialias: true });
+        const {left, right, top, bottom, width, height} =
+            this.drawingContainerDom.getBoundingClientRect();
+        dRenderer.setPixelRatio(window.devicePixelRatio);
+        dRenderer.setSize(width - 2, height - 2);
+        domElement.appendChild(dRenderer.domElement);
+
+        this.drawingScene = scene;
+        this.drawingCamera = camera;
+        this.drawingControls = controls;
+
+        let renderDrawingScene = () => {
+            controls.update();
+            dRenderer.render(scene, camera);
+        };
+        scene.render = renderDrawingScene;
+        return scene;
     }
 }
 
@@ -96,8 +137,9 @@ const main = () => {
         setTimeout(() => {
             requestAnimationFrame(animate);
         }, 1000 / maxFramerate);
-        ma.renderModelScene();
+        ma.modelScene.render();
     };
+    ma.drawingScene.render();
     animate();
 };
 
