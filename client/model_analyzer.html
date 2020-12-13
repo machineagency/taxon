@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Strange Machine</title>
+<meta charset="utf-8">
+<link rel="icon"
+      type="image/png"
+      href="img/favicon.png">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="container"></div>
+
+<div id="job-pad">
+    <div id="model-container">
+    </div>
+    <pre id="model-check-container" class="code-field" contenteditable="false">
+    </pre>
+    <pre id="cam-container" class="code-field" contenteditable="false">
+{
+    "quality" {
+        "layerHeight" : 2
+    },
+    "shell" {
+        "wallThickness" : 1,
+        "topBottomThickness" : 6
+    },
+    "infill" : {
+        "pattern" : "triangles",
+        "density" : 20
+    },
+    "material" : {
+        "printingTemperature" : 205,
+        "buildPlateTemperature" : 60,
+        "enableRetraction" : true
+    },
+    "speed" : {
+        "printSpeed" : 70
+    },
+    "support" : {
+        "generateSupport" : true,
+        "supportOverhangAngle" : 60
+    }
+}
+    </pre>
+    <pre id="filter-container" class="code-field" contenteditable="true">
+{
+  "checkModelFits" : true,
+  "checkMaterialMatches" : false
+}
+    </pre>
+</div>
+
+<script type="module" src="ModelAnalyzer.js"></script>
+
+</body>
+</html>
+
