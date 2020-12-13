@@ -45,9 +45,17 @@ input[type="file"] {
 }
 
 #model-container {
-    height: 200px;
-    width: 250px;
+    height: 500px;
+    width: 500px;
     border: 1px solid white;
+    display: inline-block;
+}
+
+#drawing-container {
+    height: 500px;
+    width: 500px;
+    border: 1px solid white;
+    display: inline-block;
 }
 
 #cam-container {
@@ -101,14 +109,15 @@ input[type="file"] {
 #job-pad {
     z-index: 1000;
     position: absolute;
-    right: 20px;
+    left: 20px;
     top: 20px;
     padding: 20px 20px 10px 20px;
     font-family: Monospace;
     font-size: 10px;
     color: #ffffff;
-    width: 250px;
+    width: 1020px;
     background-color: black;
+    border: 1px solid #ffffff;
 }
 
 .code-field {
