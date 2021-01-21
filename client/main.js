@@ -2532,6 +2532,29 @@ class Compiler {
 
         return machine;
     }
+
+    generateRulesOfThumbFromMachine(machine) {
+        let testRot = {
+            xStats: {
+                speed: "medium",
+                rigidity: "medium",
+                resolution: 0.25
+            },
+            yStats: {
+                speed: "medium",
+                rigidity: "medium",
+                resolution: 0.25
+            },
+            zStats: {
+                speed: "medium",
+                rigidity: "medium",
+                resolution: 0.25
+            },
+            structuralLoopLength: 50,
+            goodForMilling: false
+        };
+        return JSON.stringify(testRot, undefined, 2);
+    }
 }
 
 function main() {
