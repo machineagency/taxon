@@ -51,15 +51,6 @@
     ],
     "blocks": [
         {
-            "name": "Sharpie",
-            "componentType": "Tool",
-            "dimensions": {
-                "width": 10,
-                "height": 50,
-                "length": 10
-            }
-        },
-        {
             "name": "Servo",
             "componentType": "ToolAssembly",
             "dimensions": {
@@ -89,6 +80,20 @@
                 "x": 50,
                 "y": 37.6,
                 "z": 0
+            }
+        }
+    ],
+    "tools": [
+        {
+            "name": "Sharpie",
+            "componentType": "Tool",
+            "dimensions": {
+                "width": 10,
+                "height": 50,
+                "length": 10
+            },
+            "toolType": "pen",
+            "attributes": {
             }
         }
     ],

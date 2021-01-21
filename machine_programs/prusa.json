@@ -162,7 +162,9 @@
                 "height": 25,
                 "length": 25
             }
-        },
+        }
+    ],
+    "tools": [
         {
             "name": "extruder",
             "componentType": "Tool",
@@ -170,6 +172,10 @@
                 "width": 10,
                 "height": 25,
                 "length": 10
+            },
+            "toolType": "printFdm",
+            "attributes": {
+                "nozzleCount": 1
             }
         }
     ],

@@ -134,23 +134,35 @@
                  "driveMechanism": "rackAndPinion",
                  "stepDisplacementRatio": 0.5
              }
-         },
+         }
+    ],
+    "tools": [
          {
              "name": "spindle",
-             "componentType": "ToolAssembly",
+             "componentType": "Tool",
              "dimensions": {
                  "width": 200,
                  "height": 300,
                  "length": 100
-             }
-         },
-         {
-             "name": "bit",
-             "componentType": "Tool",
-             "dimensions": {
-                 "width": 25,
-                 "height": 100,
-                 "length": 25
+             },
+             "toolType": "mill",
+             "attributes": {
+                 "cuttingTools": [
+                     {
+                         "cuttingToolType": "endMill",
+                         "diameter": 4.0,
+                         "fluteCount": 2
+                     },
+                     {
+                         "cuttingToolType": "endMill",
+                         "diameter": 8.0,
+                         "fluteCount": 2
+                     },
+                     {
+                         "cuttingToolType": "drillBit",
+                         "diameter": 4.0
+                     }
+                 ]
              }
          }
     ],
@@ -177,14 +189,6 @@
             "baseBlockEnd": "+y",
             "addBlockName": "spindle",
             "addBlockFace": "+z",
-            "addBlockEnd": "0"
-        },
-        {
-            "baseBlockName": "spindle",
-            "baseBlockFace": "+y",
-            "baseBlockEnd": "0",
-            "addBlockName": "bit",
-            "addBlockFace": "-y",
             "addBlockEnd": "0"
         },
         {
