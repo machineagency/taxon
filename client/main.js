@@ -396,6 +396,7 @@ class Machine {
         this.buildEnvironment = undefined;
         this.workEnvelope = undefined;
         this.blocks = [];
+        this.tools = [];
         this.motors = [];
         this.connections = [];
         // Eagerly store paired motors, whereas parallel motors are
@@ -482,13 +483,18 @@ class Machine {
         this.blocks.push(component);
     }
 
+    addTool(tool) {
+        this.tools.push(tool);
+    }
+
     addMotor(motor) {
         this.motors.push(motor);
     }
 
     findBlockWithName(name) {
-        let motorsAndOtherBlocks = this.motors.concat(this.blocks);
-        let block = motorsAndOtherBlocks.find(block => block.name === name);
+        let motorsBlocksTools = this.motors.concat(this.blocks)
+                                    .concat(this.tools);
+        let block = motorsBlocksTools.find(block => block.name === name);
         if (block === undefined) {
             console.trace(`Couldn't find block named: ${name}.`);
         }
@@ -496,7 +502,8 @@ class Machine {
     }
 
     getTool() {
-        return this.blocks.find((b) => b.componentType === 'Tool');
+        // TODO: toolswitching
+        return this.tools[0];
     }
 
     getPlatform() {
@@ -520,13 +527,14 @@ class Machine {
             this.workEnvelope.removeMeshGroupFromScene();
             this.workEnvelope = undefined;
         }
-        this.blocks.forEach((block, index) => {
+        let blocksMotorsTools = this.blocks
+                                    .concat(this.motors)
+                                    .concat(this.tools);
+        blocksMotorsTools.forEach((block, index) => {
             block.removeMeshGroupFromScene();
         });
-        this.motors.forEach((motor, index) => {
-            motor.removeMeshGroupFromScene();
-        });
         this.blocks = [];
+        this.tools = [];
         this.motors = [];
         if (this.isPreview) {
             this.parentScene.previewMachine = undefined;
@@ -1277,7 +1285,7 @@ class Tool extends Block {
             // the mesh instantiation in the geometry factory.
             radius : dimensions.width / 2
         };
-        parentMachine.addBlock(this);
+        parentMachine.addTool(this);
         this.renderDimensions();
     }
 
@@ -1306,6 +1314,10 @@ class Tool extends Block {
         this.geometries = [geom, edgesGeom];
         this.setPositionToDefault();
         this.addMeshGroupToScene();
+    }
+
+    renderFromToolType(toolType) {
+        // TODO: remove cylinder above and load from stl
     }
 
     setPositionToDefault() {
@@ -1755,9 +1767,7 @@ class Kinematics {
 
 
     __buildTreeForMachine(machine) {
-        let toolBlock = machine.blocks.find((block) => {
-            return block.componentType === 'Tool'
-        });
+        let toolBlock = machine.getTool();
         if (toolBlock === undefined) {
             console.error(`Can't find tool for machine ${machine.name}`);
             return;
@@ -2354,6 +2364,16 @@ class Compiler {
             }
             return progMotor;
         });
+        let progTools = matchin.tools.map((tool) => {
+            let progTool = {
+                name: tool.name,
+                componentType: tool.componentType,
+                dimensions: tool.dimensions,
+                toolType: tool.toolType,
+                attributes: tool.attributes
+            };
+            return progTool;
+        });
         let progConnections = machine.connections.map((connection) => {
             return {
                 baseBlockName: connection.baseBlock.name,
@@ -2372,6 +2392,7 @@ class Compiler {
         progObj['workEnvelope'] = progWorkEnvelope;
         progObj['motors'] = progMotors;
         progObj['blocks'] = progBlocks;
+        progObj['tools'] = progTools;
         progObj['connections'] = progConnections;
 
         let indentSpaces = 2;
@@ -2468,6 +2489,17 @@ class Compiler {
                 block.setAttributes(blockData.attributes);
                 block.setKinematics(blockData.kinematics);
                 block.renderArrows();
+            }
+        });
+        progObj.tools.forEach((toolData) => {
+            let tool = new Tool(toolData.name, machine, toolData.dimensions);
+            tool.attributes = toolData.attributes;
+            tool.renderFromToolType(toolData.toolType);
+            if (toolData.position !== undefined) {
+                let position = new THREE.Vector3(toolData.position.x,
+                                            toolData.position.y,
+                                            toolData.position.z);
+                tool.position = position;
             }
         });
         progObj.connections.forEach((connectionData) => {
