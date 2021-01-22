@@ -2294,37 +2294,6 @@ class JobFile {
 
 class Compiler {
 
-    static speedScores = {
-        'leadscrew': -1,
-        'timingBelt': 1,
-        'rackAndPinion': 0
-    };
-    static rigidityScores = {
-        'leadscrew': 1,
-        'timingBelt': -1,
-        'rackAndPinion': 0
-    };
-    static toolTypeToManufacturingStrategy = {
-        'print3dFDM': 'additive',
-        'print3dSLA': 'additive',
-        'mill': 'subtractive',
-        'blade': 'subtractive',
-        'pen' : 'drawing',
-        'gripper': 'formative',
-        'camera': 'nonManufacturing',
-        'blankTool': 'nonManufacturing'
-    }
-    static toolTypeToMaterials = {
-        'print3dFDM': ['plastic'],
-        'print3dSLA': ['plastic'],
-        'mill': ['wood', 'metal'],
-        'blade': ['paper'],
-        'pen' : ['paper'],
-        'gripper': ['plastic', 'wood', 'metal'],
-        'camera': [],
-        'blankTool': []
-    }
-
     constructor() {
     }
 
@@ -2563,56 +2532,6 @@ class Compiler {
         });
 
         return machine;
-    }
-
-    generateRulesOfThumbFromKinematics(kinematics) {
-        let manufacturingStrategy = kinematics.machine.tools.map((t) => {
-            return Compiler.toolTypeToManufacturingStrategy[t.toolType];
-        });
-        let acceptableMaterials = kinematics.machine.tools.map((t) => {
-            return Compiler.toolTypeToMaterials[t.toolType];
-        }).flat();
-        let axisToBlocks = kinematics.determineMachineAxes();
-        let axisToSpeedScores = {},
-            axisToRigidityScores = {},
-            axisToResolutions = {};
-        Object.entries(axisToBlocks).forEach((entry) => {
-            let axis = entry[0];
-            let blocks = entry[1];
-            let axisMechanisms = blocks.map(b => b.attributes.driveMechanism);
-            let speedScores = axisMechanisms.map(m => Compiler.speedScores[m]);
-            let rigidityScores = axisMechanisms.map(m => Compiler.rigidityScores[m]);
-            let axisRatios = blocks.map(b => b.attributes.stepDisplacementRatio);
-            let axisSpeedScore = speedScores.reduce((a, c) => a + c);
-            let axisRigidityScore = rigidityScores.reduce((a, c) => a + c);
-            let axisResolution = Math.max(...axisRatios);
-            axisToSpeedScores[axis] = axisSpeedScore;
-            axisToRigidityScores[axis] = axisRigidityScore;
-            axisToResolutions[axis] = axisResolution;
-        })
-        let rot = {
-            manufacturingStrategy: manufacturingStrategy,
-            acceptableMaterials: acceptableMaterials,
-            workEnvelopeDimensions: kinematics.machine.workEnvelope.dimensions,
-            xStats: {
-                speed: axisToSpeedScores.x,
-                rigidity: axisToRigidityScores.x,
-                resolution: axisToResolutions.x
-            },
-            yStats: {
-                speed: axisToSpeedScores.y,
-                rigidity: axisToRigidityScores.y,
-                resolution: axisToResolutions.y,
-            },
-            zStats: {
-                speed: axisToSpeedScores.z,
-                rigidity: axisToRigidityScores.z,
-                resolution: axisToResolutions.z
-            },
-            structuralLoopLength: 9000,
-            goodForMilling: false,
-        };
-        return JSON.stringify(rot, undefined, 2);
     }
 }
 

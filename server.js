@@ -182,6 +182,41 @@ let attachRoutesWithDBAndStart = (db) => {
         });
     });
 
+    app.get('/rots', (req, res) => {
+        db.collection('rots').find()
+        .sort({ name: 1 })
+        .toArray()
+        .then((results) => {
+            res.status(200).json({
+                rots: results
+            });
+        })
+        .catch((error) => {
+            res.status(500).json({
+                message: error
+            })
+        });
+    });
+
+    app.get('/rot', (req, res) => {
+        const machineId = ObjectID(req.query.id);
+        db.collection('rots').find({
+            'machineDbId': machineId
+        })
+        .toArray()
+        .then((results) => {
+            let statusCode = results.length === 0 ? 404 : 200;
+            res.status(statusCode).json({
+                rot: results
+            });
+        })
+        .catch((error) => {
+            res.status(500).json({
+                message: error
+            })
+        });
+    });
+
     app.listen(port, () => {
         console.log("Running on port: " + port);
         exports = module.exports = app;
@@ -286,7 +321,7 @@ let calculateRotFromMachine = (machine) => {
         structuralLoopLength: 9000,
         goodForMilling: false,
     };
-    return JSON.stringify(rot, undefined, 2);
+    return rot;
 };
 
 let seedDatabase = (db) => {
@@ -305,13 +340,18 @@ let seedDatabase = (db) => {
                     if (err) {
                         throw err;
                     }
-                    console.log(`Loading ${fullFilename}.`);
+                    console.log(`Loading and computing RoT for ${fullFilename}.`);
                     let machineObj = JSON.parse(data);
-                    // TODO
-                    let rotObj = calculateRotFromMachine(machineObj);
-                    console.log(rotObj);
-                    // db.collection('rots').insertOne(rotObj);
                     db.collection('machines').insertOne(machineObj)
+                    .then((result) => {
+                        let machineDbId = result.insertedId;
+                        let rotObj = calculateRotFromMachine(machineObj);
+                        rotObj.machineDbId = machineDbId;
+                        db.collection('rots').insertOne(rotObj)
+                        .catch((error) => {
+                            throw error;
+                        });
+                    })
                     .catch((error) => {
                         throw error;
                     });
