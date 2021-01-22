@@ -303,6 +303,13 @@ class StrangeGui {
         this.__inflateSceneFromGCText(false);
     }
 
+    loadRotForSceneMachine() {
+        let rotDom = document.getElementById('rot-container');
+        let rotText = window.compiler
+                        .generateRulesOfThumbFromKinematics(window.kinematics);
+        rotDom.innerText = rotText;
+    }
+
     async loadMachineFromListItemDom(listItemDom, event) {
         // TODO: use ids not names for machine identifiers
         let machineName = listItemDom.innerText.toLowerCase();
@@ -368,6 +375,7 @@ class StrangeGui {
             gcDom.classList.remove('red-border');
             this.__inflateSceneFromGCText(true);
             this.strangeScene.positionModelOnWorkEnvelope();
+            this.loadRotForSceneMachine();
 
             if (window.strangeScene.previewMachine !== undefined) {
                 oldHighlightedPreviewListItemDom.classList

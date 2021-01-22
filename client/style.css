@@ -149,6 +149,13 @@ input[type="file"] {
     border: 1px dashed #ffffff;
 }
 
+#rot-container {
+    height: 150px;
+    padding-top: 10px;
+    padding-left: 10px;
+    border: 1px dashed #ffffff;
+}
+
 #model-check-container {
     height: 50px;
     padding-top: 10px;
