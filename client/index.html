@@ -14,6 +14,17 @@
 <div id="container"></div>
 
 <div id="job-pad">
+    <pre id="model-check-container" class="code-field" contenteditable="false">
+    </pre>
+    <div id="new-machine-button-bar" class="button-bar">
+        <input id="new-model-input" type="file" accept=".stl"
+               style="position: fixed; top: -100em"
+               onchange="window.strangeGui.uploadModel(this.files[0]);">
+        <label id="upload-model-btn" for="new-model-input">upload model</label>
+        <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('x');">rX</button>
+        <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('y');">rY</button>
+        <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('z');">rZ</button>
+    </div>
     <div id="model-container">
     </div>
     <pre id="cam-container" class="code-field" contenteditable="false">
@@ -57,6 +68,14 @@ No G-Code loaded.
 </div>
 
 <div id="program-pad" data-mode="single">
+    <!-- TODO: add back in filtering based on RoT after solving server issue
+    <pre id="filter-container" class="code-field" contenteditable="true">
+{
+  "checkModelFits" : true,
+  "checkMaterialMatches" : false
+}
+    </pre>
+    -->
     <div id="machine-list-container" class="list-container">
         <ul id="pre-machine-list" class="load-machine-list">
             <li>
@@ -70,55 +89,8 @@ No G-Code loaded.
         <ul id="load-machine-list" class="load-machine-list">
         </ul>
     </div>
-    <pre id="filter-container" class="code-field" contenteditable="true">
-{
-  "checkModelFits" : true,
-  "checkMaterialMatches" : false
-}
-    </pre>
     <pre id="gc-container-1" class="gc-container code-field" contenteditable="false">
     </pre>
-    <pre id="model-check-container" class="code-field" contenteditable="false">
-    </pre>
-    <div id="new-machine-button-bar" class="button-bar">
-        <input id="new-model-input" type="file" accept=".stl"
-               style="position: fixed; top: -100em"
-               onchange="window.strangeGui.uploadModel(this.files[0]);">
-        <label id="upload-model-btn" for="new-model-input">upload model</label>
-        <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('x');">rX</button>
-        <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('y');">rY</button>
-        <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('z');">rZ</button>
-    </div>
-</div>
-<div id="results-pad">
-    <div class="result-pane">
-        <pre id="chi-container" class="code-field">
-{
-  "lorem" : "ipsum",
-  "lorem" : "ipsum",
-  "lorem" : "ipsum",
-  "lorem" : "ipsum",
-  "lorem" : "ipsum",
-  "lorem" : "ipsum"
-}
-        </pre>
-    </div>
-    <div id="explanation-container" class="result-pane">
-        <div class="constraint-name">
-            Resolution
-        </div>
-        <div id="constraint-text">
-            Lorem ipsum dolor ea idequam bacon starfruit.
-        </div>
-        <ul id="constraint-fixes">
-            <li>
-                <p>Use a machine with x</p>
-            </li>
-            <li>
-                <p>Increase plate temperature</p>
-            </li>
-        </ul>
-    </div>
 </div>
 
 <script type="module" src="main.js"></script>
