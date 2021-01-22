@@ -9,9 +9,28 @@
   "workEnvelope": {
       "shape": "rectangle",
       "width": 0,
-      "length": 0
+      "length": 0,
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
   },
   "motors": [ ],
   "blocks": [ ],
+  "tools": [
+    {
+      "name": "blankTool",
+      "componentType": "Tool",
+      "dimensions": {
+          "width": 0,
+          "height": 0,
+          "length": 0
+      },
+      "toolType": "blankTool",
+      "attributes": {
+      }
+    }
+  ],
   "connections": [ ]
 }
