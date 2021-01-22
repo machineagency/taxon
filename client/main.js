@@ -2494,6 +2494,7 @@ class Compiler {
         progObj.tools.forEach((toolData) => {
             let tool = new Tool(toolData.name, machine, toolData.dimensions);
             tool.attributes = toolData.attributes;
+            tool.toolType = toolData.toolType;
             tool.renderFromToolType(toolData.toolType);
             if (toolData.position !== undefined) {
                 let position = new THREE.Vector3(toolData.position.x,
