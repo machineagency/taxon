@@ -302,7 +302,11 @@ let calculateRotFromMachine = (machine) => {
     let rot = {
         manufacturingStrategy: manufacturingStrategy,
         acceptableMaterials: acceptableMaterials,
-        workEnvelopeDimensions: machine.workEnvelope.dimensions,
+        workEnvelopeDimensions: {
+            width: machine.workEnvelope.width,
+            height: machine.workEnvelope.height,
+            length: machine.workEnvelope.length,
+        },
         xStats: {
             speed: axisToSpeedScores.x,
             rigidity: axisToRigidityScores.x,
