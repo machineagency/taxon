@@ -2294,6 +2294,37 @@ class JobFile {
 
 class Compiler {
 
+    static speedScores = {
+        'leadscrew': -1,
+        'timingBelt': 1,
+        'rackAndPinion': 0
+    };
+    static rigidityScores = {
+        'leadscrew': 1,
+        'timingBelt': -1,
+        'rackAndPinion': 0
+    };
+    static toolTypeToManufacturingStrategy = {
+        'print3dFDM': 'additive',
+        'print3dSLA': 'additive',
+        'mill': 'subtractive',
+        'blade': 'subtractive',
+        'pen' : 'drawing',
+        'gripper': 'formative',
+        'camera': 'nonManufacturing',
+        'blankTool': 'nonManufacturing'
+    }
+    static toolTypeToMaterials = {
+        'print3dFDM': ['plastic'],
+        'print3dSLA': ['plastic'],
+        'mill': ['wood', 'metal'],
+        'blade': ['paper'],
+        'pen' : ['paper'],
+        'gripper': ['plastic', 'wood', 'metal'],
+        'camera': [],
+        'blankTool': []
+    }
+
     constructor() {
     }
 
@@ -2535,72 +2566,30 @@ class Compiler {
     }
 
     generateRulesOfThumbFromKinematics(kinematics) {
-        const speedScores = {
-            'leadscrew': -1,
-            'timingBelt': 1,
-            'rackAndPinion': 0
-        };
-        const rigidityScores = {
-            'leadscrew': 1,
-            'timingBelt': -1,
-            'rackAndPinion': 0
-        };
-        const toolTypeToManufacturingStrategy = {
-            'print3dFDM': 'additive',
-            'print3dSLA': 'additive',
-            'mill': 'subtractive',
-            'blade': 'subtractive',
-            'pen' : 'drawing',
-            'gripper': 'formative',
-            'camera': 'nonManufacturing',
-            'blankTool': 'nonManufacturing'
-        }
-        const toolTypeToMaterials = {
-            'print3dFDM': ['plastic'],
-            'print3dSLA': ['plastic'],
-            'mill': ['wood', 'metal'],
-            'blade': ['paper'],
-            'pen' : ['paper'],
-            'gripper': ['plastic', 'wood', 'metal'],
-            'camera': [],
-            'blankTool': []
-        };
         let manufacturingStrategy = kinematics.machine.tools.map((t) => {
-            return toolTypeToManufacturingStrategy[t.toolType];
+            return Compiler.toolTypeToManufacturingStrategy[t.toolType];
         });
         let acceptableMaterials = kinematics.machine.tools.map((t) => {
-            return toolTypeToMaterials[t.toolType];
+            return Compiler.toolTypeToMaterials[t.toolType];
         }).flat();
         let axisToBlocks = kinematics.determineMachineAxes();
-        let axisToSpeedScores = Object.fromEntries(
-            Object.entries(axisToBlocks).map((entry) => {
-                let axis = entry[0];
-                let blocks = entry[1];
-                let axisMechanisms = blocks.map(b => b.attributes.driveMechanism);
-                let mechScores = axisMechanisms.map(m => speedScores[m]);
-                let axisScore = mechScores.reduce((accu, curr) => accu + curr);
-                return [axis, axisScore];
-            })
-        );
-        let axisToRigidityScores = Object.fromEntries(
-            Object.entries(axisToBlocks).map((entry) => {
-                let axis = entry[0];
-                let blocks = entry[1];
-                let axisMechanisms = blocks.map(b => b.attributes.driveMechanism);
-                let mechScores = axisMechanisms.map(m => rigidityScores[m]);
-                let axisScore = mechScores.reduce((accu, curr) => accu + curr);
-                return [axis, axisScore];
-            })
-        );
-        let axisToResolutions = Object.fromEntries(
-            Object.entries(axisToBlocks).map((entry) => {
-                let axis = entry[0];
-                let blocks = entry[1];
-                let axisRatios = blocks.map(b => b.attributes.stepDisplacementRatio);
-                let axisScore = Math.max(...axisRatios);
-                return [axis, axisScore];
-            })
-        );
+        let axisToSpeedScores = {},
+            axisToRigidityScores = {},
+            axisToResolutions = {};
+        Object.entries(axisToBlocks).forEach((entry) => {
+            let axis = entry[0];
+            let blocks = entry[1];
+            let axisMechanisms = blocks.map(b => b.attributes.driveMechanism);
+            let speedScores = axisMechanisms.map(m => Compiler.speedScores[m]);
+            let rigidityScores = axisMechanisms.map(m => Compiler.rigidityScores[m]);
+            let axisRatios = blocks.map(b => b.attributes.stepDisplacementRatio);
+            let axisSpeedScore = speedScores.reduce((a, c) => a + c);
+            let axisRigidityScore = rigidityScores.reduce((a, c) => a + c);
+            let axisResolution = Math.max(...axisRatios);
+            axisToSpeedScores[axis] = axisSpeedScore;
+            axisToRigidityScores[axis] = axisRigidityScore;
+            axisToResolutions[axis] = axisResolution;
+        })
         let rot = {
             manufacturingStrategy: manufacturingStrategy,
             acceptableMaterials: acceptableMaterials,
