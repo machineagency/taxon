@@ -2420,6 +2420,9 @@ class Compiler {
 
     decompileIntoMachineObjFromProg(machine, machineProg) {
         let progObj = JSON.parse(machineProg);
+        if (progObj._id !== undefined) {
+            machine.dbId = progObj._id;
+        }
         machine.name = progObj.name;
         machine.machineType = progObj.machineType;
         machine.price = progObj.price;

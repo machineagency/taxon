@@ -303,10 +303,25 @@ class StrangeGui {
         this.__inflateSceneFromGCText(false);
     }
 
-    loadRotForSceneMachine() {
+    async loadRotForSceneMachine() {
         let rotDom = document.getElementById('rot-container');
-        let rotText = window.compiler
-                        .generateRulesOfThumbFromKinematics(window.kinematics);
+        let machineDbId = window.strangeScene.machine.dbId;
+        console.assert(machineDbId !== undefined);
+        let url = StrangeGui.serverURL + `/rot?id=${machineDbId}`;
+        let response = await fetch(url, {
+            method: 'GET'
+        });
+        let rotText;
+        if (response.ok) {
+            let outerJson = await response.json();
+            let rotJson = outerJson.rot[0];
+            let indentSpaces = 2
+            rotText = JSON.stringify(rotJson, undefined, indentSpaces);
+        }
+        else {
+            console.error('Could not find RoT.');
+            return;
+        }
         rotDom.innerText = rotText;
     }
 
