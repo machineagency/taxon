@@ -2534,27 +2534,96 @@ class Compiler {
         return machine;
     }
 
-    generateRulesOfThumbFromMachine(machine) {
-        let testRot = {
+    generateRulesOfThumbFromKinematics(kinematics) {
+        const speedScores = {
+            'leadscrew': -1,
+            'timingBelt': 1,
+            'rackAndPinion': 0
+        };
+        const rigidityScores = {
+            'leadscrew': 1,
+            'timingBelt': -1,
+            'rackAndPinion': 0
+        };
+        const toolTypeToManufacturingStrategy = {
+            'print3dFDM': 'additive',
+            'print3dSLA': 'additive',
+            'mill': 'subtractive',
+            'blade': 'subtractive',
+            'pen' : 'drawing',
+            'gripper': 'formative',
+            'camera': 'nonManufacturing',
+            'blankTool': 'nonManufacturing'
+        }
+        const toolTypeToMaterials = {
+            'print3dFDM': ['plastic'],
+            'print3dSLA': ['plastic'],
+            'mill': ['wood', 'metal'],
+            'blade': ['paper'],
+            'pen' : ['paper'],
+            'gripper': ['plastic', 'wood', 'metal'],
+            'camera': [],
+            'blankTool': []
+        };
+        let manufacturingStrategy = kinematics.machine.tools.map((t) => {
+            return toolTypeToManufacturingStrategy[t.toolType];
+        });
+        let acceptableMaterials = kinematics.machine.tools.map((t) => {
+            return toolTypeToMaterials[t.toolType];
+        }).flat();
+        let axisToBlocks = kinematics.determineMachineAxes();
+        let axisToSpeedScores = Object.fromEntries(
+            Object.entries(axisToBlocks).map((entry) => {
+                let axis = entry[0];
+                let blocks = entry[1];
+                let axisMechanisms = blocks.map(b => b.attributes.driveMechanism);
+                let mechScores = axisMechanisms.map(m => speedScores[m]);
+                let axisScore = mechScores.reduce((accu, curr) => accu + curr);
+                return [axis, axisScore];
+            })
+        );
+        let axisToRigidityScores = Object.fromEntries(
+            Object.entries(axisToBlocks).map((entry) => {
+                let axis = entry[0];
+                let blocks = entry[1];
+                let axisMechanisms = blocks.map(b => b.attributes.driveMechanism);
+                let mechScores = axisMechanisms.map(m => rigidityScores[m]);
+                let axisScore = mechScores.reduce((accu, curr) => accu + curr);
+                return [axis, axisScore];
+            })
+        );
+        let axisToResolutions = Object.fromEntries(
+            Object.entries(axisToBlocks).map((entry) => {
+                let axis = entry[0];
+                let blocks = entry[1];
+                let axisRatios = blocks.map(b => b.attributes.stepDisplacementRatio);
+                let axisScore = Math.max(...axisRatios);
+                return [axis, axisScore];
+            })
+        );
+        let rot = {
+            manufacturingStrategy: manufacturingStrategy,
+            acceptableMaterials: acceptableMaterials,
+            workEnvelopeDimensions: kinematics.machine.workEnvelope.dimensions,
             xStats: {
-                speed: "medium",
-                rigidity: "medium",
-                resolution: 0.25
+                speed: axisToSpeedScores.x,
+                rigidity: axisToRigidityScores.x,
+                resolution: axisToResolutions.x
             },
             yStats: {
-                speed: "medium",
-                rigidity: "medium",
-                resolution: 0.25
+                speed: axisToSpeedScores.y,
+                rigidity: axisToRigidityScores.y,
+                resolution: axisToResolutions.y,
             },
             zStats: {
-                speed: "medium",
-                rigidity: "medium",
-                resolution: 0.25
+                speed: axisToSpeedScores.z,
+                rigidity: axisToRigidityScores.z,
+                resolution: axisToResolutions.z
             },
-            structuralLoopLength: 50,
-            goodForMilling: false
+            structuralLoopLength: 9000,
+            goodForMilling: false,
         };
-        return JSON.stringify(testRot, undefined, 2);
+        return JSON.stringify(rot, undefined, 2);
     }
 }
 
