@@ -189,6 +189,106 @@ let attachRoutesWithDBAndStart = (db) => {
 }
 
 // extras ===========================================
+
+class Constants {
+
+    static speedScores = {
+        'leadscrew': -1,
+        'timingBelt': 1,
+        'rackAndPinion': 0
+    };
+    static rigidityScores = {
+        'leadscrew': 1,
+        'timingBelt': -1,
+        'rackAndPinion': 0
+    };
+    static toolTypeToManufacturingStrategy = {
+        'print3dFDM': 'additive',
+        'print3dSLA': 'additive',
+        'mill': 'subtractive',
+        'blade': 'subtractive',
+        'pen' : 'drawing',
+        'gripper': 'formative',
+        'camera': 'nonManufacturing',
+        'blankTool': 'nonManufacturing'
+    }
+    static toolTypeToMaterials = {
+        'print3dFDM': ['plastic'],
+        'print3dSLA': ['plastic'],
+        'mill': ['wood', 'metal'],
+        'blade': ['paper'],
+        'pen' : ['paper'],
+        'gripper': ['plastic', 'wood', 'metal'],
+        'camera': [],
+        'blankTool': []
+    }
+}
+
+let determineMachineAxes = (machine) => {
+    let stages = machine.blocks.filter((block) => block.axes !== undefined);
+    let allAxes = stages.map((block) => block.axes).flat();
+    let uniqueAxes = allAxes.filter((axis, idx) => {
+        return allAxes.indexOf(axis) === idx;
+    });
+    let axisToStageLists = {};
+    uniqueAxes.forEach((axis) => {
+        axisToStageLists[axis] = stages.filter((stage) => {
+            return stage.axes.indexOf(axis) !== -1;
+        });
+    });
+    return axisToStageLists;
+}
+
+let calculateRotFromMachine = (machine) => {
+    let manufacturingStrategy = machine.tools.map((t) => {
+        return Constants.toolTypeToManufacturingStrategy[t.toolType];
+    });
+    let acceptableMaterials = machine.tools.map((t) => {
+        return Constants.toolTypeToMaterials[t.toolType];
+    }).flat();
+    let axisToBlocks = determineMachineAxes(machine);
+    let axisToSpeedScores = {},
+        axisToRigidityScores = {},
+        axisToResolutions = {};
+    Object.entries(axisToBlocks).forEach((entry) => {
+        let axis = entry[0];
+        let blocks = entry[1];
+        let axisMechanisms = blocks.map(b => b.attributes.driveMechanism);
+        let speedScores = axisMechanisms.map(m => Constants.speedScores[m]);
+        let rigidityScores = axisMechanisms.map(m => Constants.rigidityScores[m]);
+        let axisRatios = blocks.map(b => b.attributes.stepDisplacementRatio);
+        let axisSpeedScore = speedScores.reduce((a, c) => a + c);
+        let axisRigidityScore = rigidityScores.reduce((a, c) => a + c);
+        let axisResolution = Math.max(...axisRatios);
+        axisToSpeedScores[axis] = axisSpeedScore;
+        axisToRigidityScores[axis] = axisRigidityScore;
+        axisToResolutions[axis] = axisResolution;
+    })
+    let rot = {
+        manufacturingStrategy: manufacturingStrategy,
+        acceptableMaterials: acceptableMaterials,
+        workEnvelopeDimensions: machine.workEnvelope.dimensions,
+        xStats: {
+            speed: axisToSpeedScores.x,
+            rigidity: axisToRigidityScores.x,
+            resolution: axisToResolutions.x
+        },
+        yStats: {
+            speed: axisToSpeedScores.y,
+            rigidity: axisToRigidityScores.y,
+            resolution: axisToResolutions.y,
+        },
+        zStats: {
+            speed: axisToSpeedScores.z,
+            rigidity: axisToRigidityScores.z,
+            resolution: axisToResolutions.z
+        },
+        structuralLoopLength: 9000,
+        goodForMilling: false,
+    };
+    return JSON.stringify(rot, undefined, 2);
+};
+
 let seedDatabase = (db) => {
     db.dropDatabase()
     .then((_) => {
@@ -205,8 +305,12 @@ let seedDatabase = (db) => {
                     if (err) {
                         throw err;
                     }
-                    console.log(fullFilename);
+                    console.log(`Loading ${fullFilename}.`);
                     let machineObj = JSON.parse(data);
+                    // TODO
+                    let rotObj = calculateRotFromMachine(machineObj);
+                    console.log(rotObj);
+                    // db.collection('rots').insertOne(rotObj);
                     db.collection('machines').insertOne(machineObj)
                     .catch((error) => {
                         throw error;
