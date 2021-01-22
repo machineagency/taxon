@@ -173,7 +173,7 @@
                 "height": 25,
                 "length": 10
             },
-            "toolType": "printFdm",
+            "toolType": "print3dFDM",
             "attributes": {
                 "nozzleCount": 1
             }
