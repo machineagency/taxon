@@ -36,76 +36,48 @@ mongoClient.connect(url, { useUnifiedTopology: true })
 let attachRoutesWithDBAndStart = (db) => {
 
     app.get('/machines', (req, res) => {
-        let dbFilters, dbFilterWorkEnvelope, dbFilterDriveMechanism;
-        if (req.query.filter === 'true') {
-            const mWidth = parseInt((req.query.width || 0), 10);
-            const mHeight = parseInt((req.query.height || 0), 10);
-            const mLength = parseInt((req.query.length || 0), 10);
-            const includeLeadscrew = req.query.leadscrew === 'true';
-            const includeTimingBelt = req.query.timingBelt === 'true';
-            const includeRackAndPinion = req.query.rackAndPinion === 'true';
-            const includeXYPlatform = req.query.includeXYPlatform === 'true';
-            // MACHINE TYPE
-            // TODO: do machine type query, also make this entire thing another fn
-            // WORK ENVELOPE
-            dbFilterWorkEnvelope = {
-                $and : [
-                    { 'workEnvelope.width' : { $gte : mWidth } },
-                    { 'workEnvelope.height' : { $gte : mHeight } },
-                    { 'workEnvelope.length' : { $gte : mLength } }
-                ]
-            };
-            // DRIVE MECHANISMS
-            let queryLeadscrew = {
-                'blocks' : { $elemMatch :
-                    { 'attributes.driveMechanism' : 'leadscrew' }
-                }
-            };
-            let queryTimingBelt = {
-                'blocks' : { $elemMatch :
-                    { 'attributes.driveMechanism' : 'timingBelt' }
-                }
-            };
-            let queryRackAndPinion = {
-                'blocks' : { $elemMatch :
-                    { 'attributes.driveMechanism' : 'rackAndPinion' }
-                }
-            };
-            let driveQueries = [];
-            if (includeLeadscrew) driveQueries.push(queryLeadscrew);
-            if (includeTimingBelt) driveQueries.push(queryTimingBelt);
-            if (includeRackAndPinion) driveQueries.push(queryRackAndPinion);
-            dbFilterDriveMechanism = { $and : driveQueries };
-            // XY PLATFORM
-            let dbIncludeXYPlatform = {
-                'blocks' : { $elemMatch :
-                    { 'componentType' : 'Platform' }
-                }
-            };
-            // STRUCTURAL LOOP
-            // TODO: SL above, also should we make everything exclude instead?
-            dbFilters = { $and : [
-                dbFilterWorkEnvelope,
-                dbFilterDriveMechanism,
-                dbIncludeXYPlatform
-            ] };
-        }
-        else {
-            dbFilters = {};
-        }
-        db.collection('machines').find(dbFilters)
-        .sort({ name: 1 })
-        .toArray()
-        .then((results) => {
-            res.status(200).json({
-                machines: results
+        // CASE: queries exist -> search RoTs for machineIds
+        //       -> query machines with Ids
+        if (Object.keys(req.query).length > 0) {
+            let rotFilter = makeFilterFromQuery(req.query);
+            db.collection('rots').find(rotFilter)
+            .toArray()
+            .then((rotResults) => {
+                let machineIds = rotResults.map(rot => rot.machineDbId);
+                let machineFilter = {
+                    '_id': { $in : machineIds }
+                };
+                db.collection('machines').find(machineFilter)
+                .sort({ name: 1 })
+                .toArray()
+                .then((results) => {
+                    res.status(200).json({
+                        machines: results
+                    });
+                })
+                .catch((error) => {
+                    res.status(500).json({
+                        message: error
+                    })
+                });
             });
-        })
-        .catch((error) => {
-            res.status(500).json({
-                message: error
+        }
+        // CASE: no queries -> list all machines without searching RoTs
+        else {
+            db.collection('machines').find()
+            .sort({ name: 1 })
+            .toArray()
+            .then((results) => {
+                res.status(200).json({
+                    machines: results
+                });
             })
-        });
+            .catch((error) => {
+                res.status(500).json({
+                    message: error
+                })
+            });
+        }
     });
 
     app.put('/machines', (req, res) => {
