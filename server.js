@@ -183,7 +183,8 @@ let attachRoutesWithDBAndStart = (db) => {
     });
 
     app.get('/rots', (req, res) => {
-        db.collection('rots').find()
+        let filter = makeFilterFromQuery(req.query);
+        db.collection('rots').find(filter)
         .sort({ name: 1 })
         .toArray()
         .then((results) => {
@@ -235,7 +236,7 @@ class Constants {
     static rigidityScores = {
         'leadscrew': 1,
         'timingBelt': -1,
-        'rackAndPinion': 0
+        'rackAndPinion': 1
     };
     static toolTypeToManufacturingStrategy = {
         'print3dFDM': 'additive',
@@ -326,6 +327,35 @@ let calculateRotFromMachine = (machine) => {
         goodForMilling: false,
     };
     return rot;
+};
+
+let makeFilterFromQuery = (queryObj) => {
+    let filter;
+    let constraints = [];
+    if (Object.keys(queryObj).length > 0) {
+        const comparatorRegEx = /[<>=]/;
+        const operatorToDbSymbol = {
+            '<': '$lt',
+            '>': '$gt',
+            '=': '$eq'
+        };
+        Object.entries(queryObj).forEach((paramConstraintPair) => {
+            let constraintStr = paramConstraintPair[1];
+            let operator = constraintStr.match(comparatorRegEx)[0];
+            console.assert(operator !== null, constraintStr);
+            let operands = constraintStr.split(comparatorRegEx);
+            let dbSymbol = operatorToDbSymbol[operator];
+            let constraint = {
+                [operands[0]] : { [dbSymbol] : parseInt(operands[1]) }
+            };
+            constraints.push(constraint);
+        });
+        filter = { $and : constraints };
+    }
+    else {
+        filter = {};
+    }
+    return filter;
 };
 
 let seedDatabase = (db) => {
