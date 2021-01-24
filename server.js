@@ -333,21 +333,29 @@ let makeFilterFromQuery = (queryObj) => {
     let filter;
     let constraints = [];
     if (Object.keys(queryObj).length > 0) {
-        const comparatorRegEx = /[<>=]/;
+        const comparatorRegEx = /[<>=]|(has)/;
         const operatorToDbSymbol = {
             '<': '$lt',
             '>': '$gt',
-            '=': '$eq'
+            '=': '$eq',
         };
         Object.entries(queryObj).forEach((paramConstraintPair) => {
             let constraintStr = paramConstraintPair[1];
-            let operator = constraintStr.match(comparatorRegEx)[0];
+            let operator = constraintStr.match(comparatorRegEx)[0].trim();
             console.assert(operator !== null, constraintStr);
-            let operands = constraintStr.split(comparatorRegEx);
-            let dbSymbol = operatorToDbSymbol[operator];
-            let constraint = {
-                [operands[0]] : { [dbSymbol] : parseInt(operands[1]) }
-            };
+            let operands = constraintStr.split(operator).map(op => op.trim());
+            let constraint;
+            if (operator === 'has') {
+                constraint = {
+                    [operands[0]] : { $elemMatch : { $eq: operands[1] } }
+                };
+            }
+            else {
+                let dbSymbol = operatorToDbSymbol[operator];
+                constraint = {
+                    [operands[0]] : { [dbSymbol] : parseInt(operands[1]) }
+                };
+            }
             constraints.push(constraint);
         });
         filter = { $and : constraints };
