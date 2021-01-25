@@ -210,7 +210,7 @@ class Constants {
         'timingBelt': -1,
         'rackAndPinion': 1
     };
-    static toolTypeToManufacturingStrategy = {
+    static toolTypeToManufacturingStrategies = {
         'print3dFDM': 'additive',
         'print3dSLA': 'additive',
         'mill': 'subtractive',
@@ -248,8 +248,8 @@ let determineMachineAxes = (machine) => {
 }
 
 let calculateRotFromMachine = (machine) => {
-    let manufacturingStrategy = machine.tools.map((t) => {
-        return Constants.toolTypeToManufacturingStrategy[t.toolType];
+    let manufacturingStrategies = machine.tools.map((t) => {
+        return Constants.toolTypeToManufacturingStrategies[t.toolType];
     });
     let acceptableMaterials = machine.tools.map((t) => {
         return Constants.toolTypeToMaterials[t.toolType];
@@ -273,7 +273,7 @@ let calculateRotFromMachine = (machine) => {
         axisToResolutions[axis] = axisResolution;
     })
     let rot = {
-        manufacturingStrategy: manufacturingStrategy,
+        manufacturingStrategies: manufacturingStrategies,
         acceptableMaterials: acceptableMaterials,
         workEnvelopeDimensions: {
             width: machine.workEnvelope.width,
