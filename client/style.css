@@ -143,7 +143,7 @@ input[type="file"] {
 }
 
 #filter-container {
-    height: 50px;
+    height: 25px;
     padding-top: 10px;
     padding-left: 20px;
     border: 1px dashed #ffffff;
@@ -179,7 +179,7 @@ input[type="file"] {
 }
 
 .gc-container {
-    height: 400px;
+    height: 325px;
     margin-top: 20px;
 }
 
