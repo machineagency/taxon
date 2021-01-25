@@ -39,7 +39,16 @@ let attachRoutesWithDBAndStart = (db) => {
         // CASE: queries exist -> search RoTs for machineIds
         //       -> query machines with Ids
         if (Object.keys(req.query).length > 0) {
-            let rotFilter = makeFilterFromQuery(req.query);
+            let rotFilter;
+            try {
+                rotFilter = makeFilterFromQuery(req.query);
+            }
+            catch (exceptionText) {
+                res.status(400).json({
+                    message: exceptionText
+                });
+                return;
+            }
             db.collection('rots').find(rotFilter)
             .toArray()
             .then((rotResults) => {
@@ -334,9 +343,9 @@ let makeFilterFromQuery = (queryObj) => {
             filter = { $and : constraints };
         }
         catch (e) {
-            console.log(`Could not process query:`);
+            console.log(`Could not process filter query:`);
             console.log(queryObj);
-            return {};
+            throw `Invalid filter query: ${Object.entries(queryObj)}`;
         }
     }
     else {
