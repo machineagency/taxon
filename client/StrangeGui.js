@@ -19,15 +19,18 @@ class StrangeGui {
         this.modelContainerDom = document.getElementById('model-container');
         this.jobLogDom = document.getElementById('job-log');
         this.modelCheckDom = document.getElementById('model-check-container');
-        // this.filterDom = document.getElementById('filter-container');
-        // this.filterDom.addEventListener('input', (event) => {
-        //     try {
-        //         let filterObj = JSON.parse(this.filterDom.innerText);
-        //         this.fetchAndRenderMachineNames();
-        //     }
-        //     catch (e) {
-        //     }
-        // });
+        this.filterDom = document.getElementById('filter-container');
+        this.filterDom.onkeypress = (event) => {
+            console.log(event.keyCode);
+            if (event.keyCode === 13) {
+                try {
+                    this.fetchAndRenderMachineNames();
+                }
+                catch (e) {
+                    // TODO: handle bad constraints
+                }
+            }
+        };
         this.renderModelPane = this.__inflateModelContainerDom();
         this.makeLoadStlPromise('./pikachu.stl');
         this.renderModelPane();
@@ -155,21 +158,13 @@ class StrangeGui {
         }
         const baseUrl = StrangeGui.serverURL + '/machines';
         const urlParams = {};
-        // TODO: add back after reforming server-side RoT
-        // const filters = JSON.parse(this.filterDom.innerText);
-        // const filters = JSON.parse(this.filterDom.innerText);
-        // if (window.strangeScene.machine !== undefined
-        //         && window.strangeScene.model !== undefined
-        //         && filters.checkModelFits) {
-        //     const mb = window.strangeScene.modelBox3;
-        //     urlParams.filter = true;
-        //     urlParams.width = mb.max.x - mb.min.x;
-        //     urlParams.height = mb.max.y - mb.min.y;
-        //     urlParams.length = mb.max.z - mb.min.z;
-        // }
-        // else {
-        //     urlParams.filter = false;
-        // }
+        const filterText = this.filterDom.innerText;
+        const filterStrings = filterText.split(',')
+                                .map(fString => fString.trim())
+                                .filter(fString => fString.length > 0);
+        filterStrings.forEach((fString, idx) => {
+            urlParams[`param${idx}`] = filterStrings[idx];
+        });
         return baseUrl + '?' + encodeParams(urlParams);
     }
 
