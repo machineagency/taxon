@@ -311,26 +311,33 @@ let makeFilterFromQuery = (queryObj) => {
             '>': '$gt',
             '=': '$eq',
         };
-        Object.entries(queryObj).forEach((paramConstraintPair) => {
-            let constraintStr = paramConstraintPair[1];
-            let operator = constraintStr.match(comparatorRegEx)[0].trim();
-            console.assert(operator !== null, constraintStr);
-            let operands = constraintStr.split(operator).map(op => op.trim());
-            let constraint;
-            if (operator === 'has') {
-                constraint = {
-                    [operands[0]] : { $elemMatch : { $eq: operands[1] } }
-                };
-            }
-            else {
-                let dbSymbol = operatorToDbSymbol[operator];
-                constraint = {
-                    [operands[0]] : { [dbSymbol] : parseInt(operands[1]) }
-                };
-            }
-            constraints.push(constraint);
-        });
-        filter = { $and : constraints };
+        try {
+            Object.entries(queryObj).forEach((paramConstraintPair) => {
+                let constraintStr = paramConstraintPair[1];
+                let operator = constraintStr.match(comparatorRegEx)[0].trim();
+                console.assert(operator !== null, constraintStr);
+                let operands = constraintStr.split(operator).map(op => op.trim());
+                let constraint;
+                if (operator === 'has') {
+                    constraint = {
+                        [operands[0]] : { $elemMatch : { $eq: operands[1] } }
+                    };
+                }
+                else {
+                    let dbSymbol = operatorToDbSymbol[operator];
+                    constraint = {
+                        [operands[0]] : { [dbSymbol] : parseInt(operands[1]) }
+                    };
+                }
+                constraints.push(constraint);
+           });
+            filter = { $and : constraints };
+        }
+        catch (e) {
+            console.log(`Could not process query:`);
+            console.log(queryObj);
+            return {};
+        }
     }
     else {
         filter = {};
