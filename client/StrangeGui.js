@@ -194,6 +194,13 @@ class StrangeGui {
                     });
                 });
             }
+            else {
+                const errorHighlightLengthMS = 2000;
+                this.filterDom.classList.add('red-border');
+                setTimeout(() => {
+                    this.filterDom.classList.remove('red-border');
+                }, errorHighlightLengthMS);
+            }
         });
     }
 

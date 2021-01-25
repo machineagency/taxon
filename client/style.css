@@ -130,11 +130,11 @@ input[type="file"] {
 }
 
 .red-border {
-    border: 1px solid #e44242;
+    border: 1px solid #e44242 !important;
 }
 
 .red-text {
-    color: #e44242;
+    color: #e44242 !important;
 }
 
 #job-container {
@@ -155,7 +155,7 @@ input[type="file"] {
     height: 25px;
     padding-top: 10px;
     padding-left: 20px;
-    border: 1px dashed #ffffff;
+    border: 1px solid #ffffff;
 }
 
 #rot-container {
@@ -189,7 +189,6 @@ input[type="file"] {
 
 .gc-container {
     height: 325px;
-    margin-top: 20px;
 }
 
 .hidden {
