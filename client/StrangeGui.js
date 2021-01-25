@@ -21,7 +21,6 @@ class StrangeGui {
         this.modelCheckDom = document.getElementById('model-check-container');
         this.filterDom = document.getElementById('filter-container');
         this.filterDom.onkeypress = (event) => {
-            console.log(event.keyCode);
             if (event.keyCode === 13) {
                 try {
                     this.fetchAndRenderMachineNames();
