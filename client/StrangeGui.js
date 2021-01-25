@@ -23,6 +23,7 @@ class StrangeGui {
         this.filterDom.onkeypress = (event) => {
             if (event.keyCode === 13) {
                 try {
+                    event.preventDefault();
                     this.fetchAndRenderMachineNames();
                 }
                 catch (e) {
