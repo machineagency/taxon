@@ -1,6 +1,7 @@
 'use strict';
 
 import * as THREE from './build/three.module.js';
+import { Workflow } from './Workflow.js';
 import { TestPrograms } from './TestPrograms.js';
 import { STLLoader } from './build/STLLoader.js';
 
@@ -31,9 +32,11 @@ class StrangeGui {
                 }
             }
         };
-        this.renderModelPane = this.__inflateModelContainerDom();
-        this.makeLoadStlPromise('./pikachu.stl');
-        this.renderModelPane();
+        // this.renderModelPane = this.__inflateModelContainerDom();
+        // this.makeLoadStlPromise('./pikachu.stl');
+        // this.renderModelPane();
+        this.workflowDom = document.getElementById('workflow-container');
+        this.workflow = new Workflow(this.workflowDom.innerText);
         this.fetchAndRenderMachineNames();
     }
 
