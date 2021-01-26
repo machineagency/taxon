@@ -35,7 +35,18 @@
     </pre>
 </div>
 
+<div id="job-pad">
+    <pre id="workflow-container" class="code-field" contenteditable="false">
+let machine = getCurrentMachine();
+let material = chooseMaterial();
+    </pre>
+    <div class="button-bar">
+        <button>step</button>
+        <button>reset</button>
+    </div>
+</div>
 
+<!-- Old assembly of widgets - leaving for reference for now
 <div id="job-pad">
     <pre id="model-check-container" class="code-field" contenteditable="false">
     </pre>
@@ -80,7 +91,6 @@
     <pre id="job-log" class="code-field" contenteditable="false">
 No messages.
     </pre>
-    <!-- <button>Slice (Cura)</button> -->
     <pre id="job-container" class="code-field" contenteditable="false">
 No G-Code loaded.
     </pre>
@@ -89,6 +99,7 @@ No G-Code loaded.
         <button onclick="window.jobFile.loadAndRunExample('cube')">draw cube</button>
     </div>
 </div>
+-->
 
 <script type="module" src="main.js"></script>
 
