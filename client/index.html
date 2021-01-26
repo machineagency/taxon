@@ -13,6 +13,29 @@
 
 <div id="container"></div>
 
+<div id="program-pad" data-mode="single">
+    <pre id="filter-container" class="code-field" contenteditable="true">
+    </pre>
+    <div id="machine-list-container" class="list-container">
+        <ul id="pre-machine-list" class="load-machine-list">
+            <li>
+                <label for="new-machine-input">(new machine)</label>
+                <input id="new-machine-input" type="file" accept="application/JSON"
+                       style="position: fixed; top: -100em"
+                       onchange="window.strangeGui.uploadNewMachine(this.files[0]);">
+            </li>
+            <li onclick="window.strangeGui.deleteGCFromServer();">(delete machine)</li>
+        </ul>
+        <ul id="load-machine-list" class="load-machine-list">
+        </ul>
+    </div>
+    <pre id="gc-container-1" class="gc-container code-field" contenteditable="false">
+    </pre>
+    <pre id="rot-container" class="code-field" contenteditable="false">
+    </pre>
+</div>
+
+
 <div id="job-pad">
     <pre id="model-check-container" class="code-field" contenteditable="false">
     </pre>
@@ -65,28 +88,6 @@ No G-Code loaded.
         <button onclick="window.jobFile.loadAndRunExample('box')">draw box</button>
         <button onclick="window.jobFile.loadAndRunExample('cube')">draw cube</button>
     </div>
-</div>
-
-<div id="program-pad" data-mode="single">
-    <pre id="filter-container" class="code-field" contenteditable="true">
-    </pre>
-    <div id="machine-list-container" class="list-container">
-        <ul id="pre-machine-list" class="load-machine-list">
-            <li>
-                <label for="new-machine-input">(new machine)</label>
-                <input id="new-machine-input" type="file" accept="application/JSON"
-                       style="position: fixed; top: -100em"
-                       onchange="window.strangeGui.uploadNewMachine(this.files[0]);">
-            </li>
-            <li onclick="window.strangeGui.deleteGCFromServer();">(delete machine)</li>
-        </ul>
-        <ul id="load-machine-list" class="load-machine-list">
-        </ul>
-    </div>
-    <pre id="gc-container-1" class="gc-container code-field" contenteditable="false">
-    </pre>
-    <pre id="rot-container" class="code-field" contenteditable="false">
-    </pre>
 </div>
 
 <script type="module" src="main.js"></script>
