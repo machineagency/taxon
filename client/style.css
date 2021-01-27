@@ -246,6 +246,15 @@ input[type="file"] {
     background-color: #ffffff;
 }
 
+#workflow-highlight {
+    color: #000000;
+    background-color: #ffffff;
+}
+
+.grayed {
+    background-color: #666666;
+}
+
 #gcode-highlight.error-highlight {
     color: #ffffff;
     background-color: #e44242;

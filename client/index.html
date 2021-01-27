@@ -36,13 +36,10 @@
 </div>
 
 <div id="job-pad">
-    <pre id="workflow-container" class="code-field" contenteditable="false">
-let machine = getCurrentMachine();
-let material = chooseMaterial();
-    </pre>
+    <div id="workflow-container" class="code-field" contenteditable="true"></div>
     <div class="button-bar">
-        <button>step</button>
-        <button>reset</button>
+        <button id="step-button" onclick="window.strangeGui.workflow.step()">step</button>
+        <button id="reset-button" onclick="window.strangeGui.workflow.reset()">reset</button>
     </div>
 </div>
 
