@@ -39,9 +39,9 @@ let attachRoutesWithDBAndStart = (db) => {
         // CASE: queries exist -> search RoTs for machineIds
         //       -> query machines with Ids
         if (Object.keys(req.query).length > 0) {
-            let rotFilter;
+            let heuristicSetFilter;
             try {
-                rotFilter = makeFilterFromQuery(req.query);
+                heuristicSetFilter = makeFilterFromQuery(req.query);
             }
             catch (exceptionText) {
                 res.status(400).json({
@@ -49,10 +49,10 @@ let attachRoutesWithDBAndStart = (db) => {
                 });
                 return;
             }
-            db.collection('rots').find(rotFilter)
+            db.collection('heuristicSets').find(heuristicSetFilter)
             .toArray()
-            .then((rotResults) => {
-                let machineIds = rotResults.map(rot => rot.machineDbId);
+            .then((heuristicSetResults) => {
+                let machineIds = heuristicSetResults.map(heuristicSet => heuristicSet.machineDbId);
                 let machineFilter = {
                     '_id': { $in : machineIds }
                 };
@@ -163,14 +163,14 @@ let attachRoutesWithDBAndStart = (db) => {
         });
     });
 
-    app.get('/rots', (req, res) => {
+    app.get('/heuristicSets', (req, res) => {
         let filter = makeFilterFromQuery(req.query);
-        db.collection('rots').find(filter)
+        db.collection('heuristicSets').find(filter)
         .sort({ name: 1 })
         .toArray()
         .then((results) => {
             res.status(200).json({
-                rots: results
+                heuristicSets: results
             });
         })
         .catch((error) => {
@@ -180,16 +180,16 @@ let attachRoutesWithDBAndStart = (db) => {
         });
     });
 
-    app.get('/rot', (req, res) => {
+    app.get('/heuristicSet', (req, res) => {
         const machineId = ObjectID(req.query.id);
-        db.collection('rots').find({
+        db.collection('heuristicSets').find({
             'machineDbId': machineId
         })
         .toArray()
         .then((results) => {
             let statusCode = results.length === 0 ? 404 : 200;
             res.status(statusCode).json({
-                rot: results
+                heuristicSet: results
             });
         })
         .catch((error) => {
@@ -281,7 +281,7 @@ let calculateRotFromMachine = (machine) => {
         axisToRigidityScores[axis] = axisRigidityScore;
         axisToResolutions[axis] = axisResolution;
     })
-    let rot = {
+    let heuristicSet = {
         manufacturingStrategies: manufacturingStrategies,
         acceptableMaterials: acceptableMaterials,
         workEnvelopeDimensions: {
@@ -307,7 +307,7 @@ let calculateRotFromMachine = (machine) => {
         structuralLoopLength: 9000,
         goodForMilling: false,
     };
-    return rot;
+    return heuristicSet;
 };
 
 let makeFilterFromQuery = (queryObj) => {
@@ -370,14 +370,14 @@ let seedDatabase = (db) => {
                     if (err) {
                         throw err;
                     }
-                    console.log(`Loading and computing RoT for ${fullFilename}.`);
+                    console.log(`Loading and computing heuristicSet for ${fullFilename}.`);
                     let machineObj = JSON.parse(data);
                     db.collection('machines').insertOne(machineObj)
                     .then((result) => {
                         let machineDbId = result.insertedId;
-                        let rotObj = calculateRotFromMachine(machineObj);
-                        rotObj.machineDbId = machineDbId;
-                        db.collection('rots').insertOne(rotObj)
+                        let heuristicSetObj = calculateRotFromMachine(machineObj);
+                        heuristicSetObj.machineDbId = machineDbId;
+                        db.collection('heuristicSets').insertOne(heuristicSetObj)
                         .catch((error) => {
                             throw error;
                         });

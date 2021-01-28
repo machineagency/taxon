@@ -112,20 +112,18 @@ class Workflow {
                                 window.jobFile.loadAndRunExample('box');
                                 return endFunction;
                             };
-                            mPositionDom.classList.add(CLASS_HIDDEN);
-                            console.log('Sending to Cura for slicing...');
                             return f5;
                         };
-                        mUploadDom.classList.add(CLASS_HIDDEN);
-                        mPositionDom.classList.remove(CLASS_HIDDEN);
-                        this.parentGui.renderModelPane = this.parentGui.__inflateModelContainerDom();
-                        this.parentGui.makeLoadStlPromise('./pikachu.stl');
-                        this.parentGui.renderModelPane();
-                        console.log('Position model in envelope.');
+                        mPositionDom.classList.add(CLASS_HIDDEN);
+                        console.log('Sending to Cura for slicing...');
                         return f4;
                     };
-                    console.log('Showing models for 3D printing.');
-                    mUploadDom.classList.remove(CLASS_HIDDEN);
+                    mUploadDom.classList.add(CLASS_HIDDEN);
+                    mPositionDom.classList.remove(CLASS_HIDDEN);
+                    this.parentGui.renderModelPane = this.parentGui.__inflateModelContainerDom();
+                    this.parentGui.makeLoadStlPromise('./pikachu.stl');
+                    this.parentGui.renderModelPane();
+                    console.log('Position model in envelope.');
                     return f3;
                 }
                 let material = {
@@ -133,6 +131,8 @@ class Workflow {
                     diameter: 0.7
                 };
                 console.log('Selected PLA.');
+                console.log('Showing models for 3D printing.');
+                mUploadDom.classList.remove(CLASS_HIDDEN);
                 return f2;
             };
             if (window.strangeScene.machine === undefined) {

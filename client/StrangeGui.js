@@ -307,26 +307,26 @@ class StrangeGui {
         this.__inflateSceneFromGCText(false);
     }
 
-    async loadRotForSceneMachine() {
-        let rotDom = document.getElementById('rot-container');
+    async loadHeuristicSetForSceneMachine() {
+        let heuristicSetDom = document.getElementById('heuristic-set-container');
         let machineDbId = window.strangeScene.machine.dbId;
         console.assert(machineDbId !== undefined);
-        let url = StrangeGui.serverURL + `/rot?id=${machineDbId}`;
+        let url = StrangeGui.serverURL + `/heuristicSet?id=${machineDbId}`;
         let response = await fetch(url, {
             method: 'GET'
         });
-        let rotText;
+        let heuristicSetText;
         if (response.ok) {
             let outerJson = await response.json();
-            let rotJson = outerJson.rot[0];
+            let heuristicSetJson = outerJson.heuristicSet[0];
             let indentSpaces = 2
-            rotText = JSON.stringify(rotJson, undefined, indentSpaces);
+            heuristicSetText = JSON.stringify(heuristicSetJson, undefined, indentSpaces);
         }
         else {
             console.error('Could not find RoT.');
             return;
         }
-        rotDom.innerText = rotText;
+        heuristicSetDom.innerText = heuristicSetText;
     }
 
     async loadMachineFromListItemDom(listItemDom, event) {
@@ -394,7 +394,7 @@ class StrangeGui {
             gcDom.classList.remove('red-border');
             this.__inflateSceneFromGCText(true);
             this.strangeScene.positionModelOnWorkEnvelope();
-            this.loadRotForSceneMachine();
+            this.loadHeuristicSetForSceneMachine();
 
             if (window.strangeScene.previewMachine !== undefined) {
                 oldHighlightedPreviewListItemDom.classList
