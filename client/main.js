@@ -1772,7 +1772,8 @@ class Kinematics {
             console.error(`Can't find tool for machine ${machine.name}`);
             return;
         }
-        let rootBlocks = machine.blocks.filter((block) => block.endBlock);
+        let blocksAndTool = machine.blocks.concat(toolBlock);
+        let rootBlocks = blocksAndTool.filter((block) => block.endBlock);
         rootBlocks.forEach((block) => {
             let rootNode = new KNode(block);
             this.__buildSubtree(rootNode);

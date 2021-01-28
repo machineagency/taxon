@@ -14,8 +14,7 @@
 <div id="container"></div>
 
 <div id="program-pad" data-mode="single">
-    <pre id="filter-container" class="code-field" contenteditable="true">
-    </pre>
+    <pre id="filter-container" class="code-field" contenteditable="true"></pre>
     <div id="machine-list-container" class="list-container">
         <ul id="pre-machine-list" class="load-machine-list">
             <li>
@@ -36,10 +35,47 @@
 </div>
 
 <div id="job-pad">
+    <pre id="rot-console" class="code-field" contenteditable="false">
+
+- material must match machine
+- model must fit in envelope
+- machine must handle tall features
+    </pre>
     <div id="workflow-container" class="code-field" contenteditable="true"></div>
+    <pre id="workflow-console" class="code-field" contenteditable="false">
+I am the console.
+    </pre>
     <div class="button-bar">
         <button id="step-button" onclick="window.strangeGui.workflow.step()">step</button>
         <button id="reset-button" onclick="window.strangeGui.workflow.reset()">reset</button>
+    </div>
+    <div class="widget-container">
+        <div id="widget-upload-model" class="hidden">
+            <div class="button-bar">
+                <input id="new-model-input" type="file" accept=".stl"
+                       style="position: fixed; top: -100em"
+                       onchange="window.strangeGui.uploadModel(this.files[0]);">
+                <label id="upload-model-btn" for="new-model-input">upload model</label>
+                <button>static check</button>
+            </div>
+        </div>
+        <div id="widget-position-model" class="hidden">
+            <div id="model-container">
+            </div>
+            <pre id="model-check-container" class="code-field" contenteditable="false">
+            </pre>
+            <div class="button-bar">
+                <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('x');">rX</button>
+                <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('y');">rY</button>
+                <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('z');">rZ</button>
+            </div>
+        </div>
+        <div id="widget-run" class="hidden">
+            <pre id="job-log" class="code-field" contenteditable="false">
+            </pre>
+            <pre id="job-container" class="code-field" contenteditable="false">
+            </pre>
+        </div>
     </div>
 </div>
 

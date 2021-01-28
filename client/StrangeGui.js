@@ -35,7 +35,7 @@ class StrangeGui {
         // this.renderModelPane = this.__inflateModelContainerDom();
         // this.makeLoadStlPromise('./pikachu.stl');
         // this.renderModelPane();
-        this.workflow = new Workflow();
+        this.workflow = new Workflow(this);
         this.fetchAndRenderMachineNames();
     }
 

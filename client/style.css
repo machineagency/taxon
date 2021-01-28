@@ -251,6 +251,10 @@ input[type="file"] {
     background-color: #ffffff;
 }
 
+#workflow-console {
+    height: 25px;
+}
+
 .grayed {
     background-color: #666666;
 }
