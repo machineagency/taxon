@@ -129,10 +129,31 @@ class StrangeGui {
     scrollProgramToBlockName(blockName) {
         this.gcDom.childNodes.forEach((el, idx) => {
             let nameLine = `\"name\": \"${blockName}\"`;
-            if (el.data !== undefined && el.data.includes(nameLine)) {
-                let priorBrNode = this.gcDom.childNodes[idx - 1];
-                priorBrNode.scrollIntoView({ behavior: 'smooth' });
+            if (el.innerText.includes(nameLine)) {
+                let priorNode = this.gcDom.childNodes[idx - 1];
+                priorNode.scrollIntoView({ behavior: 'smooth' });
             }
+        });
+    }
+
+    loadTextIntoGCDom(text) {
+        this.gcDom.innerHTML = '';
+        let lines = text.split('\n');
+        lines.forEach((lineText, lineNum) => {
+            let node = document.createElement('div');
+            node.innerText = lineText;
+            // FIXME: won't work if there is a newline after "name"
+            if (lineText.includes('"name"')) {
+                let blockName = lineText.split(':')[1]
+                                    .replace('"', '')
+                                    .replace('"', '')
+                                    .replace(',', '')
+                                    .trim();
+                node.addEventListener('dblclick', (event) => {
+                    console.log(blockName);
+                }, false);
+            }
+            this.gcDom.appendChild(node);
         });
     }
 
@@ -407,7 +428,7 @@ class StrangeGui {
         }
         // CASE: bare click swaps current machine and removes preview
         else {
-            gcDom.innerText = newText;
+            this.loadTextIntoGCDom(newText);
             if (oldHighlightedListItemDom !== undefined) {
                 oldHighlightedListItemDom.classList.remove(highlightClassName);
             }
