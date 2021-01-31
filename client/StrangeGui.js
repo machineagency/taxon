@@ -17,6 +17,7 @@ class StrangeGui {
         this.strangeScene = strangeScene;
         this.kinematics = kinematics;
         this.tooltips = [];
+        this.gcDom = document.getElementById('gc-container-1');
         this.programPadDom = document.getElementById('program-pad');
         this.jobPad = document.getElementById('job-pad')
         this.modelContainerDom = document.getElementById('model-container');
@@ -39,12 +40,13 @@ class StrangeGui {
         // this.renderModelPane();
         this.workflow = new Workflow(this);
         this.fetchAndRenderMachineNames();
-        document.addEventListener('click', (event) => {
+        document.addEventListener('dblclick', (event) => {
             let programPadClicked = this.programPadDom.contains(event.target);
             let jobPadClicked = this.programPadDom.contains(event.target);
             if (!programPadClicked && !jobPadClicked) {
                 let cObjs = this.strangeScene.getClickedObjectsFromClickEvent(event);
-                console.log(cObjs);
+                let primaryName = cObjs[0];
+                this.scrollProgramToBlockName(primaryName);
             }
         }, false);
     }
@@ -122,6 +124,16 @@ class StrangeGui {
         this.jobLogDom.innerText = 'No messages yet.';
         this.jobLogDom.classList.remove('red-border');
         this.jobLogDom.classList.remove('red-text');
+    }
+
+    scrollProgramToBlockName(blockName) {
+        this.gcDom.childNodes.forEach((el, idx) => {
+            let nameLine = `\"name\": \"${blockName}\"`;
+            if (el.data !== undefined && el.data.includes(nameLine)) {
+                let priorBrNode = this.gcDom.childNodes[idx - 1];
+                priorBrNode.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
     }
 
     drawKinematicPathToSceneForComponent(component) {
