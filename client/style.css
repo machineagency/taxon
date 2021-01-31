@@ -251,6 +251,11 @@ input[type="file"] {
     background-color: #ffffff;
 }
 
+#gc-highlight {
+    color: #000000;
+    background-color: #ffffff;
+}
+
 #workflow-console {
     height: 25px;
 }

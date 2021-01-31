@@ -127,11 +127,16 @@ class StrangeGui {
     }
 
     scrollProgramToBlockName(blockName) {
+        const delay = 3000;
         this.gcDom.childNodes.forEach((el, idx) => {
             let nameLine = `\"name\": \"${blockName}\"`;
             if (el.innerText.includes(nameLine)) {
                 let priorNode = this.gcDom.childNodes[idx - 1];
                 priorNode.scrollIntoView({ behavior: 'smooth' });
+                el.id = 'gc-highlight';
+                setTimeout(() => {
+                    el.id = '';
+                }, delay);
             }
         });
     }
