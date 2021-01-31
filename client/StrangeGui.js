@@ -17,6 +17,8 @@ class StrangeGui {
         this.strangeScene = strangeScene;
         this.kinematics = kinematics;
         this.tooltips = [];
+        this.programPadDom = document.getElementById('program-pad');
+        this.jobPad = document.getElementById('job-pad')
         this.modelContainerDom = document.getElementById('model-container');
         this.jobLogDom = document.getElementById('job-log');
         this.modelCheckDom = document.getElementById('model-check-container');
@@ -37,6 +39,14 @@ class StrangeGui {
         // this.renderModelPane();
         this.workflow = new Workflow(this);
         this.fetchAndRenderMachineNames();
+        document.addEventListener('click', (event) => {
+            let programPadClicked = this.programPadDom.contains(event.target);
+            let jobPadClicked = this.programPadDom.contains(event.target);
+            if (!programPadClicked && !jobPadClicked) {
+                let cObjs = this.strangeScene.getClickedObjectsFromClickEvent(event);
+                console.log(cObjs);
+            }
+        }, false);
     }
 
     addTooltipForComponent(component) {

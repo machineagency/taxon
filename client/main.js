@@ -98,6 +98,32 @@ class StrangeScene {
         this.renderer.render(this.scene, this.camera);
     }
 
+    getClickedObjectsFromClickEvent(event) {
+        if (this.machine === undefined) {
+            return [];
+        }
+        let vector = new THREE.Vector3();
+        let raycaster = new THREE.Raycaster();
+        let dir = new THREE.Vector3();
+        let candidates = this.machine.allObjects();
+        let candidateMeshes = candidates.map(c => c.meshGroup);
+
+        vector.set((event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1, -1); // z = - 1 important!
+        vector.unproject(this.camera);
+        dir.set(0, 0, -1).transformDirection(this.camera.matrixWorld);
+        raycaster.set(vector, dir);
+
+        let searchRecursively = true;
+        let isectMeshes = raycaster.intersectObjects(candidateMeshes,
+                            searchRecursively);
+        if (isectMeshes.length === 0) {
+            return [];
+        }
+        let meshGroupNames = isectMeshes.map(m => m.object.parent.blockName);
+        return meshGroupNames;
+    }
+
     loadStl(filepath) {
         if (this.machine === undefined) {
             const e = 'Please pick a machine before uploading a model.';
@@ -413,6 +439,11 @@ class Machine {
         else {
             parentScene.machine = this;
         }
+    }
+
+    allObjects() {
+        return this.blocks.concat(this.tools)
+                .concat(this.motors);
     }
 
     recolorAndMoveMachineForPreviewing(recolorName) {
@@ -1209,6 +1240,7 @@ class BuildEnvironment extends StrangeComponent {
         this.mesh = new THREE.Mesh(geom, material);
         this.mesh.isBuildEnvironmentMesh = true;
         this.meshGroup = new THREE.Group();
+        this.meshGroup.blockName = this.name;
         this.meshGroup.add(this.mesh);
         this.geometries = [geom];
         this.rotateToXYPlane();
@@ -1256,6 +1288,7 @@ class WorkEnvelope extends StrangeComponent {
         this.mesh = new THREE.Mesh(geom, material);
         this.mesh.isWorkEnvelopeMesh = true;
         this.meshGroup = new THREE.Group();
+        this.meshGroup.blockName = this.name;
         this.meshGroup.add(this.mesh);
         this.geometries = [geom];
         if (this.dimensions.shape === 'rectangle') {
@@ -1311,6 +1344,7 @@ class Tool extends Block {
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.mesh);
         this.meshGroup.add(this.wireSegments);
+        this.meshGroup.blockName = this.name;
         this.geometries = [geom, edgesGeom];
         this.setPositionToDefault();
         this.addMeshGroupToScene();
@@ -1357,6 +1391,7 @@ class ToolAssembly extends Block {
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.mesh);
         this.meshGroup.add(this.wireSegments);
+        this.meshGroup.blockName = this.name;
         this.geometries = [this.geom, this.edgesGeom];
         this.setPositionToDefault();
         this.addMeshGroupToScene();
@@ -1400,6 +1435,7 @@ class Platform extends Block {
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.mesh);
         this.meshGroup.add(this.wireSegments);
+        this.meshGroup.blockName = this.name;
         this.geometries = [this.geom, this.edgesGeom];
         this.addMeshGroupToScene();
     }
@@ -1482,6 +1518,7 @@ class LinearStage extends Stage {
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.caseMesh);
         this.meshGroup.add(this.wireSegments);
+        this.meshGroup.blockName = this.name;
         this.geometries = [this.caseGeom, this.edgesGeom]
         this.addMeshGroupToScene();
     }
@@ -1549,6 +1586,7 @@ class ParallelStage extends Stage {
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.caseMesh);
         this.meshGroup.add(this.wireSegments);
+        this.meshGroup.blockName = this.name;
         this.geometries = [this.caseGeom, this.edgesGeom]
         this.addMeshGroupToScene();
     }
@@ -1613,6 +1651,7 @@ class CrossStage extends Stage {
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.caseMesh);
         this.meshGroup.add(this.wireSegments);
+        this.meshGroup.blockName = this.name;
         this.geometries = [this.caseGeom, this.edgesGeom]
         this.addMeshGroupToScene();
     }
@@ -1688,6 +1727,7 @@ class Motor extends Block {
         this.meshGroup = new THREE.Group();
         this.meshGroup.add(this.caseMesh);
         this.meshGroup.add(this.wireSegments);
+        this.meshGroup.blockName = this.name;
         this.geometries = [this.caseGeom, this.edgesGeom]
         this.addMeshGroupToScene();
     }
