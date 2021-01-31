@@ -199,6 +199,12 @@ let attachRoutesWithDBAndStart = (db) => {
         });
     });
 
+    app.get('/heuristicNames', (req, res) => {
+        res.status(200).json({
+            heuristicNames: Constants.heuristicNames
+        });
+    });
+
     app.listen(port, () => {
         console.log("Running on port: " + port);
         exports = module.exports = app;
@@ -208,6 +214,17 @@ let attachRoutesWithDBAndStart = (db) => {
 // extras ===========================================
 
 class Constants {
+
+    static heuristicNames = [
+        'manufacturingStrategies',
+        'acceptableMaterials',
+        'workEnvelopeDimensions',
+        'xStats',
+        'yStats',
+        'zStats',
+        'structuralLoopLength',
+        'goodForMilling'
+    ];
 
     static speedScores = {
         'leadscrew': -1,
