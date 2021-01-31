@@ -23,6 +23,7 @@ class StrangeGui {
         this.modelContainerDom = document.getElementById('model-container');
         this.jobLogDom = document.getElementById('job-log');
         this.modelCheckDom = document.getElementById('model-check-container');
+        this.autocompleteDom = document.getElementById('filter-autocomplete');
         this.filterDom = document.getElementById('filter-container');
         this.filterDom.onkeypress = (event) => {
             if (event.keyCode === 13) {
@@ -33,6 +34,9 @@ class StrangeGui {
                 catch (e) {
                     // TODO: handle bad constraints
                 }
+            }
+            else {
+                this.runAutoComplete();
             }
         };
         // this.renderModelPane = this.__inflateModelContainerDom();
@@ -51,14 +55,26 @@ class StrangeGui {
         }, false);
     }
 
-    addTooltipForComponent(component) {
-        let newTooltip = new Tooltip(component, this);
-        this.tooltips.push(newTooltip);
-        return newTooltip;
-    }
-
-    removeTooltipForComponent(component) {
-        // TODO
+    async runAutoComplete() {
+        let url = StrangeGui.serverURL + '/heuristicNames';
+        fetch(url, {
+            method: 'GET'
+        })
+        .then((response) => {
+            if (response.ok) {
+                response.json()
+                .then((responseJson) => {
+                    // TODO: lots of stuff
+                    this.autocompleteDom.innerHTML = '';
+                    let names = responseJson.heuristicNames;
+                    names.forEach((name, idx) => {
+                        let node = document.createElement('div');
+                        node.innerText = name;
+                        this.autocompleteDom.appendChild(node);
+                    });
+                });
+            }
+        });
     }
 
     __addToScene(threeObj) {
