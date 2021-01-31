@@ -150,7 +150,23 @@ class StrangeGui {
                                     .replace(',', '')
                                     .trim();
                 node.addEventListener('dblclick', (event) => {
-                    console.log(blockName);
+                    let blockMeshGroup = this.strangeScene.machine
+                                            .findBlockWithName(blockName)
+                                            .meshGroup;
+                    blockMeshGroup.children.forEach((maybeMesh) => {
+                        const delay = 3000;
+                        if (maybeMesh.material === undefined) {
+                            return;
+                        }
+                        let origHex = maybeMesh.material.color.getHex();
+                        let origOpacity = maybeMesh.material.opacity;
+                        maybeMesh.material.color.setHex(0x2ecc71);
+                        maybeMesh.material.opacity = 0.75;
+                        setTimeout(() => {
+                            maybeMesh.material.color.setHex(origHex);
+                            maybeMesh.material.opacity = origOpacity;
+                        }, delay);
+                    });
                 }, false);
             }
             this.gcDom.appendChild(node);
