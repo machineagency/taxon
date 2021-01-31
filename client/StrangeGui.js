@@ -25,7 +25,7 @@ class StrangeGui {
         this.modelCheckDom = document.getElementById('model-check-container');
         this.autocompleteDom = document.getElementById('filter-autocomplete');
         this.filterDom = document.getElementById('filter-container');
-        this.filterDom.onkeypress = (event) => {
+        this.filterDom.addEventListener('keydown', (event) => {
             if (event.keyCode === 13) {
                 try {
                     event.preventDefault();
@@ -35,10 +35,13 @@ class StrangeGui {
                     // TODO: handle bad constraints
                 }
             }
+            if (event.keyCode === 27) {
+                this.autocompleteDom.classList.add('hidden');
+            }
             else {
                 this.runAutoComplete();
             }
-        };
+        });
         // this.renderModelPane = this.__inflateModelContainerDom();
         // this.makeLoadStlPromise('./pikachu.stl');
         // this.renderModelPane();
@@ -65,12 +68,16 @@ class StrangeGui {
                 response.json()
                 .then((responseJson) => {
                     // TODO: lots of stuff
+                    const filterText = this.filterDom.innerText.trim();
+                    this.autocompleteDom.classList.remove('hidden');
                     this.autocompleteDom.innerHTML = '';
                     let names = responseJson.heuristicNames;
                     names.forEach((name, idx) => {
-                        let node = document.createElement('div');
-                        node.innerText = name;
-                        this.autocompleteDom.appendChild(node);
+                        if (name.includes(filterText)) {
+                            let node = document.createElement('div');
+                            node.innerText = name;
+                            this.autocompleteDom.appendChild(node);
+                        }
                     });
                 });
             }
