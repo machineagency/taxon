@@ -38,26 +38,20 @@ class StrangeGui {
                     // TODO: handle bad constraints
                 }
             }
-            else if (event.keyCode === 27) {
+            else if (event.keyCode === 27 || event.keyCode === 32) {
                 // Escape
                 this.autocompleteDom.classList.add('hidden');
             }
-            else if (event.keyCode === 38) {
-                // Up Arrow
-                let acHighlightDom = document.getElementById('ac-highlight');
-                let maybePrevSibling = acHighlightDom.previousSibling;
-                if (maybePrevSibling !== null) {
-                    acHighlightDom.id = '';
-                    maybePrevSibling.id = 'ac-highlight';
-                }
-            }
-            else if (event.keyCode === 40) {
-                // Down Arrow
+            else if (event.keyCode === 9) {
+                // Tab
+                event.preventDefault();
                 let acHighlightDom = document.getElementById('ac-highlight');
                 if (acHighlightDom === null) {
                     let maybeFirstChild = this.autocompleteDom.childNodes[0];
                     if (maybeFirstChild !== undefined) {
                         maybeFirstChild.id = 'ac-highlight';
+                        this.filterDom.dataset.origText = this.filterDom.innerText;
+                        this.filterDom.innerText = maybeFirstChild.innerText;
                     }
                 }
                 else {
@@ -65,6 +59,11 @@ class StrangeGui {
                     if (maybeNextSibling !== null) {
                         acHighlightDom.id = '';
                         maybeNextSibling.id = 'ac-highlight';
+                        this.filterDom.innerText = maybeNextSibling.innerText;
+                    }
+                    else {
+                        acHighlightDom.id = '';
+                        this.filterDom.innerText = this.filterDom.dataset.origText;
                     }
                 }
             }
