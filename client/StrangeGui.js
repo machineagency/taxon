@@ -82,7 +82,12 @@ class StrangeGui {
             if (!programPadClicked && !jobPadClicked) {
                 let cObjs = this.strangeScene.getClickedObjectsFromClickEvent(event);
                 let primaryName = cObjs[0];
-                this.scrollProgramToBlockName(primaryName);
+                if (event.shiftKey) {
+                    this.workflow.addLine(primaryName);
+                }
+                else {
+                    this.scrollProgramToBlockName(primaryName);
+                }
             }
         }, false);
     }

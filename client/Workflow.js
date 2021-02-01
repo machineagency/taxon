@@ -21,6 +21,13 @@ class Workflow {
         // TODO: parse raw text into statements -> curried FN
     }
 
+    addLine(lineText) {
+        // TODO: parse text and e.g. if it's a block add block constructor
+        let node = document.createElement('div');
+        node.innerText = lineText;
+        this.dom.appendChild(node);
+    }
+
     step() {
         if (this.profCurrFn.name === Workflow.EndFunctionName) {
             console.warn('End of program.');
@@ -77,9 +84,7 @@ class Workflow {
             'run();'
         ];
         statements.forEach((stat, idx) => {
-            let node = document.createElement('div');
-            node.innerText = statements[idx];
-            this.dom.appendChild(node);
+            this.addLine(statements[idx]);
         });
     }
 
