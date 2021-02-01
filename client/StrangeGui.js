@@ -17,6 +17,8 @@ class StrangeGui {
         this.strangeScene = strangeScene;
         this.kinematics = kinematics;
         this.tooltips = [];
+        this.heuristicNames = [];
+        this.fetchHeuristicNames();
         this.gcDom = document.getElementById('gc-container-1');
         this.programPadDom = document.getElementById('program-pad');
         this.jobPad = document.getElementById('job-pad')
@@ -27,6 +29,7 @@ class StrangeGui {
         this.filterDom = document.getElementById('filter-container');
         this.filterDom.addEventListener('keydown', (event) => {
             if (event.keyCode === 13) {
+                // Enter
                 try {
                     event.preventDefault();
                     this.fetchAndRenderMachineNames();
@@ -35,10 +38,37 @@ class StrangeGui {
                     // TODO: handle bad constraints
                 }
             }
-            if (event.keyCode === 27) {
+            else if (event.keyCode === 27) {
+                // Escape
                 this.autocompleteDom.classList.add('hidden');
             }
-            else {
+            else if (event.keyCode === 38) {
+                // Up Arrow
+                let acHighlightDom = document.getElementById('ac-highlight');
+                let maybePrevSibling = acHighlightDom.previousSibling;
+                if (maybePrevSibling !== null) {
+                    acHighlightDom.id = '';
+                    maybePrevSibling.id = 'ac-highlight';
+                }
+            }
+            else if (event.keyCode === 40) {
+                // Down Arrow
+                let acHighlightDom = document.getElementById('ac-highlight');
+                if (acHighlightDom === null) {
+                    let maybeFirstChild = this.autocompleteDom.childNodes[0];
+                    if (maybeFirstChild !== undefined) {
+                        maybeFirstChild.id = 'ac-highlight';
+                    }
+                }
+                else {
+                    let maybeNextSibling = acHighlightDom.nextSibling;
+                    if (maybeNextSibling !== null) {
+                        acHighlightDom.id = '';
+                        maybeNextSibling.id = 'ac-highlight';
+                    }
+                }
+            }
+            else if (event.keyCode >= 65 && event.keyCode <= 90) {
                 this.runAutoComplete();
             }
         });
@@ -58,7 +88,7 @@ class StrangeGui {
         }, false);
     }
 
-    async runAutoComplete() {
+    async fetchHeuristicNames() {
         let url = StrangeGui.serverURL + '/heuristicNames';
         fetch(url, {
             method: 'GET'
@@ -67,19 +97,24 @@ class StrangeGui {
             if (response.ok) {
                 response.json()
                 .then((responseJson) => {
-                    // TODO: lots of stuff
-                    const filterText = this.filterDom.innerText.trim();
-                    this.autocompleteDom.classList.remove('hidden');
-                    this.autocompleteDom.innerHTML = '';
-                    let names = responseJson.heuristicNames;
-                    names.forEach((name, idx) => {
-                        if (name.includes(filterText)) {
-                            let node = document.createElement('div');
-                            node.innerText = name;
-                            this.autocompleteDom.appendChild(node);
-                        }
-                    });
+                    this.heuristicNames = responseJson.heuristicNames;
                 });
+            }
+        });
+    }
+
+    async runAutoComplete() {
+        // TODO: lots of stuff
+        const filterText = this.filterDom.innerText.trim();
+        this.autocompleteDom.classList.remove('hidden');
+        this.autocompleteDom.innerHTML = '';
+        this.heuristicNames.forEach((name, idx) => {
+            let nameLower = name.toLowerCase();
+            let filterLower = filterText.toLowerCase();
+            if (nameLower.includes(filterLower)) {
+                let node = document.createElement('div');
+                node.innerText = name;
+                this.autocompleteDom.appendChild(node);
             }
         });
     }
