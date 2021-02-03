@@ -1079,6 +1079,38 @@ class StrangeComponent {
         this.parentMachine = parentMachine;
     }
 
+    loadDriveMechanismStl() {
+        let filepath;
+        if (this.attributes.driveMechanism === 'leadscrew') {
+            filepath = './block_models/leadscrew.stl';
+        }
+        else if (this.attributes.driveMechanism === 'timingBelt') {
+            filepath = './block_models/timing_belt.stl';
+        }
+        else {
+            return;
+        }
+        let loadPromise = new Promise(resolve => {
+            let loader = new STLLoader();
+            let stlMesh;
+            return loader.load(filepath, (stlGeom) => {
+                let material = new THREE.MeshLambertMaterial({
+                    color : BuildEnvironment.color,
+                    // Do not cull triangles with inward-pointing normals
+                    side: THREE.DoubleSide
+                });
+                stlMesh = new THREE.Mesh(stlGeom, material);
+                stlMesh.isLoadedStl = true;
+                this.meshGroup.add(stlMesh);
+                resolve(stlMesh);
+            }, undefined, (errorMsg) => {
+                console.log(errorMsg);
+            });
+        });
+        return loadPromise;
+    }
+
+
     get position() {
         return this.meshGroup.position;
     }
@@ -1486,6 +1518,7 @@ class Stage extends Block {
         let newStepDisplacementRatio = newAttributes.stepDisplacementRatio || 0;
         this.attributes.driveMechanism = newDriveMechanism;
         this.attributes.stepDisplacementRatio = newStepDisplacementRatio;
+        this.loadDriveMechanismStl();
     }
 }
 

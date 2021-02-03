@@ -114,7 +114,7 @@ class Workflow {
                         let f4 = () => {
                             let f5 = () => {
                                 runDom.classList.remove(CLASS_HIDDEN);
-                                window.jobFile.loadAndRunExample('box');
+                                window.jobFile.loadAndRunExample('cube');
                                 return endFunction;
                             };
                             return f5;
