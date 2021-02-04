@@ -1079,38 +1079,6 @@ class StrangeComponent {
         this.parentMachine = parentMachine;
     }
 
-    loadDriveMechanismStl() {
-        let filepath;
-        if (this.attributes.driveMechanism === 'leadscrew') {
-            filepath = './block_models/leadscrew.stl';
-        }
-        else if (this.attributes.driveMechanism === 'timingBelt') {
-            filepath = './block_models/timing_belt.stl';
-        }
-        else {
-            return;
-        }
-        let loadPromise = new Promise(resolve => {
-            let loader = new STLLoader();
-            let stlMesh;
-            return loader.load(filepath, (stlGeom) => {
-                let material = new THREE.MeshLambertMaterial({
-                    color : BuildEnvironment.color,
-                    // Do not cull triangles with inward-pointing normals
-                    side: THREE.DoubleSide
-                });
-                stlMesh = new THREE.Mesh(stlGeom, material);
-                stlMesh.isLoadedStl = true;
-                this.meshGroup.add(stlMesh);
-                resolve(stlMesh);
-            }, undefined, (errorMsg) => {
-                console.log(errorMsg);
-            });
-        });
-        return loadPromise;
-    }
-
-
     get position() {
         return this.meshGroup.position;
     }
@@ -1478,19 +1446,50 @@ class Stage extends Block {
     static arrowNegColor = 0x4478ff;
     static caseColor = 0x222222;
     static validKinematicsNames = [ 'directDrive', 'hBot', 'coreXY' ];
-    constructor(name, parentMachine, dimensions, attributes = {}) {
+    constructor(name, parentMachine, dimensions, attributes) {
         super(name, parentMachine, dimensions);
         if (this.constructor === Stage) {
             throw new Error('Can\'t instantiate abstract class Stage.');
         }
-        this.attributes = {
-            driveMechanism: attributes.driveMechanism || '',
-            stepDisplacementRatio: attributes.stepDisplacementRatio || 0
-        };
+        console.assert(attributes.driveMechanism !== undefined, attributes);
+        this.attributes = attributes;
+        this.loadDriveMechanismStl();
         this.axes = [];
         this.drivingMotors = [];
         this.baseBlock = true;
         parentMachine.addBlock(this);
+    }
+
+    loadDriveMechanismStl() {
+        let filepath;
+        if (this.attributes.driveMechanism === 'leadscrew') {
+            filepath = './block_models/leadscrew.stl';
+        }
+        else if (this.attributes.driveMechanism === 'timingBelt') {
+            filepath = './block_models/timing_belt.stl';
+        }
+        else {
+            return;
+        }
+        let loadPromise = new Promise(resolve => {
+            let loader = new STLLoader();
+            let stlMesh;
+            return loader.load(filepath, (stlGeom) => {
+                let material = new THREE.MeshLambertMaterial({
+                    color : BuildEnvironment.color,
+                    // Do not cull triangles with inward-pointing normals
+                    side: THREE.DoubleSide
+                });
+                stlMesh = new THREE.Mesh(stlGeom, material);
+                stlMesh.scale.set(2, 2, 2);
+                stlMesh.isLoadedStl = true;
+                this.meshGroup.add(stlMesh);
+                resolve(stlMesh);
+            }, undefined, (errorMsg) => {
+                console.log(errorMsg);
+            });
+        });
+        return loadPromise;
     }
 
     setAxes(axes) {
@@ -1514,6 +1513,7 @@ class Stage extends Block {
     }
 
     setAttributes(newAttributes) {
+        console.warn('This function will be deprecated');
         let newDriveMechanism = newAttributes.driveMechanism || '';
         let newStepDisplacementRatio = newAttributes.stepDisplacementRatio || 0;
         this.attributes.driveMechanism = newDriveMechanism;
@@ -2554,7 +2554,7 @@ class Compiler {
                 width: blockData.dimensions.width,
                 height: blockData.dimensions.height,
                 length: blockData.dimensions.length,
-            });
+            }, blockData.attributes);
             if (blockData.position !== undefined) {
                 let position = new THREE.Vector3(blockData.position.x,
                                             blockData.position.y,
@@ -2563,7 +2563,7 @@ class Compiler {
             }
             if (block instanceof Stage) {
                 block.setAxes(blockData.axes);
-                block.setAttributes(blockData.attributes);
+                // block.setAttributes(blockData.attributes);
                 block.setKinematics(blockData.kinematics);
                 block.renderArrows();
             }
