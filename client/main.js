@@ -124,7 +124,7 @@ class StrangeScene {
         return meshGroupNames;
     }
 
-    loadStl(filepath) {
+    loadModel(filepath) {
         if (this.machine === undefined) {
             const e = 'Please pick a machine before uploading a model.';
             window.strangeGui.writeErrorToJobLog(e);
@@ -142,6 +142,7 @@ class StrangeScene {
                     // Do not cull triangles with inward-pointing normals
                     side: THREE.DoubleSide
                 });
+                stlGeom.center();
                 stlMesh = new THREE.Mesh(stlGeom, material);
                 stlMesh.isLoadedStl = true;
                 this.model = stlMesh;
@@ -1305,21 +1306,57 @@ class Block extends StrangeComponent {
 class Tool extends Block {
     static color = 0xe44242;
     static defaultPosition = new THREE.Vector3(0, 150, 0);
-    constructor(name, parentMachine, dimensions, attributes = {}) {
+    constructor(name, parentMachine, dimensions, toolType, attributes) {
         super(name, parentMachine, dimensions);
         this.componentType = 'Tool';
         // NOTE: Tool objects are not base blocks because they are assumed
         // to be "floating" and machine-independent for simulation purposes
         this.baseBlock = false;
         this.endBlock = true;
-        this.attributes = {
-            toolType : attributes.toolType || '',
-            // If we want to specify radius explicitly, then we need to change
-            // the mesh instantiation in the geometry factory.
-            radius : dimensions.width / 2
-        };
+        console.assert(attributes !== undefined, 'attributes needed at Tool instantation.');
+        console.assert(toolType !== undefined, 'toolType needed at Tool instantiation.');
+        this.toolType = toolType;
+        this.attributes = attributes;
         parentMachine.addTool(this);
         this.renderDimensions();
+    }
+
+    __loadToolStl() {
+        let filepath;
+        if (this.toolType === 'print3dFDM') {
+            filepath = './block_models/hotend.stl';
+        }
+        else {
+            return new Promise(resolve => {
+                let geom = BuildEnvironment.geometryFactories.tool(this.dimensions);
+                let material = new THREE.MeshLambertMaterial({
+                    color : Tool.color
+                });
+                let placeHolderMesh = new THREE.Mesh(geom, material);
+                resolve(placeHolderMesh);
+            });
+        }
+        let loadPromise = new Promise(resolve => {
+            let loader = new STLLoader();
+            let stlMesh;
+            return loader.load(filepath, (stlGeom) => {
+                let material = new THREE.MeshLambertMaterial({
+                    color : BuildEnvironment.color,
+                    // Do not cull triangles with inward-pointing normals
+                    side: THREE.DoubleSide
+                });
+                stlGeom.center();
+                stlMesh = new THREE.Mesh(stlGeom, material);
+                stlMesh.scale.set(2, 2, 2);
+                stlMesh.isLoadedStl = true;
+                // this.meshGroup.add(stlMesh);
+                // window.strangeScene.scene.add(stlMesh);
+                resolve(stlMesh);
+            }, undefined, (errorMsg) => {
+                console.log(errorMsg);
+            });
+        });
+        return loadPromise;
     }
 
     renderDimensions() {
@@ -1342,12 +1379,15 @@ class Tool extends Block {
         this.mesh = new THREE.Mesh(geom, material);
         this.wireSegments = new THREE.LineSegments(edgesGeom, edgesMaterial);
         this.meshGroup = new THREE.Group();
-        this.meshGroup.add(this.mesh);
+        // this.meshGroup.add(this.mesh);
         this.meshGroup.add(this.wireSegments);
         this.meshGroup.blockName = this.name;
         this.geometries = [geom, edgesGeom];
         this.setPositionToDefault();
         this.addMeshGroupToScene();
+        this.__loadToolStl().then((toolMesh) => {
+            this.meshGroup.add(toolMesh);
+        });
     }
 
     renderFromToolType(toolType) {
@@ -1480,6 +1520,7 @@ class Stage extends Block {
                     // Do not cull triangles with inward-pointing normals
                     side: THREE.DoubleSide
                 });
+                stlGeom.center();
                 stlMesh = new THREE.Mesh(stlGeom, material);
                 stlMesh.scale.set(2, 2, 2);
                 stlMesh.isLoadedStl = true;
@@ -2569,9 +2610,8 @@ class Compiler {
             }
         });
         progObj.tools.forEach((toolData) => {
-            let tool = new Tool(toolData.name, machine, toolData.dimensions);
-            tool.attributes = toolData.attributes;
-            tool.toolType = toolData.toolType;
+            let tool = new Tool(toolData.name, machine, toolData.dimensions,
+                                toolData.toolType, toolData.attributes);
             tool.renderFromToolType(toolData.toolType);
             if (toolData.position !== undefined) {
                 let position = new THREE.Vector3(toolData.position.x,
