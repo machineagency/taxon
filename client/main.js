@@ -1388,14 +1388,67 @@ class Tool extends Block {
         });
     }
 
-    renderFromToolType(toolType) {
-        // TODO: remove cylinder above and load from stl
-    }
-
     setPositionToDefault() {
         this.meshGroup.position.set(Tool.defaultPosition.x,
                                Tool.defaultPosition.y,
                                Tool.defaultPosition.z);
+    }
+
+    extrude(filamentMM) {
+        // TODO: this is just a test right now
+        console.assert(this.toolType === 'print3dFDM',
+                        'Only FDM 3D Printer can extrude filament');
+        let geometry = new THREE.CylinderBufferGeometry(5, 5, 20, 32);
+        let filamentMaterial = new THREE.MeshLambertMaterial({
+            color: Tool.color,
+            skinning: true
+        });
+
+
+       const sizing = {
+           segmentHeight: 20,
+           halfHeight: 10
+       };
+const position = geometry.attributes.position;
+
+const vertex = new THREE.Vector3();
+
+const skinIndices = [];
+const skinWeights = [];
+
+for ( let i = 0; i < position.count; i ++ ) {
+
+	vertex.fromBufferAttribute( position, i );
+
+	// compute skinIndex and skinWeight based on some configuration data
+
+	const y = ( vertex.y + sizing.halfHeight );
+
+	const skinIndex = Math.floor( y / sizing.segmentHeight );
+	const skinWeight = ( y % sizing.segmentHeight ) / sizing.segmentHeight;
+
+	skinIndices.push( skinIndex, skinIndex + 1, 0, 0 );
+	skinWeights.push( 1 - skinWeight, skinWeight, 0, 0 );
+
+}
+
+geometry.setAttribute( 'skinIndex', new THREE.Uint16BufferAttribute( skinIndices, 4 ) );
+geometry.setAttribute( 'skinWeight', new THREE.Float32BufferAttribute( skinWeights, 4 ) );
+
+
+        let filMesh = new THREE.SkinnedMesh(geometry, filamentMaterial);
+        let rootBone = new THREE.Bone();
+        let endBone = new THREE.Bone();
+        endBone.position.setY(20);
+        let skeleton = new THREE.Skeleton([rootBone, endBone]);
+        filMesh.add(rootBone);
+        filMesh.add(endBone);
+        filMesh.bind(skeleton);
+        window.strangeScene.scene.add(filMesh);
+        setTimeout(() => {
+            console.log('transform!');
+            endBone.position.setY(100);
+        }, 2000);
     }
 }
 
@@ -2616,7 +2669,6 @@ class Compiler {
         progObj.tools.forEach((toolData) => {
             let tool = new Tool(toolData.name, machine, toolData.dimensions,
                                 toolData.toolType, toolData.attributes);
-            tool.renderFromToolType(toolData.toolType);
             if (toolData.position !== undefined) {
                 let position = new THREE.Vector3(toolData.position.x,
                                             toolData.position.y,
