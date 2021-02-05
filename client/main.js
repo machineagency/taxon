@@ -1341,7 +1341,7 @@ class Tool extends Block {
             let stlMesh;
             return loader.load(filepath, (stlGeom) => {
                 let material = new THREE.MeshLambertMaterial({
-                    color : BuildEnvironment.color,
+                    color : Tool.color,
                     // Do not cull triangles with inward-pointing normals
                     side: THREE.DoubleSide
                 });
@@ -1349,8 +1349,6 @@ class Tool extends Block {
                 stlMesh = new THREE.Mesh(stlGeom, material);
                 stlMesh.scale.set(2, 2, 2);
                 stlMesh.isLoadedStl = true;
-                // this.meshGroup.add(stlMesh);
-                // window.strangeScene.scene.add(stlMesh);
                 resolve(stlMesh);
             }, undefined, (errorMsg) => {
                 console.log(errorMsg);
@@ -1524,6 +1522,12 @@ class Stage extends Block {
                 stlMesh = new THREE.Mesh(stlGeom, material);
                 stlMesh.scale.set(2, 2, 2);
                 stlMesh.isLoadedStl = true;
+                if (this.axes[0] === 'y') {
+                    stlMesh.rotateZ(Math.PI / 2);
+                }
+                else if (this.axes[0] === 'z') {
+                    stlMesh.rotateY(Math.PI / 2);
+                }
                 this.meshGroup.add(stlMesh);
                 resolve(stlMesh);
             }, undefined, (errorMsg) => {
