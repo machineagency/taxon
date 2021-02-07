@@ -92,8 +92,8 @@ class StrangeScene {
     }
 
     removeMaterialMarks() {
-        window.strangeScene.scene.remove(window.strangeScene.materialMarks);
-        window.strangeScene.materialMarks = new THREE.Group();
+        this.scene.remove(this.materialMarks);
+        this.materialMarks = new THREE.Group();
     }
 
     renderScene() {
@@ -1401,43 +1401,6 @@ class Tool extends Block {
                                Tool.defaultPosition.y,
                                Tool.defaultPosition.z);
     }
-
-    extrude(filamentMM) {
-        // TODO: this is just a test right now
-        console.assert(this.toolType === 'print3dFDM',
-                        'Only FDM 3D Printer can extrude filament');
-        const numTubeSegs = 100;
-        const radius = 1;
-        const radialSegs = 4;
-        const isClosed = false;
-        let points = [
-            new THREE.Vector3(0, 0, 0),
-            new THREE.Vector3(0, 0, 100)
-        ];
-        let path = new THREE.CatmullRomCurve3(points);
-        let geom = new THREE.TubeBufferGeometry(path, numTubeSegs, radius,
-                        radialSegs, isClosed);
-        let mat = new THREE.MeshLambertMaterial({
-            color: Tool.color
-            // side: THREE.DoubleSide
-        });
-        geom.setDrawRange(0, 0);
-        let mesh = new THREE.Mesh(geom, mat);
-        window.strangeScene.scene.add(mesh);
-        mesh.position.setY(100);
-        const nStep = 3 * radialSegs
-        const nMax = nStep * numTubeSegs;
-        const delay = 10;
-        let n = 0;
-        console.log(geom.drawRange);
-        let interval = setInterval(() => {
-            geom.setDrawRange(0, n);
-            n += nStep;
-            if (n >= nMax) {
-                clearInterval(interval);
-            }
-        }, delay);
-    }
 }
 
 class ToolAssembly extends Block {
@@ -2278,6 +2241,9 @@ class StrangeAnimator {
                 materialAction.loop = THREE.LoopOnce;
                 materialAction.clampWhenFinished = true;
                 return [action, materialAction];
+            }
+            else if (block.componentType === 'Platform') {
+                // TODO: compute offset and make another tube
             }
             else {
                 return action;
