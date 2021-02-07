@@ -1398,57 +1398,29 @@ class Tool extends Block {
         // TODO: this is just a test right now
         console.assert(this.toolType === 'print3dFDM',
                         'Only FDM 3D Printer can extrude filament');
-        let geometry = new THREE.CylinderBufferGeometry(5, 5, 20, 32);
-        let filamentMaterial = new THREE.MeshLambertMaterial({
-            color: Tool.color,
-            skinning: true
+        const numTubeSegs = 20;
+        const radius = 1;
+        const radialSegs = 8;
+        const isClosed = false;
+        let points = [
+            new THREE.Vector2(0, 0),
+            new THREE.Vector2(0, 100),
+            new THREE.Vector2(100, 100),
+            new THREE.Vector2(100, 0),
+            new THREE.Vector2(0, 0)
+        ];
+        let shape = new THREE.Shape(points);
+        // let geom = new THREE.TubeBufferGeometry(path, numTubeSegs, radius,
+        //                 radialSegs, isClosed);
+        let geom = new THREE.ShapeGeometry(shape);
+        let edgeGeom = new THREE.EdgesGeometry(geom);
+        let mat = new THREE.LineBasicMaterial({
+            color: Tool.color
+            // side: THREE.DoubleSide
         });
-
-
-       const sizing = {
-           segmentHeight: 20,
-           halfHeight: 10
-       };
-const position = geometry.attributes.position;
-
-const vertex = new THREE.Vector3();
-
-const skinIndices = [];
-const skinWeights = [];
-
-for ( let i = 0; i < position.count; i ++ ) {
-
-	vertex.fromBufferAttribute( position, i );
-
-	// compute skinIndex and skinWeight based on some configuration data
-
-	const y = ( vertex.y + sizing.halfHeight );
-
-	const skinIndex = Math.floor( y / sizing.segmentHeight );
-	const skinWeight = ( y % sizing.segmentHeight ) / sizing.segmentHeight;
-
-	skinIndices.push( skinIndex, skinIndex + 1, 0, 0 );
-	skinWeights.push( 1 - skinWeight, skinWeight, 0, 0 );
-
-}
-
-geometry.setAttribute( 'skinIndex', new THREE.Uint16BufferAttribute( skinIndices, 4 ) );
-geometry.setAttribute( 'skinWeight', new THREE.Float32BufferAttribute( skinWeights, 4 ) );
-
-
-        let filMesh = new THREE.SkinnedMesh(geometry, filamentMaterial);
-        let rootBone = new THREE.Bone();
-        let endBone = new THREE.Bone();
-        endBone.position.setY(20);
-        let skeleton = new THREE.Skeleton([rootBone, endBone]);
-        filMesh.add(rootBone);
-        filMesh.add(endBone);
-        filMesh.bind(skeleton);
-        window.strangeScene.scene.add(filMesh);
-        setTimeout(() => {
-            console.log('transform!');
-            endBone.position.setY(100);
-        }, 2000);
+        let mesh = new THREE.Line(geom, mat);
+        window.strangeScene.scene.add(mesh);
+        mesh.position.setY(100);
     }
 }
 
