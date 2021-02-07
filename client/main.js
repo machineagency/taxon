@@ -36,6 +36,8 @@ class StrangeScene {
         scene.add(leftDirectionalLight);
         scene.add(rightDirectionalLight);
         scene.add(ambientLight);
+        this.materialMarks = new THREE.Group();
+        scene.add(this.materialMarks);
         return scene;
     }
 
@@ -87,6 +89,11 @@ class StrangeScene {
 
     removeFromScene(sceneObj) {
         this.scene.remove(sceneObj);
+    }
+
+    removeMaterialMarks() {
+        window.strangeScene.scene.remove(window.strangeScene.materialMarks);
+        window.strangeScene.materialMarks = new THREE.Group();
     }
 
     renderScene() {
@@ -326,6 +333,7 @@ class InstructionQueue {
             let zeroGrid = this.kinematics.zeroGrid;
             this.kinematics.strangeScene.removeFromScene(zeroGrid);
             jobFile.removeDomHighlight();
+            window.strangeScene.removeMaterialMarks();
             return;
         }
         if (this.motorsBusy) {
@@ -2326,20 +2334,25 @@ class StrangeAnimator {
         const radius = 1;
         const radialSegs = 4;
         const isClosed = false;
+
+        // Make material mesh
+        let heightOffset = new THREE.Vector3(0, obj.height / 2, 0);
         let points = [
-            obj.position,
-            newPos
+            obj.position.clone().sub(heightOffset),
+            newPos.clone().sub(heightOffset)
         ];
         let path = new THREE.CatmullRomCurve3(points);
         let geom = new THREE.TubeBufferGeometry(path, numTubeSegs, radius,
                         radialSegs, isClosed);
+        geom.setDrawRange(0, 0);
         let mat = new THREE.MeshLambertMaterial({
             color: Tool.color
         });
-        geom.setDrawRange(0, 0);
         let mesh = new THREE.Mesh(geom, mat);
-        window.strangeScene.scene.add(mesh);
-        const nMax = 3 * radialSegs * numTubeSegs;
+        this.strangeScene.materialMarks.add(mesh);
+
+        // Set up animation
+        const nMax = 3 * radialSegs * numTubeSegs * 2;
         let mixer = new THREE.AnimationMixer(mesh);
         mixer.addEventListener('finished', (event) => {
             mixer.stopAllAction();
