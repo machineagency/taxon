@@ -1398,30 +1398,37 @@ class Tool extends Block {
         // TODO: this is just a test right now
         console.assert(this.toolType === 'print3dFDM',
                         'Only FDM 3D Printer can extrude filament');
-        const numTubeSegs = 20;
+        const numTubeSegs = 100;
         const radius = 1;
-        const radialSegs = 8;
+        const radialSegs = 4;
         const isClosed = false;
         let points = [
             new THREE.Vector3(0, 0, 0),
-            new THREE.Vector3(0, 0, 100),
-            new THREE.Vector3(100, 0, 100),
-            new THREE.Vector3(100, 0, 0),
-            new THREE.Vector3(0, 0, 0)
+            new THREE.Vector3(0, 0, 100)
         ];
         let path = new THREE.CatmullRomCurve3(points);
         let geom = new THREE.TubeBufferGeometry(path, numTubeSegs, radius,
                         radialSegs, isClosed);
-        // let geom = new THREE.ShapeGeometry(shape);
-        // let edgeGeom = new THREE.EdgesGeometry(geom);
         let mat = new THREE.MeshLambertMaterial({
             color: Tool.color
             // side: THREE.DoubleSide
         });
+        geom.setDrawRange(0, 0);
         let mesh = new THREE.Mesh(geom, mat);
         window.strangeScene.scene.add(mesh);
         mesh.position.setY(100);
-        console.log(mesh);
+        const nStep = 3 * radialSegs
+        const nMax = nStep * numTubeSegs;
+        const delay = 10;
+        let n = 0;
+        console.log(geom.drawRange);
+        let interval = setInterval(() => {
+            geom.setDrawRange(0, n);
+            n += nStep;
+            if (n >= nMax) {
+                clearInterval(interval);
+            }
+        }, delay);
     }
 }
 
@@ -2254,8 +2261,20 @@ class StrangeAnimator {
             let action = mixer.clipAction(clip);
             action.loop = THREE.LoopOnce;
             action.clampWhenFinished = true;
-            return action;
-        });
+            if (block.componentType === 'Tool') {
+                let materialMCPair = this.makeMaterialMixerClipMair(block, endPos);
+                let mixer = materialMCPair[0];
+                let clip = materialMCPair[1];
+                this.strangeScene.mixers.push(mixer);
+                let materialAction = mixer.clipAction(clip)
+                materialAction.loop = THREE.LoopOnce;
+                materialAction.clampWhenFinished = true;
+                return [action, materialAction];
+            }
+            else {
+                return action;
+            }
+        }).flat();
         actions.forEach((action) => {
             action.play();
         });
@@ -2292,13 +2311,55 @@ class StrangeAnimator {
             }
         });
         let currPos = obj.position;
-        let positionKF = new THREE.VectorKeyframeTrack('.position', [1,2],
+        const animSeconds = 1.0;
+        let positionKF = new THREE.VectorKeyframeTrack('.position', [0, animSeconds],
                             [currPos.x, currPos.y, currPos.z,
                              newPos.x, newPos.y, newPos.z],
-                            THREE.InterpolateLinear);
-        let clip = new THREE.AnimationClip('Action', 2, [ positionKF ]);
+                            THREE.InterpolateSmooth);
+        let clip = new THREE.AnimationClip('Action', animSeconds, [ positionKF ]);
         return [mixer, clip];
     };
+
+    makeMaterialMixerClipMair(obj, newPos) {
+        const animSeconds = 1.0;
+        const numTubeSegs = obj.position.distanceTo(newPos);
+        const radius = 1;
+        const radialSegs = 4;
+        const isClosed = false;
+        let points = [
+            obj.position,
+            newPos
+        ];
+        let path = new THREE.CatmullRomCurve3(points);
+        let geom = new THREE.TubeBufferGeometry(path, numTubeSegs, radius,
+                        radialSegs, isClosed);
+        let mat = new THREE.MeshLambertMaterial({
+            color: Tool.color
+        });
+        geom.setDrawRange(0, 0);
+        let mesh = new THREE.Mesh(geom, mat);
+        window.strangeScene.scene.add(mesh);
+        const nMax = 3 * radialSegs * numTubeSegs;
+        let mixer = new THREE.AnimationMixer(mesh);
+        mixer.addEventListener('finished', (event) => {
+            mixer.stopAllAction();
+            let idx = this.strangeScene.mixers.indexOf(mixer);
+            if (idx !== -1) {
+                this.strangeScene.mixers.splice(idx, 1);
+            }
+            geom.setDrawRange(0, nMax);
+            if (this.strangeScene.mixers.length === 0) {
+                this.strangeScene.instructionQueue.unsetMotorsBusy();
+                this.strangeScene.instructionQueue.executeNextInstruction();
+            }
+        });
+        let positionKF = new THREE.NumberKeyframeTrack('.geometry[drawRange].count',
+                            [0, animSeconds],
+                            [0, nMax],
+                            THREE.InterpolateSmooth);
+        let clip = new THREE.AnimationClip('Action', animSeconds, [ positionKF ]);
+        return [mixer, clip];
+    }
 }
 
 class JobFile {
