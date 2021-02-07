@@ -1403,24 +1403,25 @@ class Tool extends Block {
         const radialSegs = 8;
         const isClosed = false;
         let points = [
-            new THREE.Vector2(0, 0),
-            new THREE.Vector2(0, 100),
-            new THREE.Vector2(100, 100),
-            new THREE.Vector2(100, 0),
-            new THREE.Vector2(0, 0)
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(0, 0, 100),
+            new THREE.Vector3(100, 0, 100),
+            new THREE.Vector3(100, 0, 0),
+            new THREE.Vector3(0, 0, 0)
         ];
-        let shape = new THREE.Shape(points);
-        // let geom = new THREE.TubeBufferGeometry(path, numTubeSegs, radius,
-        //                 radialSegs, isClosed);
-        let geom = new THREE.ShapeGeometry(shape);
-        let edgeGeom = new THREE.EdgesGeometry(geom);
-        let mat = new THREE.LineBasicMaterial({
+        let path = new THREE.CatmullRomCurve3(points);
+        let geom = new THREE.TubeBufferGeometry(path, numTubeSegs, radius,
+                        radialSegs, isClosed);
+        // let geom = new THREE.ShapeGeometry(shape);
+        // let edgeGeom = new THREE.EdgesGeometry(geom);
+        let mat = new THREE.MeshLambertMaterial({
             color: Tool.color
             // side: THREE.DoubleSide
         });
-        let mesh = new THREE.Line(geom, mat);
+        let mesh = new THREE.Mesh(geom, mat);
         window.strangeScene.scene.add(mesh);
         mesh.position.setY(100);
+        console.log(mesh);
     }
 }
 
