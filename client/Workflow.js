@@ -11,8 +11,7 @@ class Workflow {
         this.stepButtonDom = document.getElementById('step-button');
         this.consoleDom = document.getElementById('workflow-console');
         this.injectTestProgTextNodes();
-        this.progOutermostFn = this.testSelector();
-        this.progCurrFn = this.testSelector();
+        this.progCurrFn = this.parseStatementsIntoCurriedFn();
         this.__currLineNum = 0;
     }
 
@@ -43,8 +42,9 @@ class Workflow {
     }
 
     reset() {
+        // TODO: reset on edited text
         const highlightId = 'workflow-highlight';
-        this.progCurrFn = this.progOutermostFn;
+        this.progCurrFn = this.parseStatementsIntoCurriedFn();
         this.__currLineNum = 0;
         let currHighlightedNode = document.getElementById(highlightId);
         if (currHighlightedNode !== null) {
@@ -95,7 +95,7 @@ class Workflow {
         });
     }
 
-    testSelector() {
+    parseStatementsIntoCurriedFn() {
         const consoleHandler = {
             apply: (target, thisArg, argList) => {
                 let msg = argList[0];
@@ -109,11 +109,11 @@ class Workflow {
         const runDom = document.getElementById('widget-run');
         // FIXME: cannot unbind this uh oh
         console.log = new Proxy(console.log, consoleHandler);
-        let curriedWorkflow = this.generateCurriedWorkflow();
+        let curriedWorkflow = this.__generateCurriedWorkflow();
         return curriedWorkflow;
     }
 
-    generateCurriedWorkflow() {
+    __generateCurriedWorkflow() {
         // Bindings!
         let $m = this.generateMSelector();
         let $b = this.generateBSelector();
