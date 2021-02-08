@@ -74,7 +74,7 @@ class StrangeGui {
         // this.renderModelPane = this.__inflateModelContainerDom();
         // this.makeLoadStlPromise('./pikachu.stl');
         // this.renderModelPane();
-        this.workflow = new Workflow(this);
+        this.workflow = new Workflow(this, this.kinematics);
         this.fetchAndRenderMachineNames();
         document.addEventListener('dblclick', (event) => {
             let programPadClicked = this.programPadDom.contains(event.target);

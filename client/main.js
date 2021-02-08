@@ -323,7 +323,7 @@ class InstructionQueue {
             return;
         }
         if (this.jobFile === undefined) {
-            console.error('No jobFile set for instruction queue.');
+            // Moves that don't involve pre-loaded files
             return;
         }
         if (this.isEmpty) {
@@ -2232,7 +2232,8 @@ class StrangeAnimator {
             let action = mixer.clipAction(clip);
             action.loop = THREE.LoopOnce;
             action.clampWhenFinished = true;
-            if (block.componentType === 'Tool') {
+            // TODO: better design for turning this on and off
+            if (false && block.componentType === 'Tool') {
                 let materialMCPair = this.makeMaterialMixerClipMair(block, endPos);
                 let mixer = materialMCPair[0];
                 let clip = materialMCPair[1];
@@ -2244,6 +2245,7 @@ class StrangeAnimator {
             }
             else if (block.componentType === 'Platform') {
                 // TODO: compute offset and make another tube
+                return action;
             }
             else {
                 return action;

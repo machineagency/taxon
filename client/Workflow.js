@@ -152,5 +152,43 @@ class Workflow {
     }
 }
 
+// Language constructs
+
+// FIXME: May need to make these methods or otherwise bind 'this'
+// Motor --- idea, use evil magic
+function $m(motorName) {
+   // Single motor spin only
+   return {
+       step: function(numSteps) {
+           window.kinematics.turnMotors({
+               [motorName]: numSteps
+           });
+       }
+   }
+};
+
+// Block
+function $b(blockName) {
+    let block = window.kinematics.machine.findBlockWithName(blockName);
+    console.assert(block !== undefined,
+                    'Could not find a block with that name');
+    return {
+        // TODO: do stuff with the block
+    }
+};
+
+// Tool
+function $t(toolName) {
+}
+
+// Entire Machine
+function $machine() {
+    return {
+        stepMotors: function(motorStepPairs) {
+            window.kinematics.turnMotors(motorStepPairs);
+        }
+    }
+}
+
 export { Workflow };
 
