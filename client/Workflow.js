@@ -10,12 +10,18 @@ class Workflow {
         this.dom = document.getElementById('workflow-container');
         this.stepButtonDom = document.getElementById('step-button');
         this.consoleDom = document.getElementById('workflow-console');
-        this.progText = this.dom.innerText.trim();
-        this.statements = this.__splitProgTextIntoStatements(this.progText);
         this.progOutermostFn = this.testSelector();
         this.profCurrFn = this.testSelector();
         this.__currLineNum = 0;
         this.injectTestProgTextNodes();
+    }
+
+    get progText() {
+        return this.dom.innerText.trim();
+    }
+
+    get statements() {
+        return this.__splitProgTextIntoStatements(this.progText);
     }
 
     parseTextIntoProgram() {
@@ -85,7 +91,8 @@ class Workflow {
         //     'run();'
         // ];
         let statements = [
-            '$m(\'leadscrew motor a\').step(50)'
+            '$m(\'leadscrew motor a\').step(50);',
+            '$m(\'leadscrew motor a\').step(-50);'
         ];
         statements.forEach((stat, idx) => {
             this.addLine(statements[idx]);
