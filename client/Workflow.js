@@ -10,10 +10,10 @@ class Workflow {
         this.dom = document.getElementById('workflow-container');
         this.stepButtonDom = document.getElementById('step-button');
         this.consoleDom = document.getElementById('workflow-console');
-        this.progOutermostFn = this.testSelector();
-        this.profCurrFn = this.testSelector();
-        this.__currLineNum = 0;
         this.injectTestProgTextNodes();
+        this.progOutermostFn = this.testSelector();
+        this.progCurrFn = this.testSelector();
+        this.__currLineNum = 0;
     }
 
     get progText() {
@@ -24,31 +24,27 @@ class Workflow {
         return this.__splitProgTextIntoStatements(this.progText);
     }
 
-    parseTextIntoProgram() {
-        // TODO: parse raw text into statements -> curried FN
-    }
-
     addLine(lineText) {
-        // TODO: parse text and e.g. if it's a block add block constructor
         let node = document.createElement('div');
         node.innerText = lineText;
         this.dom.appendChild(node);
     }
 
     step() {
-        if (this.profCurrFn.name === Workflow.EndFunctionName) {
+        // TODO: block step until animations are done
+        if (this.progCurrFn.name === Workflow.EndFunctionName) {
             console.warn('End of program.');
             return;
         }
         if (this.__currLineNum > 0) {
-            this.profCurrFn = this.profCurrFn();
+            this.progCurrFn = this.progCurrFn();
         }
         this.__stepHighlightLine();
     }
 
     reset() {
         const highlightId = 'workflow-highlight';
-        this.profCurrFn = this.progOutermostFn();
+        this.progCurrFn = this.progOutermostFn;
         this.__currLineNum = 0;
         let currHighlightedNode = document.getElementById(highlightId);
         if (currHighlightedNode !== null) {
@@ -107,17 +103,17 @@ class Workflow {
                 return target(msg);
             }
         };
-        const endFunction = () => {};
-        Reflect.defineProperty(endFunction, 'name', {
-            value: Workflow.EndFunctionName,
-            writeable: false
-        });
         const CLASS_HIDDEN = 'hidden';
         const mUploadDom = document.getElementById('widget-upload-model');
         const mPositionDom = document.getElementById('widget-position-model');
         const runDom = document.getElementById('widget-run');
         // FIXME: cannot unbind this uh oh
         console.log = new Proxy(console.log, consoleHandler);
+        let curriedWorkflow = this.generateCurriedWorkflow();
+        return curriedWorkflow;
+    }
+
+    generateCurriedWorkflow() {
         // Bindings!
         let $m = this.generateMSelector();
         let $b = this.generateBSelector();
@@ -125,11 +121,30 @@ class Workflow {
         let $machine = this.generateMachineSelector();
         let $model = this.generateModelSelector();
         let $material = this.generateMaterialSelector();
+
         // Curry magic
-        let f0 = () => {
-            $m('leadscrew motor a').step(50);
-        }
-        return f0;
+        const lines = [...this.statements];
+        const generateInnerFn = (lineIdx) => {
+            if (lineIdx === lines.length) {
+                const endFunction = () => {};
+                Reflect.defineProperty(endFunction, 'name', {
+                    value: Workflow.EndFunctionName,
+                    writeable: false
+                });
+                return endFunction;
+            }
+            else {
+                let outerFn = () => {
+                    let innerFn = generateInnerFn(lineIdx + 1);
+                    let currLine = lines[lineIdx];
+                    // Eval seems unavoidable here
+                    eval(currLine);
+                    return innerFn;
+                };
+                return outerFn;
+            }
+        };
+        return generateInnerFn(0);
     }
 
     testCurry() {
