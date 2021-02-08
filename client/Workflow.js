@@ -4,15 +4,16 @@ class Workflow {
 
     static EndFunctionName = 'END_FUNCTION';
 
-    constructor(parentGui) {
+    constructor(parentGui, kinematics) {
         this.parentGui = parentGui;
+        this.kinematics = kinematics;
         this.dom = document.getElementById('workflow-container');
         this.stepButtonDom = document.getElementById('step-button');
         this.consoleDom = document.getElementById('workflow-console');
         this.progText = this.dom.innerText.trim();
         this.statements = this.__splitProgTextIntoStatements(this.progText);
-        this.progOutermostFn = this.testCurry();
-        this.profCurrFn = this.testCurry();
+        this.progOutermostFn = this.testSelector();
+        this.profCurrFn = this.testSelector();
         this.__currLineNum = 0;
         this.injectTestProgTextNodes();
     }
@@ -41,7 +42,7 @@ class Workflow {
 
     reset() {
         const highlightId = 'workflow-highlight';
-        this.profCurrFn = this.testCurry();
+        this.profCurrFn = this.progOutermostFn();
         this.__currLineNum = 0;
         let currHighlightedNode = document.getElementById(highlightId);
         if (currHighlightedNode !== null) {
@@ -75,17 +76,53 @@ class Workflow {
     }
 
     injectTestProgTextNodes() {
+        // let statements = [
+        //     'loadChosenMachine();',
+        //     'selectMaterial(\'PLA\');',
+        //     'uploadModel();',
+        //     'positionModel();',
+        //     'sliceModel();',
+        //     'run();'
+        // ];
         let statements = [
-            'loadChosenMachine();',
-            'selectMaterial(\'PLA\');',
-            'uploadModel();',
-            'positionModel();',
-            'sliceModel();',
-            'run();'
+            '$m(\'leadscrew motor a\').step(50)'
         ];
         statements.forEach((stat, idx) => {
             this.addLine(statements[idx]);
         });
+    }
+
+    testSelector() {
+        const consoleHandler = {
+            apply: (target, thisArg, argList) => {
+                let msg = argList[0];
+                this.consoleDom.innerText = msg;
+                return target(msg);
+            }
+        };
+        const endFunction = () => {};
+        Reflect.defineProperty(endFunction, 'name', {
+            value: Workflow.EndFunctionName,
+            writeable: false
+        });
+        const CLASS_HIDDEN = 'hidden';
+        const mUploadDom = document.getElementById('widget-upload-model');
+        const mPositionDom = document.getElementById('widget-position-model');
+        const runDom = document.getElementById('widget-run');
+        // FIXME: cannot unbind this uh oh
+        console.log = new Proxy(console.log, consoleHandler);
+        // Bindings!
+        let $m = this.generateMSelector();
+        let $b = this.generateBSelector();
+        let $t = this.generateTSelector();
+        let $machine = this.generateMachineSelector();
+        let $model = this.generateModelSelector();
+        let $material = this.generateMaterialSelector();
+        // Curry magic
+        let f0 = () => {
+            $m('leadscrew motor a').step(50);
+        }
+        return f0;
     }
 
     testCurry() {
@@ -150,44 +187,63 @@ class Workflow {
         };
         return f0;
     }
-}
 
-// Language constructs
+    // Lanaguage constructs
 
-// FIXME: May need to make these methods or otherwise bind 'this'
-// Motor --- idea, use evil magic
-function $m(motorName) {
-   // Single motor spin only
-   return {
-       step: function(numSteps) {
-           window.kinematics.turnMotors({
-               [motorName]: numSteps
-           });
-       }
-   }
-};
-
-// Block
-function $b(blockName) {
-    let block = window.kinematics.machine.findBlockWithName(blockName);
-    console.assert(block !== undefined,
-                    'Could not find a block with that name');
-    return {
-        // TODO: do stuff with the block
+    generateMSelector() {
+        const kinematics = this.kinematics;
+        return (motorName) => {
+            return {
+                step: (numSteps) => {
+                    kinematics.turnMotors({
+                        [motorName]: numSteps
+                    });
+                }
+            };
+        };
     }
-};
 
-// Tool
-function $t(toolName) {
-}
-
-// Entire Machine
-function $machine() {
-    return {
-        stepMotors: function(motorStepPairs) {
-            window.kinematics.turnMotors(motorStepPairs);
-        }
+    generateBSelector() {
+        const kinematics = this.kinematics;
+        return (blockName) => {
+            let block = kinematics.machine.findBlockWithName(blockName);
+            console.assert(block !== undefined,
+                            'Could not find a block with that name');
+            return {
+                // TODO: do stuff with the block
+            }
+        };
     }
+
+    generateTSelector() {
+        const kinematics = this.kinematics;
+        return (toolName) => {
+        };
+    }
+
+    generateMachineSelector() {
+        const kinematics = this.kinematics;
+        return () => {
+            return {
+                stepMotors: function(motorStepPairs) {
+                    kinematics.turnMotors(motorStepPairs);
+                }
+            };
+        };
+    }
+
+    generateMaterialSelector() {
+        return (materialName) => {
+            // If materialName is undefined, help me pick one
+        };
+    }
+
+    generateModelSelector() {
+        return (modelName) => {
+            // If modelName is undefined, help me pick one
+        };
+    }
+
 }
 
 export { Workflow };
