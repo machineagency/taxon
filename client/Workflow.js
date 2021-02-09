@@ -87,8 +87,9 @@ class Workflow {
         //     'run();'
         // ];
         let statements = [
-            '$m(\'leadscrew motor a\').step(50);',
-            '$m(\'leadscrew motor a\').step(-50);'
+            '$b(\'carriage\').wiggle();',
+            '$machine().zero();',
+            '$machine().moveTo(50, 50, 50);'
         ];
         statements.forEach((stat, idx) => {
             this.addLine(statements[idx]);
@@ -247,8 +248,16 @@ class Workflow {
         const kinematics = this.kinematics;
         return () => {
             return {
-                stepMotors: function(motorStepPairs) {
+                zero: () => {
+                    kinematics.zeroAtCurrentPosition();
+                },
+                stepMotors: (motorStepPairs) => {
                     kinematics.turnMotors(motorStepPairs);
+                },
+                moveTo: (x, y, z) => {
+                    const axisToCoord = { x, y, z };
+                    console.log(axisToCoord);
+                    kinematics.moveTool(axisToCoord);
                 }
             };
         };
