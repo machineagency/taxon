@@ -233,8 +233,25 @@ class Workflow {
             console.assert(block !== undefined,
                             'Could not find a block with that name');
             return {
-                // TODO: do stuff with the block
-            }
+                wiggle: () => {
+                    const wiggleSteps = 20;
+                    const epsSec = 0.01;
+                    const delay = (kinematics.strangeAnimator.ANIM_SECONDS +
+                                    epsSec) * 1000;
+                    let drivingMotors = block.drivingMotors;
+                    if (block.kinematics === 'directDrive') {
+                        let singleMotorName = drivingMotors[0].name;
+                        kinematics.turnMotors({
+                            [singleMotorName]: wiggleSteps
+                        });
+                        setTimeout(() => {
+                            kinematics.turnMotors({
+                                [singleMotorName]: -wiggleSteps
+                            });
+                        }, delay);
+                    }
+                }
+            };
         };
     }
 

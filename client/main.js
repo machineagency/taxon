@@ -2216,6 +2216,8 @@ class KNode {
 class StrangeAnimator {
 
     constructor(strangeScene) {
+        // Number of seconds for animation for each move
+        this.ANIM_SECONDS = 1.0;
         this.strangeScene = strangeScene;
         this.blockNameEndPositions = {};
         // Note that mixers must stay in StrangeScene for rendering
@@ -2287,17 +2289,17 @@ class StrangeAnimator {
             }
         });
         let currPos = obj.position;
-        const animSeconds = 1.0;
-        let positionKF = new THREE.VectorKeyframeTrack('.position', [0, animSeconds],
+        let positionKF = new THREE.VectorKeyframeTrack('.position',
+                            [0, this.ANIM_SECONDS],
                             [currPos.x, currPos.y, currPos.z,
                              newPos.x, newPos.y, newPos.z],
                             THREE.InterpolateSmooth);
-        let clip = new THREE.AnimationClip('Action', animSeconds, [ positionKF ]);
+        let clip = new THREE.AnimationClip('Action',
+                        this.ANIM_SECONDS, [ positionKF ]);
         return [mixer, clip];
     };
 
     makeMaterialMixerClipMair(obj, newPos) {
-        const animSeconds = 1.0;
         const numTubeSegs = obj.position.distanceTo(newPos);
         const radius = 1;
         const radialSegs = 4;
@@ -2335,10 +2337,11 @@ class StrangeAnimator {
             }
         });
         let positionKF = new THREE.NumberKeyframeTrack('.geometry[drawRange].count',
-                            [0, animSeconds],
+                            [0, this.ANIM_SECONDS],
                             [0, nMax],
                             THREE.InterpolateSmooth);
-        let clip = new THREE.AnimationClip('Action', animSeconds, [ positionKF ]);
+        let clip = new THREE.AnimationClip('Action',
+                        this.ANIM_SECONDS, [ positionKF ]);
         return [mixer, clip];
     }
 }
