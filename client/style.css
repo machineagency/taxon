@@ -1,3 +1,20 @@
+@font-face {
+  font-family: JetBrainsMono;
+  src: url(fonts/JetBrainsMono-Medium.ttf);
+}
+
+@font-face {
+  font-family: JetBrainsMono;
+  src: url(fonts/JetBrainsMono-Regular.ttf);
+  font-weight: lighter;
+}
+
+@font-face {
+  font-family: JetBrainsMono;
+  src: url(fonts/JetBrainsMono-Bold.ttf);
+  font-weight: bold;
+}
+
 ::-moz-selection { /* Code for Firefox */
   background: #ffffff;
   color: #000000;
@@ -9,17 +26,21 @@
 }
 
 body {
-    font-family: Monospace;
+    font-family: JetBrainsMono, serif;
     background-color: #f0f0f0;
     margin: 0px;
     overflow: hidden;
+}
+
+pre {
+    font-family: JetBrainsMono, serif;
 }
 
 button {
     background-color: white;
     border: none;
     color: black;
-    font-family: Monospace;
+    font-family: JetBrainsMono, serif;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -42,7 +63,7 @@ input[type="file"] {
     background-color: white;
     border: none;
     color: black;
-    font-family: Monospace;
+    font-family: JetBrains, Monospace;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -74,7 +95,7 @@ input[type="file"] {
     top: 0px;
     width: 100%;
     padding: 5px;
-    font-family: Monospace;
+    font-family: JetBrainsMono, Monospace;
     font-size: 13px;
     text-align: center;
     color: #ffffff;
@@ -86,7 +107,7 @@ input[type="file"] {
     left: 20px;
     bottom: 20px;
     padding: 20px;
-    font-family: Monospace;
+    font-family: JetBrainsMono, Monospace;
     font-size: 13px;
     text-align: center;
     color: #ffffff;
@@ -100,7 +121,7 @@ input[type="file"] {
     left: 20px;
     top: 20px;
     padding: 20px 20px 10px 20px;
-    font-family: Monospace;
+    font-family: JetBrainsMono, Monospace;
     font-size: 10px;
     color: #ffffff;
     width: 250px;
@@ -113,7 +134,7 @@ input[type="file"] {
     right: 20px;
     top: 20px;
     padding: 20px 20px 10px 20px;
-    font-family: Monospace;
+    font-family: JetBrainsMono, Monospace;
     font-size: 10px;
     color: #ffffff;
     width: 250px;
@@ -191,7 +212,7 @@ input[type="file"] {
     background-color: white;
     border: none;
     color: black;
-    font-family: Monospace;
+    font-family: JetBrainsMono, Monospace;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -288,7 +309,7 @@ input[type="file"] {
     position: absolute;
     bottom: 20px;
     padding: 20px 20px 10px 20px;
-    font-family: Monospace;
+    font-family: JetBrainsMono, Monospace;
     font-size: 10px;
     color: #ffffff;
     background-color: black;
@@ -339,7 +360,7 @@ input[type="file"] {
     height: 25px;
     width: 85%;
     color: white;
-    font-family: Monospace;
+    font-family: JetBrainsMono, Monospace;
     font-size: 18px;
     padding-left: 15px;
 }
@@ -372,23 +393,23 @@ input[type="file"] {
 /* Make dat.gui have cooler fonts */
 
 .title {
-    font-family: Monospace;
+    font-family: JetBrainsMono, Monospace;
 }
 
 .property-name {
-    font-family: Monospace;
+    font-family: JetBrainsMono, Monospace;
 }
 
 .dg .cr.string input[type=text] {
-    font-family: Monospace;
+    font-family: JetBrainsMono, Monospace;
 }
 
 .function {
-    font-family: Monospace;
+    font-family: JetBrainsMono, Monospace;
 }
 
 .close-button {
-    font-family: Monospace;
+    font-family: JetBrainsMono, Monospace;
     display: none;
 }
 
