@@ -18,13 +18,14 @@ const DO_SEED_DATABASE = true;
 const MACHINE_DIR = './machine_programs/';
 
 // connect to db ===========================================
+console.log('Looking for MongoDB instance...');
 const url = 'mongodb://127.0.0.1:27017/strange-machine';
 mongoClient.connect(url, { useUnifiedTopology: true })
     .then(client => {
-        console.log('Connected to Database');
+        console.log('...connected to the database.');
         const db = client.db('strange-machine');
         if (DO_SEED_DATABASE) {
-            console.log('Seeding the dabase');
+            console.log('Seeding the database.');
             seedDatabase(db);
         }
         attachRoutesWithDBAndStart(db);
