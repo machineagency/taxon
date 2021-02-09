@@ -80,61 +80,6 @@ I am the console.
     </div>
 </div>
 
-<!-- Old assembly of widgets - leaving for reference for now
-<div id="job-pad">
-    <pre id="model-check-container" class="code-field" contenteditable="false">
-    </pre>
-    <div id="new-machine-button-bar" class="button-bar">
-        <input id="new-model-input" type="file" accept=".stl"
-               style="position: fixed; top: -100em"
-               onchange="window.strangeGui.uploadModel(this.files[0]);">
-        <label id="upload-model-btn" for="new-model-input">upload model</label>
-        <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('x');">rX</button>
-        <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('y');">rY</button>
-        <button class="narrow" onclick="window.strangeScene.rotateModelOverAxis('z');">rZ</button>
-    </div>
-    <div id="model-container">
-    </div>
-    <pre id="cam-container" class="code-field" contenteditable="false">
-{
-    "quality" {
-        "layerHeight" : 2
-    },
-    "shell" {
-        "wallThickness" : 1,
-        "topBottomThickness" : 6
-    },
-    "infill" : {
-        "pattern" : "triangles",
-        "density" : 20
-    },
-    "material" : {
-        "printingTemperature" : 205,
-        "buildPlateTemperature" : 60,
-        "enableRetraction" : true
-    },
-    "speed" : {
-        "printSpeed" : 70
-    },
-    "support" : {
-        "generateSupport" : true,
-        "supportOverhangAngle" : 60
-    }
-}
-    </pre>
-    <pre id="job-log" class="code-field" contenteditable="false">
-No messages.
-    </pre>
-    <pre id="job-container" class="code-field" contenteditable="false">
-No G-Code loaded.
-    </pre>
-    <div class="button-bar">
-        <button onclick="window.jobFile.loadAndRunExample('box')">draw box</button>
-        <button onclick="window.jobFile.loadAndRunExample('cube')">draw cube</button>
-    </div>
-</div>
--->
-
 <script type="module" src="main.js"></script>
 
 <!-- Load JS parsing infrastructure direct from scripts -->
