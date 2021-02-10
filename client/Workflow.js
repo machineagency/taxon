@@ -276,7 +276,6 @@ class Workflow {
                 },
                 moveTo: (x, y, z) => {
                     const axisToCoord = { x, y, z };
-                    console.log(axisToCoord);
                     kinematics.moveTool(axisToCoord);
                 }
             };
@@ -296,8 +295,19 @@ class Workflow {
         // 2. materials basic
         // 3. checking infrastructure
         // 4. (reach) rules of thumb
-        return (modelName) => {
-            // If modelName is undefined, help me pick one
+        return () => {
+            const modelMesh = this.kinematics.strangeScene.model;
+            const modelGeom = this.kinematics.strangeScene.modelGeom;
+            console.assert(modelMesh !== undefined, 'No model loaded.');
+            return {
+                slice: () => {
+                    let slicer = new Slicer({
+                        layerHeight: 0.2,
+                        infill: 'none'
+                    });
+                    return slicer.slice(modelMesh, modelGeom);
+                }
+            }
         };
     }
 

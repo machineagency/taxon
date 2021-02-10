@@ -153,6 +153,7 @@ class StrangeScene {
                 stlMesh = new THREE.Mesh(stlGeom, material);
                 stlMesh.isLoadedStl = true;
                 this.model = stlMesh;
+                this.modelGeom = stlGeom;
                 this.modelBoxHelper = new THREE.BoxHelper(stlMesh,
                                         StrangeScene.modelBoxHelperColor);
                 this.modelBox3 = new THREE.Box3();

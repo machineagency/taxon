@@ -1,5 +1,7 @@
 'use strict';
 
+import * as THREE from './build/three.module.js';
+
 class Slicer {
     constructor(kvs) {
         const defaultLayerHeight = 0.2;
@@ -20,12 +22,17 @@ class Slicer {
      *
      * @param THREE.Mesh - The mesh object to be sliced.
      * @param THREE.Geometry nonBufferGeometry - The geometry associated with
-     *        the mesh.
+     *        the mesh. If the caller provides a THREE.BufferGeometry instance,
+     *        we convert it to a THREE.Geometry instance first.
      *
      * @return {Vector3[][]} contours - An array of layers, where each layer is
      *                                 an array of Vector3 points.
      */
     slice(mesh, nonBufferGeometry) {
+        if (nonBufferGeometry instanceof THREE.BufferGeometry) {
+            nonBufferGeometry = new THREE.Geometry()
+                                    .fromBufferGeometry(nonBufferGeometry);
+        }
         /* Returns intersection point, or undefined if no intersection */
         let segmentPlaneIntersect = (v0, v1, plane) => {
             let v0_dist_to_plane = plane.distanceToPoint(v0);
