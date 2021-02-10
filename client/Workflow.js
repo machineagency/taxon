@@ -89,7 +89,8 @@ class Workflow {
         let statements = [
             '$b(\'carriage\').wiggle();',
             '$machine().zero();',
-            '$machine().moveTo(50, 50, 50);'
+            '$machine().moveTo(50, 50, 50);',
+            '$model().slice();',
         ];
         statements.forEach((stat, idx) => {
             this.addLine(statements[idx]);
@@ -287,6 +288,12 @@ class Workflow {
     }
 
     generateModelSelector() {
+        // TODO: bring back da sliceah
+        // Tue todo
+        // 1. models and slicing
+        // 2. materials basic
+        // 3. checking infrastructure
+        // 4. (reach) rules of thumb
         return (modelName) => {
             // If modelName is undefined, help me pick one
         };

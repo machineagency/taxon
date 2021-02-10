@@ -135,7 +135,7 @@ class StrangeScene {
         if (this.machine === undefined) {
             const e = 'Please pick a machine before uploading a model.';
             window.strangeGui.writeErrorToJobLog(e);
-            return;
+            return Promise.reject(new Error('Need to pick machine first'));
         }
         if (this.model !== undefined) {
             this.clearModelFromScene();

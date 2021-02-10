@@ -26,6 +26,9 @@ class StrangeGui {
         this.jobLogDom = document.getElementById('job-log');
         this.modelCheckDom = document.getElementById('model-check-container');
         this.autocompleteDom = document.getElementById('filter-autocomplete');
+        this.machineValueDom = document.getElementById('machine-value');
+        this.modelValueDom = document.getElementById('model-value');
+        this.materialValueDom = document.getElementById('material-value');
         this.filterDom = document.getElementById('filter-container');
         this.filterDom.addEventListener('keydown', (event) => {
             if (event.keyCode === 13) {
@@ -71,9 +74,6 @@ class StrangeGui {
                 this.runAutoComplete();
             }
         });
-        // this.renderModelPane = this.__inflateModelContainerDom();
-        // this.makeLoadStlPromise('./pikachu.stl');
-        // this.renderModelPane();
         this.workflow = new Workflow(this, this.kinematics);
         this.fetchAndRenderMachineNames();
         document.addEventListener('dblclick', (event) => {
@@ -387,8 +387,9 @@ class StrangeGui {
     }
 
     uploadModel(modelFile) {
+        this.modelValueDom.innerText = modelFile.name;
         let modelURL = URL.createObjectURL(modelFile);
-        this.strangeScene.loadStl(modelURL)
+        this.strangeScene.loadModel(modelURL)
         .then((_) => {
             this.fetchAndRenderMachineNames();
         });
@@ -527,6 +528,11 @@ class StrangeGui {
                     .remove(highlightPreviewClassName);
                 window.strangeScene.previewMachine.clearMachineFromScene();
             }
+
+            if (this.jobPad.classList.contains('hidden')) {
+                this.jobPad.classList.remove('hidden');
+            }
+            this.machineValueDom.innerText = window.strangeScene.machine.name;
         }
     }
 

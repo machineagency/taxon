@@ -208,7 +208,7 @@ input[type="file"] {
     border: 1px dashed #ffffff;
 }
 
-#upload-model-btn {
+.upload-btn-label {
     background-color: white;
     border: none;
     color: black;
@@ -217,10 +217,27 @@ input[type="file"] {
     text-decoration: none;
     display: inline-block;
     font-size: 13px;
-    width: 100px;
-    padding: 10px 0px 10px 0px;
+    width: 75px;
+    padding: 5px 0px 5px 0px;
     outline: none;
     cursor: pointer;
+}
+
+#widget-show-machine {
+    cursor: not-allowed;
+}
+
+#machine-non-input + label {
+    pointer-events: none;
+}
+
+.upload-btn-value {
+    display: inline-block;
+    font-weight: bold;
+}
+
+#non-upload-machine-btn {
+    pointer-events: none;
 }
 
 .gc-container {

@@ -35,7 +35,33 @@
     </pre>
 </div>
 
-<div id="job-pad">
+<div id="job-pad" class="hidden">
+    <div id="widget-show-machine">
+        <div class="button-bar">
+            <input id="machine-non-input" type="file"
+                   style="position: fixed; top: -100em">
+            <label class="upload-btn-label" for="new-model-input">machine</label>
+            <div id="machine-value" class="upload-btn-value">none selected</div>
+        </div>
+    </div>
+    <div id="widget-upload-model">
+        <div class="button-bar">
+            <input id="new-model-input" type="file" accept=".stl"
+                   style="position: fixed; top: -100em"
+                   onchange="window.strangeGui.uploadModel(this.files[0]);">
+            <label class="upload-btn-label" for="new-model-input">model</label>
+            <div id="model-value" class="upload-btn-value">none uploaded</div>
+        </div>
+    </div>
+    <div id="widget-load-material">
+        <div class="button-bar">
+            <input id="material-input" type="file" accept=".stl"
+                   style="position: fixed; top: -100em"
+                   onchange="window.strangeGui.uploadModel(this.files[0]);">
+            <label class="upload-btn-label" for="new-model-input">material</label>
+            <div id="material-value" class="upload-btn-value">none selected</div>
+        </div>
+    </div>
     <pre id="rot-console" class="code-field" contenteditable="false">
 
 - material must match machine
