@@ -1,5 +1,7 @@
 'use strict';
 
+import { Slicer } from './Slicer.js';
+
 class Workflow {
 
     static EndFunctionName = 'END_FUNCTION';
