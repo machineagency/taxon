@@ -37,7 +37,9 @@ class StrangeScene {
         scene.add(rightDirectionalLight);
         scene.add(ambientLight);
         this.materialMarks = new THREE.Group();
+        this.toolpaths = new THREE.Group();
         scene.add(this.materialMarks);
+        scene.add(this.toolpaths);
         return scene;
     }
 
@@ -89,6 +91,10 @@ class StrangeScene {
 
     removeFromScene(sceneObj) {
         this.scene.remove(sceneObj);
+    }
+
+    addToolpath(toolpath) {
+        this.toolpaths.add(toolpath);
     }
 
     removeMaterialMarks() {
@@ -149,7 +155,7 @@ class StrangeScene {
                     // Do not cull triangles with inward-pointing normals
                     side: THREE.DoubleSide
                 });
-                stlGeom.center();
+                // stlGeom.center();
                 stlMesh = new THREE.Mesh(stlGeom, material);
                 stlMesh.isLoadedStl = true;
                 this.model = stlMesh;

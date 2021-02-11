@@ -128,10 +128,14 @@ class Slicer {
      *
      * @param {Vector3[][]} contours - An array of layers, where each layer is
      *                                 an array of Vector3 points.
+     * @param StrangeScene strangeScene - The SS where the contours will be added
+     *                                    to the toolpath Mesh group.
      * @return {void}
      */
-    visualizeContours(contours) {
-        addPaneDomWithType('blank3d');
+    addContoursToStrangeScene(contours, strangeScene) {
+        const LINE_MATERIAL = new THREE.LineBasicMaterial({
+            color: 0xe44242
+        });
         let layerHeightShapesPairs = contours.map((contours) => {
             let sliceHeight = contours[0] && contours[0][0].y;
             let shapes = contours.map((contour) => {
@@ -149,7 +153,7 @@ class Slicer {
             let lines = edgeGeometries.map((geom) => new THREE.LineSegments(geom, LINE_MATERIAL));
             lines.forEach((line) => {
                 line.translateZ(height);
-                scenes[activePaneIndex].add(line);
+                strangeScene.addToolpath(line);
             });
         });
         return layerHeightShapesPairs;

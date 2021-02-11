@@ -296,8 +296,9 @@ class Workflow {
         // 3. checking infrastructure
         // 4. (reach) rules of thumb
         return () => {
-            const modelMesh = this.kinematics.strangeScene.model;
-            const modelGeom = this.kinematics.strangeScene.modelGeom;
+            const strangeScene = this.kinematics.strangeScene;
+            const modelMesh = strangeScene.model;
+            const modelGeom = strangeScene.modelGeom;
             console.assert(modelMesh !== undefined, 'No model loaded.');
             return {
                 slice: () => {
@@ -305,7 +306,8 @@ class Workflow {
                         layerHeight: 0.2,
                         infill: 'none'
                     });
-                    return slicer.slice(modelMesh, modelGeom);
+                    let contours = slicer.slice(modelMesh, modelGeom);
+                    slicer.addContoursToStrangeScene(contours, strangeScene);
                 }
             }
         };
