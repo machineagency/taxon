@@ -1,0 +1,221 @@
+{
+    "name": "prusa-i3-mk3",
+    "workEnvelope": {
+        "shape": "box",
+        "dimensions" : {
+            "width": 130,
+            "height": 110,
+            "length": 130
+        },
+        "position": {
+            "x": 0,
+            "y": 102.6,
+            "z": 0
+        }
+    },
+    "motors": [
+        {
+            "name": "leadscrew motor a",
+            "dimensions": {
+                "width": 25,
+                "height": 25,
+                "length": 25
+            },
+            "invertSteps": false,
+            "position": {
+                "x": 35,
+                "y": 25.1,
+                "z": -100
+            }
+        },
+        {
+            "name": "leadscrew motor b",
+            "dimensions": {
+                "width": 25,
+                "height": 25,
+                "length": 25
+            },
+            "invertSteps": false,
+            "position": {
+                "x": 35,
+                "y": 25.1,
+                "z": 100
+            }
+        },
+        {
+            "name": "platform belt motor",
+            "dimensions": {
+                "width": 25,
+                "height": 25,
+                "length": 25
+            },
+            "invertSteps": true,
+        },
+        {
+            "name": "carriage motor",
+            "componentType": "Motor",
+            "dimensions": {
+                "width": 25,
+                "height": 25,
+                "length": 25
+            },
+            "invertSteps": false
+        }
+    ],
+    "mechanisms": [
+        {
+            "name": "build plate",
+            "mechanismType": "nonActuating",
+            "dimensions": {
+                "length": 130,
+                "width": 130,
+                "height": 10
+            },
+            "attributes": {
+                "isPlatform": true
+            }
+        },
+        {
+            "name": "platform belt",
+            "mechanismType": "linear",
+            "drivingMotors": [
+                "platform belt motor"
+            ],
+            "actuationAxes": [ "x" ],
+            "dimensions": {
+                "width": 165,
+                "height": 25,
+                "length": 25
+            },
+            "position": {
+                "x": 0,
+                "y": 25.1,
+                "z": 0
+            },
+            "attributes": {
+                "driveMechanism": "timingBelt",
+                "stepDisplacementRatio": 0.7
+            }
+        },
+        {
+            "name": "carriage",
+            "mechanismType": "linear",
+            "drivingMotors": [
+                "carriage motor"
+            ],
+            "actuationAxes": [ "z" ],
+            "dimensions": {
+                "width": 12.5,
+                "height": 25,
+                "length": 210
+            },
+            "attributes": {
+                "driveMechanism": "timingBelt",
+                "stepDisplacementRatio": 0.5
+            }
+        },
+        {
+            "name": "y leadscrews",
+            "mechanismType": "parallel",
+            "drivingMotors": [
+                "leadscrew motor a", "leadscrew motor b"
+            ],
+            "actuationAxes": [ "y" ],
+            "dimensions": {
+                "width": 10,
+                "height": 150,
+                "length": 210
+            },
+            "attributes": {
+                "driveMechanism": "leadscrew",
+                "stepDisplacementRatio": 0.5
+            }
+        },
+        {
+            "name": "extruder assembly",
+            "mechanismType": "nonActuating",
+            "dimensions": {
+                "width": 12.5,
+                "height": 25,
+                "length": 25
+            },
+            "attributes": {
+                "isToolAssembly": true
+            }
+        }
+    ],
+    "tools": [
+        {
+            "name": "extruder",
+            "dimensions": {
+                "width": 10,
+                "height": 25,
+                "length": 10
+            },
+            "toolType": "print3dFDM",
+            "attributes": {
+                "nozzleCount": 1
+            }
+        }
+    ],
+    "connections": [
+        {
+            "base": "leadscrew motor a",
+            "basePoint": "-y.center",
+            "addBlock": "y leadscrews",
+            "addPoint": "+y.+z"
+        },
+        {
+            "base": "leadscrew motor b",
+            "basePoint": "-y.center",
+            "addBlock": "y leadscrews",
+            "addPoint": "+y.-z"
+        },
+        {
+            "base": "platform belt",
+            "basePoint": "+x.center",
+            "addBlock": "y leadscrews",
+            "addPoint": "-x.center"
+        },
+        {
+            "base": "platform belt",
+            "basePoint": "-y.center",
+            "addBlock": "build plate",
+            "addPoint": "+y.center"
+        },
+        {
+            "base": "z leadscrews",
+            "basePoint": "+x.center",
+            "addBlock": "carriage",
+            "addPoint": "-x.+z"
+        },
+        {
+            "base": "carriage",
+            "basePoint": "+z.center",
+            "addBlock": "carriage motor",
+            "addPoint": "+x.center"
+        },
+        {
+            "base": "carriage",
+            "basePoint": "+x.center",
+            "addBlock": "hotend",
+            "addPoint": "-x.center"
+        },
+        {
+            "base": "hotend",
+            "basePoint": "+x.center",
+            "addBlock": "extruder",
+            "addPoint": "-x.center"
+        }
+    ],
+    "metafeatures": {
+        "version": 2.0,
+        "machineType": "printer3d",
+        "vendorInfo": {
+            "price": 749,
+            "website": "https://www.prusa3d.com/",
+            "numUsers" : 5000
+        }
+    }
+}
+
