@@ -26,7 +26,14 @@
                 "x": 35,
                 "y": 25.1,
                 "z": -100
-            }
+            },
+            "children": [
+                {
+                    "child": "y leadscrews",
+                    "parentPoint": "-y.center",
+                    "childPoint": "+y.+z"
+                }
+            ]
         },
         {
             "name": "leadscrew motor b",
@@ -40,7 +47,14 @@
                 "x": 35,
                 "y": 25.1,
                 "z": 100
-            }
+            },
+            "children": [
+                {
+                    "child": "y leadscrews",
+                    "parentPoint": "-y.center",
+                    "childPoint": "+y.-z"
+                }
+            ]
         },
         {
             "name": "platform belt motor",
@@ -93,9 +107,21 @@
                 "z": 0
             },
             "attributes": {
-                "driveMechanism": "timingBelt",
+                "driveType": "timingBelt",
                 "stepDisplacementRatio": 0.7
-            }
+            },
+            "children": [
+                {
+                    "child": "y leadscrews",
+                    "parentPoint": "+x.center",
+                    "childPoint": "-x.center"
+                },
+                {
+                    "child": "build plate",
+                    "parentPoint": "-y.center",
+                    "childPoint": "+y.center"
+                },
+            ]
         },
         {
             "name": "carriage",
@@ -110,9 +136,21 @@
                 "length": 210
             },
             "attributes": {
-                "driveMechanism": "timingBelt",
+                "driveType": "timingBelt",
                 "stepDisplacementRatio": 0.5
-            }
+            },
+            "children": [
+                {
+                    "child": "carriage motor",
+                    "parentPoint": "+z.center",
+                    "childPoint": "+x.center"
+                },
+                {
+                    "child": "extruder assembly",
+                    "parentPoint": "+x.center",
+                    "childPoint": "-x.center"
+                },
+            ]
         },
         {
             "name": "y leadscrews",
@@ -127,9 +165,16 @@
                 "length": 210
             },
             "attributes": {
-                "driveMechanism": "leadscrew",
+                "driveType": "leadscrew",
                 "stepDisplacementRatio": 0.5
-            }
+            },
+            "children": [
+                {
+                    "child": "carriage",
+                    "parentPoint": "+x.center",
+                    "childPoint": "-x.+z"
+                }
+            ]
         },
         {
             "name": "extruder assembly",
@@ -141,7 +186,14 @@
             },
             "attributes": {
                 "isToolAssembly": true
-            }
+            },
+            "children": [
+                {
+                    "child": "extruder",
+                    "parentPoint": "+x.center",
+                    "childPoint": "-x.center"
+                }
+            ]
         }
     ],
     "tools": [
@@ -156,56 +208,6 @@
             "attributes": {
                 "nozzleCount": 1
             }
-        }
-    ],
-    "connections": [
-        {
-            "base": "leadscrew motor a",
-            "basePoint": "-y.center",
-            "addBlock": "y leadscrews",
-            "addPoint": "+y.+z"
-        },
-        {
-            "base": "leadscrew motor b",
-            "basePoint": "-y.center",
-            "addBlock": "y leadscrews",
-            "addPoint": "+y.-z"
-        },
-        {
-            "base": "platform belt",
-            "basePoint": "+x.center",
-            "addBlock": "y leadscrews",
-            "addPoint": "-x.center"
-        },
-        {
-            "base": "platform belt",
-            "basePoint": "-y.center",
-            "addBlock": "build plate",
-            "addPoint": "+y.center"
-        },
-        {
-            "base": "z leadscrews",
-            "basePoint": "+x.center",
-            "addBlock": "carriage",
-            "addPoint": "-x.+z"
-        },
-        {
-            "base": "carriage",
-            "basePoint": "+z.center",
-            "addBlock": "carriage motor",
-            "addPoint": "+x.center"
-        },
-        {
-            "base": "carriage",
-            "basePoint": "+x.center",
-            "addBlock": "hotend",
-            "addPoint": "-x.center"
-        },
-        {
-            "base": "hotend",
-            "basePoint": "+x.center",
-            "addBlock": "extruder",
-            "addPoint": "-x.center"
         }
     ],
     "metafeatures": {
