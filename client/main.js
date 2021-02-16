@@ -836,11 +836,11 @@ class Machine {
                 addBlockEnd: '0'
             });
             stageBottom.setAttributes({
-                driveMechanism: 'timingBelt',
+                driveType: 'timingBelt',
                 stepDisplacementRatio: '0.7'
             });
             stageTop.setAttributes({
-                driveMechanism: 'timingBelt',
+                driveType: 'timingBelt',
                 stepDisplacementRatio: '0.7'
             });
             this.setPairABMotors(motorA, motorB);
@@ -863,7 +863,7 @@ class Machine {
                 height: 25,
                 length: 25
             }, {
-                driveMechanism: 'timingBelt',
+                driveType: 'timingBelt',
                 stepDisplacementRatio: 0.7
             });
             let carriageBelt = new LinearStage('carriage belt', this, {
@@ -871,7 +871,7 @@ class Machine {
                 height: 25,
                 length: 210
             }, {
-                driveMechanism: 'timingBelt',
+                driveType: 'timingBelt',
                 stepDisplacementRatio: 0.5
             });
             let lsA = new LinearStage('z leadscrew a', this, {
@@ -879,7 +879,7 @@ class Machine {
                 height: 150,
                 length: 10
             }, {
-                driveMechanism: 'leadscrew',
+                driveType: 'leadscrew',
                 stepDisplacementRatio: 0.5
             });
             let lsB = new LinearStage('z leadscrew b', this, {
@@ -887,7 +887,7 @@ class Machine {
                 height: 150,
                 length: 10
             }, {
-                driveMechanism: 'leadscrew',
+                driveType: 'leadscrew',
                 stepDisplacementRatio: 0.5
             });
             let lsMotorA = new Motor('leadscrew motor a', this, {
@@ -1500,7 +1500,7 @@ class Stage extends Block {
         if (this.constructor === Stage) {
             throw new Error('Can\'t instantiate abstract class Stage.');
         }
-        console.assert(attributes.driveMechanism !== undefined, attributes);
+        console.assert(attributes.driveType !== undefined, attributes);
         this.attributes = attributes;
         this.loadDriveMechanismStl();
         this.axes = [];
@@ -1511,10 +1511,10 @@ class Stage extends Block {
 
     loadDriveMechanismStl() {
         let filepath;
-        if (this.attributes.driveMechanism === 'leadscrew') {
+        if (this.attributes.driveType === 'leadscrew') {
             filepath = './block_models/leadscrew.stl';
         }
-        else if (this.attributes.driveMechanism === 'timingBelt') {
+        else if (this.attributes.driveType === 'timingBelt') {
             filepath = './block_models/timing_belt.stl';
         }
         else {
@@ -1570,9 +1570,9 @@ class Stage extends Block {
 
     setAttributes(newAttributes) {
         console.warn('This function will be deprecated');
-        let newDriveMechanism = newAttributes.driveMechanism || '';
+        let newDriveMechanism = newAttributes.driveType || '';
         let newStepDisplacementRatio = newAttributes.stepDisplacementRatio || 0;
-        this.attributes.driveMechanism = newDriveMechanism;
+        this.attributes.driveType = newDriveMechanism;
         this.attributes.stepDisplacementRatio = newStepDisplacementRatio;
         this.loadDriveMechanismStl();
     }
@@ -2623,9 +2623,10 @@ class Compiler {
         machine.name = progObj.name;
         machine.machineType = progObj.machineType;
         machine.price = progObj.price;
+        const defaultBEdimension = 500;
         let be = new BuildEnvironment(machine, {
-            width: progObj.buildEnvironment.width,
-            length: progObj.buildEnvironment.length
+            width: defaultBEdimension,
+            length: defaultBEdimension
         });
         let we = new WorkEnvelope(machine, {
             shape: progObj.workEnvelope.shape,
@@ -2653,42 +2654,41 @@ class Compiler {
                 motor.position = position;
             }
         });
-        progObj.blocks.forEach((blockData) => {
+        progObj.mechanisms.forEach((mechanismData) => {
             let CurrentBlockConstructor;
-            if (blockData.componentType === 'Tool') {
-                CurrentBlockConstructor = Tool;
+            if (mechanismData.mechanismType === 'nonActuating') {
+                if (mechanismData.attributes.isToolAssembly) {
+                    CurrentBlockConstructor = ToolAssembly;
+                }
+                if (mechanismData.attributes.isPlatform) {
+                    CurrentBlockConstructor = Platform;
+                }
             }
-            if (blockData.componentType === 'ToolAssembly') {
-                CurrentBlockConstructor = ToolAssembly;
-            }
-            if (blockData.componentType === 'LinearStage') {
+            if (mechanismData.mechanismType === 'linear') {
                 CurrentBlockConstructor = LinearStage;
             }
-            if (blockData.componentType === 'ParallelStage') {
+            if (mechanismData.mechanismType === 'parallel') {
                 CurrentBlockConstructor = ParallelStage;
             }
-            if (blockData.componentType === 'CrossStage') {
+            if (mechanismData.mechanismType === 'cross') {
                 CurrentBlockConstructor = CrossStage;
             }
-            if (blockData.componentType === 'Platform') {
-                CurrentBlockConstructor = Platform;
+            let mechanism = new CurrentBlockConstructor(mechanismData.name, machine, {
+                width: mechanismData.dimensions.width,
+                height: mechanismData.dimensions.height,
+                length: mechanismData.dimensions.length,
+            }, mechanismData.attributes);
+            if (mechanismData.position !== undefined) {
+                let position = new THREE.Vector3(mechanismData.position.x,
+                                            mechanismData.position.y,
+                                            mechanismData.position.z);
+                mechanism.position = position;
             }
-            let block = new CurrentBlockConstructor(blockData.name, machine, {
-                width: blockData.dimensions.width,
-                height: blockData.dimensions.height,
-                length: blockData.dimensions.length,
-            }, blockData.attributes);
-            if (blockData.position !== undefined) {
-                let position = new THREE.Vector3(blockData.position.x,
-                                            blockData.position.y,
-                                            blockData.position.z);
-                block.position = position;
-            }
-            if (block instanceof Stage) {
-                block.setAxes(blockData.axes);
-                // block.setAttributes(blockData.attributes);
-                block.setKinematics(blockData.kinematics);
-                block.renderArrows();
+            if (mechanism instanceof Stage) {
+                mechanism.setAxes(mechanismData.axes);
+                // mechanism.setAttributes(mechanismData.attributes);
+                mechanism.setKinematics(mechanismData.kinematics);
+                mechanism.renderArrows();
             }
         });
         progObj.tools.forEach((toolData) => {
@@ -2701,22 +2701,23 @@ class Compiler {
                 tool.position = position;
             }
         });
-        progObj.connections.forEach((connectionData) => {
-            machine.setConnection({
-                baseBlock: machine.findBlockWithName(connectionData.baseBlockName),
-                baseBlockFace: connectionData.baseBlockFace,
-                baseBlockEnd: connectionData.baseBlockEnd,
-                addBlock: machine.findBlockWithName(connectionData.addBlockName),
-                addBlockFace: connectionData.addBlockFace,
-                addBlockEnd: connectionData.addBlockEnd
-            });
-        });
+        // TODO: second pass through blocks to set connections
+        // progObj.connections.forEach((connectionData) => {
+        //     machine.setConnection({
+        //         baseBlock: machine.findBlockWithName(connectionData.baseBlockName),
+        //         baseBlockFace: connectionData.baseBlockFace,
+        //         baseBlockEnd: connectionData.baseBlockEnd,
+        //         addBlock: machine.findBlockWithName(connectionData.addBlockName),
+        //         addBlockFace: connectionData.addBlockFace,
+        //         addBlockEnd: connectionData.addBlockEnd
+        //     });
+        // });
         // Once we have Blocks and Motors instantiated, set their pointers:
         // Paired motors, driven stages, driving motors
         progObj.motors.forEach((motorData) => {
             let motor = machine.findBlockWithName(motorData.name)
-            motor.drivenStages = motorData.drivenStages.map((stageName) => {
-                return machine.findBlockWithName(stageName);
+            motor.drivenStages = machine.mechanisms.filter((mechanism) => {
+                return mechanism.drivingMotors.includes(motorData.name);
             });
         });
         progObj.blocks.forEach((blockData) => {
