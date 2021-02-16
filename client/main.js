@@ -118,7 +118,7 @@ class StrangeScene {
         let vector = new THREE.Vector3();
         let raycaster = new THREE.Raycaster();
         let dir = new THREE.Vector3();
-        let candidates = this.machine.allObjects();
+        let candidates = this.machine.blocks;
         let candidateMeshes = candidates.map(c => c.meshGroup);
 
         vector.set((event.clientX / window.innerWidth) * 2 - 1,
@@ -437,7 +437,7 @@ class Machine {
         this.parentScene.scene.add(this.rootMeshGroup);
         this.buildEnvironment = undefined;
         this.workEnvelope = undefined;
-        this.blocks = [];
+        this.mechanisms = [];
         this.tools = [];
         this.motors = [];
         this.connections = [];
@@ -457,8 +457,8 @@ class Machine {
         }
     }
 
-    allObjects() {
-        return this.blocks.concat(this.tools)
+    get blocks() {
+        return this.mechanisms.concat(this.tools)
                 .concat(this.motors);
     }
 
@@ -525,9 +525,8 @@ class Machine {
         }
     }
 
-    // TODO: make this.components a THREE.Group for repositioning
-    addBlock(component) {
-        this.blocks.push(component);
+    addMechanism(mechanism) {
+        this.mechanisms.push(mechanism);
     }
 
     addTool(tool) {
@@ -539,9 +538,7 @@ class Machine {
     }
 
     findBlockWithName(name) {
-        let motorsBlocksTools = this.motors.concat(this.blocks)
-                                    .concat(this.tools);
-        let block = motorsBlocksTools.find(block => block.name === name);
+        let block = this.blocks.find(block => block.name === name);
         if (block === undefined) {
             console.trace(`Couldn't find block named: ${name}.`);
         }
@@ -1417,7 +1414,7 @@ class ToolAssembly extends Block {
         super(name, parentMachine, dimensions);
         this.componentType = 'ToolAssembly';
         this.baseBlock = true;
-        parentMachine.addBlock(this);
+        parentMachine.addMechanism(this);
         this.renderDimensions();
     }
 
@@ -1461,7 +1458,7 @@ class Platform extends Block {
         this.componentType = 'Platform';
         this.baseBlock = true;
         this.endBlock = true;
-        parentMachine.addBlock(this);
+        parentMachine.addMechanism(this);
         this.renderDimensions();
     }
 
@@ -1506,7 +1503,7 @@ class Stage extends Block {
         this.axes = [];
         this.drivingMotors = [];
         this.baseBlock = true;
-        parentMachine.addBlock(this);
+        parentMachine.addMechanism(this);
     }
 
     loadDriveMechanismStl() {
@@ -1548,8 +1545,8 @@ class Stage extends Block {
         return loadPromise;
     }
 
-    setAxes(axes) {
-        this.axes = axes;
+    setActuationAxes(actuationAxes) {
+        this.actuationAxes = actuationAxes;
     }
 
     setKinematics(kinematicsName) {
@@ -1585,6 +1582,7 @@ class LinearStage extends Stage {
     constructor(name, parentMachine, dimensions, attributes = {}) {
         super(name, parentMachine, dimensions, attributes);
         this.componentType = 'LinearStage';
+        this.kinematics = 'directDrive';
         this.renderDimensions();
     }
 
@@ -1652,7 +1650,8 @@ class ParallelStage extends Stage {
     static validKinematicsNames = [ 'directDrive' ];
     constructor(name, parentMachine, dimensions, attributes = {}) {
         super(name, parentMachine, dimensions, attributes);
-        this.componentType = 'CrossStage';
+        this.componentType = 'ParallelStage';
+        this.kinematics = 'directDrive';
         this.renderDimensions();
     }
 
@@ -1718,6 +1717,7 @@ class CrossStage extends Stage {
     constructor(name, parentMachine, dimensions, attributes = {}) {
         super(name, parentMachine, dimensions, attributes);
         this.componentType = 'CrossStage';
+        this.kinematics = 'hBot';
         this.renderDimensions();
     }
 
@@ -2685,9 +2685,9 @@ class Compiler {
                 mechanism.position = position;
             }
             if (mechanism instanceof Stage) {
-                mechanism.setAxes(mechanismData.axes);
+                mechanism.setActuationAxes(mechanismData.actuationAxes);
                 // mechanism.setAttributes(mechanismData.attributes);
-                mechanism.setKinematics(mechanismData.kinematics);
+                // mechanism.setKinematics(mechanismData.kinematics);
                 mechanism.renderArrows();
             }
         });
@@ -2714,20 +2714,21 @@ class Compiler {
         // });
         // Once we have Blocks and Motors instantiated, set their pointers:
         // Paired motors, driven stages, driving motors
-        progObj.motors.forEach((motorData) => {
-            let motor = machine.findBlockWithName(motorData.name)
-            motor.drivenStages = machine.mechanisms.filter((mechanism) => {
-                return mechanism.drivingMotors.includes(motorData.name);
-            });
-        });
-        progObj.blocks.forEach((blockData) => {
-            let block = machine.findBlockWithName(blockData.name)
-            if (block instanceof Stage) {
-                block.drivingMotors = blockData.drivingMotors
+        progObj.mechanisms.forEach((mechanismData) => {
+            let mechanism = machine.findBlockWithName(mechanismData.name)
+            if (mechanism instanceof Stage) {
+                mechanism.drivingMotors = mechanismData.drivingMotors
                                         .map((motorName) => {
                     return machine.findBlockWithName(motorName);
                 });
             }
+        });
+        progObj.motors.forEach((motorData) => {
+            let motor = machine.findBlockWithName(motorData.name)
+            motor.drivenStages = machine.mechanisms.filter((mechanism) => {
+                return mechanism.drivingMotors !== undefined
+                        && mechanism.drivingMotors.includes(motorData.name);
+            });
         });
 
         return machine;
