@@ -2005,8 +2005,8 @@ class Kinematics {
     }
 
     determineMachineAxes() {
-        let stages = this.machine.blocks.filter((block) => block.axes !== undefined);
-        let allAxes = stages.map((block) => block.axes).flat();
+        let stages = this.machine.mechanisms.filter((mechanism) => mechanism.axes !== undefined);
+        let allAxes = stages.map((mechanism) => mechanism.axes).flat();
         let uniqueAxes = allAxes.filter((axis, idx) => {
             return allAxes.indexOf(axis) === idx;
         });
