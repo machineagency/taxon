@@ -708,6 +708,7 @@ class Machine {
         addBlock.position = newBPos;
 
         // Apply end offset, itself rotated to match addBlock's quaternion
+        // FIXME: apply this to all children of the addBlock
         let offsetAlongBase = calcOffsetOnRefBlock(baseBlock, addBlock,
                                 addBlockEnd);
         let offsetAlongAdd = calcOffsetOnRefBlock(addBlock, baseBlock,
