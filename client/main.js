@@ -1317,6 +1317,22 @@ class Block extends StrangeComponent {
         super(name, parentMachine, dimensions);
         this.connections = [];
     }
+
+    get descendents() {
+        let helper = (block) => {
+            if (block.connections === undefined) {
+                return [];
+            }
+            let childBlocks = block.connections.map((connection) => {
+                return this.parentMachine.findBlockWithName(connection.child);
+            });
+            let beyondChildBlocks = childBlocks.map((childBlock) => {
+                return helper(childBlock);
+            }).flat();
+            return childBlocks.concat(beyondChildBlocks);
+        };
+        return helper(this);
+    }
 }
 
 class Tool extends Block {
