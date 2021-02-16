@@ -507,7 +507,7 @@ class Machine {
     }
 
     __calcBlockDimVectorFromAxis(block, axis) {
-        if (axis === '0') {
+        if (axis === 'center') {
             return new THREE.Vector3(0, 0, 0);
         }
         let sign = axis[0] === '+' ? 1 : -1;
@@ -677,7 +677,7 @@ class Machine {
         };
         let calcOffsetOnRefBlock = (refBlock, moveBlock, endAxis) => {
             let point = (new THREE.Vector3());
-            if (endAxis === '0') {
+            if (endAxis === 'center') {
                 return point;
             }
             let refOffset = this.__calcBlockDimVectorFromAxis(refBlock, endAxis);
@@ -795,42 +795,42 @@ class Machine {
             this.setConnection({
                 baseBlock: stageBottom,
                 baseBlockFace: '-y',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: stageTop,
                 addBlockFace: '+y',
-                addBlockEnd: '0'
+                addBlockEnd: 'center'
             });
             this.setConnection({
                 baseBlock: stageTop,
                 baseBlockFace: '+x',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: toolAssembly,
                 addBlockFace: '-x',
-                addBlockEnd: '0'
+                addBlockEnd: 'center'
             });
             this.setConnection({
                 baseBlock: stageBottom,
                 baseBlockFace: '+z',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: motorA,
                 addBlockFace: '-z',
-                addBlockEnd: '0'
+                addBlockEnd: 'center'
             });
             this.setConnection({
                 baseBlock: stageBottom,
                 baseBlockFace: '-z',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: motorB,
                 addBlockFace: '+z',
-                addBlockEnd: '0'
+                addBlockEnd: 'center'
             });
             this.setConnection({
                 baseBlock: toolAssembly,
                 baseBlockFace: '+x',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: tool,
                 addBlockFace: '-x',
-                addBlockEnd: '0'
+                addBlockEnd: 'center'
             });
             stageBottom.setAttributes({
                 driveType: 'timingBelt',
@@ -915,40 +915,40 @@ class Machine {
             this.setConnection({
                 baseBlock: lsMotorA,
                 baseBlockFace: '-y',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: lsA,
                 addBlockFace: '+y',
-                addBlockEnd: '0'
+                addBlockEnd: 'center'
             });
             this.setConnection({
                 baseBlock: lsMotorB,
                 baseBlockFace: '-y',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: lsB,
                 addBlockFace: '+y',
-                addBlockEnd: '0'
+                addBlockEnd: 'center'
             });
             this.setConnection({
                 baseBlock: platformBelt,
                 baseBlockFace: '+x',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: platformMotor,
                 addBlockFace: '-x',
-                addBlockEnd: '0'
+                addBlockEnd: 'center'
             });
             carriageBelt.placeOnComponent(be);
             this.setConnection({
                 baseBlock: platformBelt,
                 baseBlockFace: '-y',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: platform,
                 addBlockFace: '+y',
-                addBlockEnd: '0'
+                addBlockEnd: 'center'
             });
             this.setConnection({
                 baseBlock: lsA,
                 baseBlockFace: '+x',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: carriageBelt,
                 addBlockFace: '-x',
                 addBlockEnd: '+z'
@@ -956,7 +956,7 @@ class Machine {
             this.setConnection({
                 baseBlock: lsB,
                 baseBlockFace: '+x',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: carriageBelt,
                 addBlockFace: '-x',
                 addBlockEnd: '-z'
@@ -964,7 +964,7 @@ class Machine {
             this.setConnection({
                 baseBlock: carriageBelt,
                 baseBlockFace: '+z',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: carriageMotor,
                 addBlockFace: '-x',
                 addBlockEnd: '+x'
@@ -977,10 +977,10 @@ class Machine {
             this.setConnection({
                 baseBlock: carriageBelt,
                 baseBlockFace: '+x',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: toolAssembly,
                 addBlockFace: '-x',
-                addBlockEnd: '0'
+                addBlockEnd: 'center'
             });
             let tool = new Tool('extruder', this, {
                 width: 10,
@@ -990,10 +990,10 @@ class Machine {
             this.setConnection({
                 baseBlock: toolAssembly,
                 baseBlockFace: '+x',
-                baseBlockEnd: '0',
+                baseBlockEnd: 'center',
                 addBlock: tool,
                 addBlockFace: '-x',
-                addBlockEnd: '0'
+                addBlockEnd: 'center'
             });
             platformBelt.setDrivingMotors([platformMotor]);
             carriageBelt.setDrivingMotors([carriageMotor]);
@@ -1037,7 +1037,7 @@ class Machine {
                 baseBlockFace: '+y',
                 addBlock: s2,
                 addBlockFace: '-z',
-                addBlockEnd: '0'
+                addBlockEnd: 'center'
             });
             return this;
         }
@@ -1312,7 +1312,10 @@ class WorkEnvelope extends StrangeComponent {
 }
 
 class Block extends StrangeComponent {
-    // TODO
+    constructor(name, parentMachine, dimensions) {
+        super(name, parentMachine, dimensions);
+        this.connections = [];
+    }
 }
 
 class Tool extends Block {
@@ -2205,7 +2208,7 @@ class KNode {
             return;
         }
         if (this.block.componentType !== 'LinearStage') {
-            return { romAxis : '0', rom : 0 };
+            return { romAxis : 'center', rom : 0 };
         }
         let romAxis, rom;
         let axisToDim = {
@@ -2630,9 +2633,9 @@ class Compiler {
         });
         let we = new WorkEnvelope(machine, {
             shape: progObj.workEnvelope.shape,
-            width: progObj.workEnvelope.width,
-            length: progObj.workEnvelope.length,
-            height: progObj.workEnvelope.height,
+            width: progObj.workEnvelope.dimensions.width,
+            length: progObj.workEnvelope.dimensions.length,
+            height: progObj.workEnvelope.dimensions.height,
         });
         let wePosition = new THREE.Vector3(
             progObj.workEnvelope.position.x,
@@ -2646,7 +2649,10 @@ class Compiler {
                 height: motorData.dimensions.height,
                 length: motorData.dimensions.length,
             });
-            motor.invertSteps = motorData.invertSteps;
+                motor.invertSteps = motorData.invertSteps;
+            if (motor.connections !== undefined) {
+                motor.connections = motorData.connections;
+            }
             if (motorData.position !== undefined) {
                 let position = new THREE.Vector3(motorData.position.x,
                                             motorData.position.y,
@@ -2678,6 +2684,9 @@ class Compiler {
                 height: mechanismData.dimensions.height,
                 length: mechanismData.dimensions.length,
             }, mechanismData.attributes);
+            if (mechanism.connections !== undefined) {
+                mechanism.connections = mechanismData.connections;
+            }
             if (mechanismData.position !== undefined) {
                 let position = new THREE.Vector3(mechanismData.position.x,
                                             mechanismData.position.y,
@@ -2700,6 +2709,9 @@ class Compiler {
                                             toolData.position.z);
                 tool.position = position;
             }
+            if (toolData.connections !== undefined) {
+                tool.connections = toolData.connections;
+            }
         });
         // TODO: second pass through blocks to set connections
         // progObj.connections.forEach((connectionData) => {
@@ -2712,6 +2724,24 @@ class Compiler {
         //         addBlockEnd: connectionData.addBlockEnd
         //     });
         // });
+        const progObjBlocks = progObj.motors.concat(progObj.mechanisms)
+                                            .concat(progObj.tools);
+        progObjBlocks.forEach((progBlock) => {
+            if (progBlock.connections !== undefined) {
+                progBlock.connections.forEach((connection) => {
+                    let baseBlock, baseBlockFace, baseBlockEnd,
+                        addBlock, addBlockFace, addBlockEnd;
+                    baseBlock = machine.findBlockWithName(progBlock.name);
+                    addBlock = machine.findBlockWithName(connection.child);
+                    [baseBlockFace, baseBlockEnd] = connection.parentPoint.split('.');
+                    [addBlockFace, addBlockEnd] = connection.childPoint.split('.');
+                    machine.setConnection({
+                        baseBlock, baseBlockFace, baseBlockEnd,
+                        addBlock, addBlockFace, addBlockEnd
+                    });
+                });
+            }
+        });
         // Once we have Blocks and Motors instantiated, set their pointers:
         // Paired motors, driven stages, driving motors
         progObj.mechanisms.forEach((mechanismData) => {

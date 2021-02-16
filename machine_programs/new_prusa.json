@@ -27,7 +27,7 @@
                 "y": 25.1,
                 "z": -100
             },
-            "children": [
+            "connections": [
                 {
                     "child": "y leadscrews",
                     "parentPoint": "-y.center",
@@ -48,7 +48,7 @@
                 "y": 25.1,
                 "z": 100
             },
-            "children": [
+            "connections": [
                 {
                     "child": "y leadscrews",
                     "parentPoint": "-y.center",
@@ -110,9 +110,9 @@
                 "driveType": "timingBelt",
                 "stepDisplacementRatio": 0.7
             },
-            "children": [
+            "connections": [
                 {
-                    "child": "y leadscrews",
+                    "child": "platform belt motor",
                     "parentPoint": "+x.center",
                     "childPoint": "-x.center"
                 },
@@ -139,7 +139,7 @@
                 "driveType": "timingBelt",
                 "stepDisplacementRatio": 0.5
             },
-            "children": [
+            "connections": [
                 {
                     "child": "carriage motor",
                     "parentPoint": "+z.center",
@@ -168,7 +168,7 @@
                 "driveType": "leadscrew",
                 "stepDisplacementRatio": 0.5
             },
-            "children": [
+            "connections": [
                 {
                     "child": "carriage",
                     "parentPoint": "+x.center",
@@ -187,7 +187,7 @@
             "attributes": {
                 "isToolAssembly": true
             },
-            "children": [
+            "connections": [
                 {
                     "child": "extruder",
                     "parentPoint": "+x.center",
