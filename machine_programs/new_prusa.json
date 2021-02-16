@@ -63,7 +63,7 @@
                 "height": 25,
                 "length": 25
             },
-            "invertSteps": true,
+            "invertSteps": true
         },
         {
             "name": "carriage motor",
@@ -120,7 +120,7 @@
                     "child": "build plate",
                     "parentPoint": "-y.center",
                     "childPoint": "+y.center"
-                },
+                }
             ]
         },
         {
@@ -149,7 +149,7 @@
                     "child": "extruder assembly",
                     "parentPoint": "+x.center",
                     "childPoint": "-x.center"
-                },
+                }
             ]
         },
         {

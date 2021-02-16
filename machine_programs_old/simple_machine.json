@@ -1,0 +1,83 @@
+{
+  "name": "simple-machine",
+  "machineType": "genericMachine",
+  "vendorInfo" : { },
+  "buildEnvironment": {
+    "width": 500,
+    "length": 500
+  },
+  "workEnvelope": {
+      "shape": "box",
+      "width": 0,
+      "height": 0,
+      "length": 0,
+      "position": {
+          "x": 0,
+          "y": 102.6,
+          "z": 0
+      }
+  },
+  "motors": [
+    {
+        "name": "my cool motor",
+        "componentType": "Motor",
+        "dimensions": {
+            "width": 25,
+            "height": 25,
+            "length": 25
+        },
+        "position": {
+            "x": 0,
+            "y": 25,
+            "z": 0
+        },
+        "invertSteps": true,
+        "drivenStages": [
+        ]
+    }
+  ],
+  "blocks": [
+        {
+            "name": "my block",
+            "componentType": "LinearStage",
+            "axes": [ "x" ],
+            "dimensions": {
+                "width": 165,
+                "height": 25,
+                "length": 25
+            },
+            "drivingMotors": [
+            ],
+            "kinematics": "directDrive",
+            "attributes": {
+                "driveMechanism": "timingBelt",
+                "stepDisplacementRatio": 0.7
+            }
+        }
+  ],
+  "tools": [
+    {
+      "name": "blankTool",
+      "componentType": "Tool",
+      "dimensions": {
+          "width": 0,
+          "height": 0,
+          "length": 0
+      },
+      "toolType": "blankTool",
+      "attributes": {
+      }
+    }
+  ],
+  "connections": [
+      {
+          "baseBlockName": "my cool motor",
+          "baseBlockFace": "+x",
+          "baseBlockEnd": "0",
+          "addBlockName": "my block",
+          "addBlockFace": "-x",
+          "addBlockEnd": "0"
+      }
+  ]
+}
+
