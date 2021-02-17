@@ -702,23 +702,30 @@ class Machine {
         let newBPos = (new THREE.Vector3()).copy(baseBlock.position);
         newBPos.add(translationVector);
 
-        // Apply rotation and translation (except for offset)
-        addBlock.quaternion = baseBlock.quaternion;
-        addBlock.rotateOverAxis(rotationAxis, connectRotationRadians);
-        addBlock.position = newBPos;
+        // Apply modifications to addBlock and all its descendents
+        let applyModificationsToAddBlock = (addBlock) => {
+            console.log(addBlock);
+            // Apply rotation and translation (except for offset)
+            addBlock.quaternion = baseBlock.quaternion;
+            addBlock.rotateOverAxis(rotationAxis, connectRotationRadians);
+            addBlock.position = newBPos;
 
-        // Apply end offset, itself rotated to match addBlock's quaternion
-        // FIXME: apply this to all children of the addBlock
-        let offsetAlongBase = calcOffsetOnRefBlock(baseBlock, addBlock,
-                                addBlockEnd);
-        let offsetAlongAdd = calcOffsetOnRefBlock(addBlock, baseBlock,
-                                baseBlockEnd);
-        offsetAlongBase.applyQuaternion(baseBlock.quaternion);
-        offsetAlongAdd.applyQuaternion(addBlock.quaternion);
-        addBlock.position = addBlock.position.add(offsetAlongBase.negate());
-        addBlock.position = addBlock.position.add(offsetAlongAdd.negate());
+            // Apply end offset, itself rotated to match addBlock's quaternion
+            let offsetAlongBase = calcOffsetOnRefBlock(baseBlock, addBlock,
+                                    addBlockEnd);
+            let offsetAlongAdd = calcOffsetOnRefBlock(addBlock, baseBlock,
+                                    baseBlockEnd);
+            offsetAlongBase.applyQuaternion(baseBlock.quaternion);
+            offsetAlongAdd.applyQuaternion(addBlock.quaternion);
+            addBlock.position = addBlock.position.add(offsetAlongBase.negate());
+            addBlock.position = addBlock.position.add(offsetAlongAdd.negate());
 
-        addBlock.baseBlock = false;
+            addBlock.baseBlock = false;
+        };
+
+        let addBlockAndDescendents = [addBlock].concat(addBlock.descendents);
+        addBlockAndDescendents.forEach(block => applyModificationsToAddBlock(block));
+
         this.connections.push(connectionObj);
         return this;
     }
