@@ -10,12 +10,8 @@ class StrangeGui {
     static serverURL = 'http://localhost:3000';
 
 
-    constructor(strangeScene, kinematics) {
-        if (strangeScene === undefined || kinematics === undefined) {
-            console.error('Need strangeScene and kinematics to inflate the GUI');
-        }
+    constructor(strangeScene) {
         this.strangeScene = strangeScene;
-        this.kinematics = kinematics;
         this.tooltips = [];
         this.heuristicNames = [];
         this.fetchHeuristicNames();
@@ -74,7 +70,7 @@ class StrangeGui {
                 this.runAutoComplete();
             }
         });
-        this.workflow = new Workflow(this, this.kinematics);
+        this.workflow = new Workflow(this);
         this.fetchAndRenderMachineNames();
         document.addEventListener('dblclick', (event) => {
             let programPadClicked = this.programPadDom.contains(event.target);
@@ -90,6 +86,10 @@ class StrangeGui {
                 }
             }
         }, false);
+    }
+
+    get kinematics() {
+        return this.strangeScene.machine.kinematics;
     }
 
     async fetchHeuristicNames() {
@@ -540,15 +540,12 @@ class StrangeGui {
         window.compiler.decompileAsPreview(window.strangeScene, newText);
     }
 
-    __inflateSceneFromGCText(inflateWithKinematics) {
+    __inflateSceneFromGCText() {
         let gcDom = document.getElementById('gc-container-1');
         let gcText = gcDom.innerText;
         let newMachine = window.compiler.decompileIntoScene(window
             .strangeScene,
             gcText);
-        if (inflateWithKinematics) {
-            window.kinematics.reinitializeForMachine(newMachine);
-        }
     }
 
     makeLoadStlPromise = (filepath) => {

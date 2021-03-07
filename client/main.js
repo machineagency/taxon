@@ -449,6 +449,7 @@ class Machine {
             'y': 'height',
             'z': 'length'
         };
+        this.kinematics = new Kinematics(this.parentScene);
         if (this.isPreview) {
             parentScene.previewMachine = this;
         }
@@ -1857,7 +1858,6 @@ class Kinematics {
         this.strangeAnimator = new StrangeAnimator(strangeScene);
         if (this.strangeScene.machine !== undefined) {
             this.machine = this.strangeScene.machine;
-            this.__buildTreeForMachine(this.machine);
         }
     }
 
@@ -2792,16 +2792,14 @@ class Compiler {
 function main() {
     let ss = new StrangeScene();
     let compiler = new Compiler();
-    let kinematics = new Kinematics(ss);
-    ss.instructionQueue = new InstructionQueue();
-    ss.instructionQueue.setKinematics(kinematics);
-    let jobFile = new JobFile(ss);
-    jobFile.setKinematics(kinematics);
+    // ss.instructionQueue = new InstructionQueue();
+    // ss.instructionQueue.setKinematics(ss.machine.kinematics);
+    // let jobFile = new JobFile(ss);
+    // jobFile.setKinematics(kinematics);
     window.strangeScene = ss;
-    window.kinematics = kinematics;
     window.compiler = compiler;
-    window.jobFile = jobFile;
-    window.strangeGui = new StrangeGui(ss, kinematics);
+    // window.jobFile = jobFile;
+    window.strangeGui = new StrangeGui(ss);
     window.testPrograms = TestPrograms;
 
     let animate = () => {

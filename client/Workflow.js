@@ -6,15 +6,18 @@ class Workflow {
 
     static EndFunctionName = 'END_FUNCTION';
 
-    constructor(parentGui, kinematics) {
+    constructor(parentGui) {
         this.parentGui = parentGui;
-        this.kinematics = kinematics;
         this.dom = document.getElementById('workflow-container');
         this.stepButtonDom = document.getElementById('step-button');
         this.consoleDom = document.getElementById('workflow-console');
         this.injectTestProgTextNodes();
-        this.progCurrFn = this.parseStatementsIntoCurriedFn();
+        this.progCurrFn = undefined;
         this.__currLineNum = 0;
+    }
+
+    get kinematics() {
+        return this.parentGui.kinematics;
     }
 
     get progText() {
@@ -33,6 +36,9 @@ class Workflow {
 
     step() {
         // TODO: block step until animations are done
+        if (this.progCurrFn === undefined) {
+            this.progCurrFn = this.parseStatementsIntoCurriedFn();
+        }
         if (this.progCurrFn.name === Workflow.EndFunctionName) {
             console.warn('End of program.');
             return;
