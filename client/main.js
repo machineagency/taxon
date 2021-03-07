@@ -603,7 +603,7 @@ class Machine {
      *      addBlockFace: String in { '+x', '-x', '+y', ... , '-z' }
      * }
      */
-    setConnection(connectionObj) {
+    setConnection(connectionObj, isInert=false) {
         let { baseBlock, baseBlockFace, baseBlockEnd, addBlock, addBlockFace,
                 addBlockEnd } = connectionObj;
         let facePairsToRadians = (fStr) => {
@@ -729,7 +729,7 @@ class Machine {
         // Update the kinematic tree before gathering descendents and updating
         // positions
         this.connections.push(connectionObj);
-        this.kinematics.addConnectionToTree(baseBlock, addBlock);
+        this.kinematics.addConnectionToTree(baseBlock, addBlock, isInert);
 
         let addBlockAndDescendents = [addBlock].concat(addBlock.descendents);
         addBlockAndDescendents.forEach(block => applyModificationsToAddBlock(block));
@@ -1347,7 +1347,13 @@ class Block extends StrangeComponent {
         if (parentKNode === undefined) {
             return [];
         }
-        return dfs(thisKNode.parentNode, []);
+        let parentAncestors = dfs(thisKNode.parentNode, []);
+        // Assume that orphans cannot have their own descendents
+        let orphanAncestors = [];
+        if (thisKNode.orphanNodes.length > 0) {
+            orphanAncestors = thisKNode.orphanNodes.map(n => n.block);
+        }
+        return parentAncestors.concat(orphanAncestors);
     }
 }
 
@@ -1946,15 +1952,21 @@ class Kinematics {
         return unzeroedPoint.add(this.zeroPosition);
     }
 
-    addConnectionToTree(parentBlock, childBlock) {
+    addConnectionToTree(parentBlock, childBlock, isInert=false) {
         let cNode, pNode;
         cNode = this.findNodeWithBlockName(childBlock.name);
         pNode = this.findNodeWithBlockName(parentBlock.name);
         // NOTE: connections in the tree's implementation are BACKWARDS
-        // in the a child points to its parent
-        cNode.childNodes.push(pNode);
-        pNode.parentNode = cNode;
-        this.redetermineRootKNodes();
+        // in the a child points to its parent. However, orphans still
+        // go with the parent
+        if (isInert) {
+            pNode.addOrphanNodes([cNode]);
+        }
+        else {
+            cNode.childNodes.push(pNode);
+            pNode.parentNode = cNode;
+            this.redetermineRootKNodes();
+        }
         return cNode;
     }
 
@@ -2718,17 +2730,6 @@ class Compiler {
                 tool.connections = toolData.connections;
             }
         });
-        // TODO: second pass through blocks to set connections
-        // progObj.connections.forEach((connectionData) => {
-        //     machine.setConnection({
-        //         baseBlock: machine.findBlockWithName(connectionData.baseBlockName),
-        //         baseBlockFace: connectionData.baseBlockFace,
-        //         baseBlockEnd: connectionData.baseBlockEnd,
-        //         addBlock: machine.findBlockWithName(connectionData.addBlockName),
-        //         addBlockFace: connectionData.addBlockFace,
-        //         addBlockEnd: connectionData.addBlockEnd
-        //     });
-        // });
         const progObjBlocks = progObj.motors.concat(progObj.mechanisms)
                                             .concat(progObj.tools);
         progObjBlocks.forEach((progBlock) => {
@@ -2740,10 +2741,11 @@ class Compiler {
                     addBlock = machine.findBlockWithName(connection.child);
                     [baseBlockFace, baseBlockEnd] = connection.parentPoint.split('.');
                     [addBlockFace, addBlockEnd] = connection.childPoint.split('.');
+                    let isInert = !!connection.isInert;
                     machine.setConnection({
                         baseBlock, baseBlockFace, baseBlockEnd,
-                        addBlock, addBlockFace, addBlockEnd
-                    });
+                        addBlock, addBlockFace, addBlockEnd,
+                    }, isInert);
                 });
             }
         });

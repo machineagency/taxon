@@ -141,14 +141,15 @@
             },
             "connections": [
                 {
-                    "child": "carriage motor",
-                    "parentPoint": "+z.center",
-                    "childPoint": "+x.center"
-                },
-                {
                     "child": "extruder assembly",
                     "parentPoint": "+x.center",
                     "childPoint": "-x.center"
+                },
+                {
+                    "child": "carriage motor",
+                    "parentPoint": "+x.+z",
+                    "childPoint": "-x.+z",
+                    "isInert": true
                 }
             ]
         },
