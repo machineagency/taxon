@@ -70,8 +70,13 @@
             },
             "connections": [
                 {
-                    "child": "extruder assembly",
-                    "isInert": false
+                    "child": "extruder",
+                    "isInert": false,
+                    "offset": {
+                        "x": 17.5,
+                        "y": 0,
+                        "z": 0
+                    }
                 }
             ]
         },
@@ -98,28 +103,10 @@
                     "child": "carriage",
                     "isInert": false,
                     "offset": {
-                        "x": 0,
+                        "x": 16.25,
                         "y": 27.5,
                         "z": 0
                     }
-                }
-            ]
-        },
-        {
-            "name": "extruder assembly",
-            "blockType": "nonActuating",
-            "dimensions": {
-                "width": 12.5,
-                "height": 25,
-                "length": 25
-            },
-            "attributes": {
-                "isToolAssembly": true
-            },
-            "connections": [
-                {
-                    "child": "extruder",
-                    "isInert": false
                 }
             ]
         },
@@ -128,9 +115,9 @@
             "blockType": "nonActuating",
             "isTool": true,
             "dimensions": {
-                "width": 10,
+                "width": 25,
                 "height": 25,
-                "length": 10
+                "length": 25
             },
             "attributes": {
                 "toolType": "print3dFDM",
