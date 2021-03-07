@@ -171,8 +171,8 @@
             "connections": [
                 {
                     "child": "carriage",
-                    "parentPoint": "+x.center",
-                    "childPoint": "-x.+z"
+                    "parentPoint": "+x.+y",
+                    "childPoint": "-x.+y"
                 }
             ]
         },

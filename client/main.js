@@ -704,6 +704,14 @@ class Machine {
         newBPos.add(translationVector);
         let effectiveTranslationVector = newBPos.clone().sub(addBlock.position);
 
+        // Apply end offset, itself rotated to match addBlock's quaternion
+        let offsetAlongBase = calcOffsetOnRefBlock(baseBlock, addBlock,
+                                addBlockEnd);
+        let offsetAlongAdd = calcOffsetOnRefBlock(addBlock, baseBlock,
+                                baseBlockEnd);
+        offsetAlongBase.applyQuaternion(baseBlock.quaternion);
+        offsetAlongAdd.applyQuaternion(addBlock.quaternion);
+
         // Apply modifications to addBlock and all its descendents
         let applyModificationsToAddBlock = (addBlock) => {
             // Apply rotation and translation (except for offset)
@@ -711,23 +719,19 @@ class Machine {
             addBlock.rotateOverAxis(rotationAxis, connectRotationRadians);
             addBlock.position.add(effectiveTranslationVector);
 
-            // Apply end offset, itself rotated to match addBlock's quaternion
-            let offsetAlongBase = calcOffsetOnRefBlock(baseBlock, addBlock,
-                                    addBlockEnd);
-            let offsetAlongAdd = calcOffsetOnRefBlock(addBlock, baseBlock,
-                                    baseBlockEnd);
-            offsetAlongBase.applyQuaternion(baseBlock.quaternion);
-            offsetAlongAdd.applyQuaternion(addBlock.quaternion);
-            addBlock.position = addBlock.position.add(offsetAlongBase.negate());
-            addBlock.position = addBlock.position.add(offsetAlongAdd.negate());
+            addBlock.position.sub(offsetAlongBase);
+            // TODO: this is probably causing issues, verify that we
+            // don't need this
+            // addBlock.position.sub(offsetAlongAdd);
 
             addBlock.baseBlock = false;
         };
+        // Update the kinematic tree before gathering descendents and updating
+        // positions
         this.connections.push(connectionObj);
         this.kinematics.addConnectionToTree(baseBlock, addBlock);
 
         let addBlockAndDescendents = [addBlock].concat(addBlock.descendents);
-        console.log(addBlockAndDescendents);
         addBlockAndDescendents.forEach(block => applyModificationsToAddBlock(block));
         return this;
     }
@@ -1876,25 +1880,13 @@ class Kinematics {
     }
 
     redetermineRootKNodes(possibleRootNode) {
-        // if (possibleRootNode.parentNode === undefined) {
-        //     let maybeDuplicateRoot = this.rootKNodes.find((rootKNode) => {
-        //         return rootKNode.block.name === possibleRootNode.block.name;
-        //     });
-        //     if (maybeDuplicateRoot === undefined) {
-        //         console.log(`pushed ${possibleRootNode.block.name}`);
-        //         this.rootKNodes.push(possibleRootNode);
-        //     }
-        // }
-        // Scan for no-longer-roots in any case
         let maybeNodeToRemove;
         this.rootKNodes.forEach((rootKNode) => {
-            console.log(`csdr ${rootKNode.block.name} p ${rootKNode.parentBlock}`);
             if (rootKNode.parentNode !== undefined) {
                 maybeNodeToRemove = rootKNode;
             }
         });
         if (maybeNodeToRemove) {
-            console.log(`removed ${maybeNodeToRemove.block.name}`);
             let removeIdx = this.rootKNodes.indexOf(maybeNodeToRemove);
             this.rootKNodes.splice(removeIdx, 1);
         }
