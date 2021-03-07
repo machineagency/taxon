@@ -702,14 +702,14 @@ class Machine {
         translationVector.applyAxisAngle(rotationAxis, connectRotationRadians);
         let newBPos = (new THREE.Vector3()).copy(baseBlock.position);
         newBPos.add(translationVector);
+        let effectiveTranslationVector = newBPos.clone().sub(addBlock.position);
 
         // Apply modifications to addBlock and all its descendents
         let applyModificationsToAddBlock = (addBlock) => {
-            console.log(addBlock);
             // Apply rotation and translation (except for offset)
             addBlock.quaternion = baseBlock.quaternion;
             addBlock.rotateOverAxis(rotationAxis, connectRotationRadians);
-            addBlock.position = newBPos;
+            addBlock.position.add(effectiveTranslationVector);
 
             // Apply end offset, itself rotated to match addBlock's quaternion
             let offsetAlongBase = calcOffsetOnRefBlock(baseBlock, addBlock,
@@ -723,11 +723,12 @@ class Machine {
 
             addBlock.baseBlock = false;
         };
+        this.connections.push(connectionObj);
+        this.kinematics.addConnectionToTree(baseBlock, addBlock);
 
         let addBlockAndDescendents = [addBlock].concat(addBlock.descendents);
+        console.log(addBlockAndDescendents);
         addBlockAndDescendents.forEach(block => applyModificationsToAddBlock(block));
-
-        this.connections.push(connectionObj);
         return this;
     }
 
@@ -1324,22 +1325,25 @@ class Block extends StrangeComponent {
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
         this.connections = [];
+        this.parentMachine.kinematics.addBlockAsRootNode(this);
     }
 
     get descendents() {
-        let helper = (block) => {
-            if (block.connections === undefined) {
-                return [];
+        // Convention: we are actually getting all ancestors
+        let dfs = (kNode, listSoFar) => {
+            listSoFar.push(kNode.block);
+            if (!kNode.parentNode) {
+                return listSoFar;
             }
-            let childBlocks = block.connections.map((connection) => {
-                return this.parentMachine.findBlockWithName(connection.child);
-            });
-            let beyondChildBlocks = childBlocks.map((childBlock) => {
-                return helper(childBlock);
-            }).flat();
-            return childBlocks.concat(beyondChildBlocks);
+            return dfs(kNode.parentNode, listSoFar);
         };
-        return helper(this);
+        let thisKNode = this.parentMachine.kinematics
+                            .findNodeWithBlockName(this.name);
+        let parentKNode = thisKNode.parentNode;
+        if (parentKNode === undefined) {
+            return [];
+        }
+        return dfs(thisKNode.parentNode, []);
     }
 }
 
@@ -1861,10 +1865,39 @@ class Kinematics {
         }
     }
 
-    reinitializeForMachine(newMachine) {
-        this.rootKNodes = [];
-        this.machine = newMachine;
-        this.__buildTreeForMachine(this.machine);
+    get machine() {
+        return this.strangeScene.machine;
+    }
+
+    addBlockAsRootNode(block) {
+        let kNode = new KNode(block, undefined);
+        this.rootKNodes.push(kNode);
+        this.redetermineRootKNodes();
+    }
+
+    redetermineRootKNodes(possibleRootNode) {
+        // if (possibleRootNode.parentNode === undefined) {
+        //     let maybeDuplicateRoot = this.rootKNodes.find((rootKNode) => {
+        //         return rootKNode.block.name === possibleRootNode.block.name;
+        //     });
+        //     if (maybeDuplicateRoot === undefined) {
+        //         console.log(`pushed ${possibleRootNode.block.name}`);
+        //         this.rootKNodes.push(possibleRootNode);
+        //     }
+        // }
+        // Scan for no-longer-roots in any case
+        let maybeNodeToRemove;
+        this.rootKNodes.forEach((rootKNode) => {
+            console.log(`csdr ${rootKNode.block.name} p ${rootKNode.parentBlock}`);
+            if (rootKNode.parentNode !== undefined) {
+                maybeNodeToRemove = rootKNode;
+            }
+        });
+        if (maybeNodeToRemove) {
+            console.log(`removed ${maybeNodeToRemove.block.name}`);
+            let removeIdx = this.rootKNodes.indexOf(maybeNodeToRemove);
+            this.rootKNodes.splice(removeIdx, 1);
+        }
     }
 
     zeroAtCurrentPosition() {
@@ -1921,60 +1954,16 @@ class Kinematics {
         return unzeroedPoint.add(this.zeroPosition);
     }
 
-
-    __buildTreeForMachine(machine) {
-        let toolBlock = machine.getTool();
-        if (toolBlock === undefined) {
-            console.error(`Can't find tool for machine ${machine.name}`);
-            return;
-        }
-        let blocksAndTool = machine.blocks.concat(toolBlock);
-        let rootBlocks = blocksAndTool.filter((block) => block.endBlock);
-        rootBlocks.forEach((block) => {
-            let rootNode = new KNode(block);
-            this.__buildSubtree(rootNode);
-            this.rootKNodes.push(rootNode);
-        });
-    }
-
-    __buildSubtree(currKNode) {
-        currKNode.block.visited = true;
-        let currAddBlockName = currKNode.block.name;
-        let baseBlockConnections = this.machine.connections.filter((conn) => {
-            return conn.addBlock.name=== currAddBlockName;
-        });
-        let baseBlocks = baseBlockConnections.map((conn) => {
-            return this.machine.findBlockWithName(conn.baseBlock.name);
-        });
-        let baseBlockNodes = baseBlocks.map((block) => {
-            return new KNode(block, currKNode);
-        });
-        if (baseBlockNodes.length > 1) {
-            baseBlockNodes.forEach((baseBlockNode) => {
-                let parallels = baseBlockNodes.filter((node) => {
-                    return node.block.id !== baseBlockNode.block.id;
-                });
-                baseBlockNode.addParallelNodes(parallels);
-            });
-        }
-
-        currKNode.addChildNodes(baseBlockNodes);
-        baseBlockNodes.forEach((baseNode) => {
-            this.__buildSubtree(baseNode);
-        });
-
-        // Deal with any orphan blocks, but do not recurse on them
-        let orphans = this.machine.connections.filter((conn) => {
-            return conn.baseBlock.name === currAddBlockName
-                    && !conn.addBlock.visited;
-        });
-        let orphanBlocks = orphans.map((conn) => {
-            return this.machine.findBlockWithName(conn.addBlock.name);
-        });
-        let orphanBlockNodes = orphanBlocks.map((block) => {
-            return new KNode(block);
-        });
-        currKNode.addOrphanNodes(orphanBlockNodes);
+    addConnectionToTree(parentBlock, childBlock) {
+        let cNode, pNode;
+        cNode = this.findNodeWithBlockName(childBlock.name);
+        pNode = this.findNodeWithBlockName(parentBlock.name);
+        // NOTE: connections in the tree's implementation are BACKWARDS
+        // in the a child points to its parent
+        cNode.childNodes.push(pNode);
+        pNode.parentNode = cNode;
+        this.redetermineRootKNodes();
+        return cNode;
     }
 
     findNodeWithBlockName(blockName) {
