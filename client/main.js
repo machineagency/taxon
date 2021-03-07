@@ -603,136 +603,30 @@ class Machine {
      *      addBlockFace: String in { '+x', '-x', '+y', ... , '-z' }
      * }
      */
-    setConnection(connectionObj, isInert=false) {
-        let { baseBlock, baseBlockFace, baseBlockEnd, addBlock, addBlockFace,
-                addBlockEnd } = connectionObj;
-        let facePairsToRadians = (fStr) => {
-            let signA = fStr[0] === '-' ? -1 : +1;
-            let signB = fStr[3] === '-' ? -1 : +1;
-            let axisA = fStr[1];
-            let axisB = fStr[4];
-            if (axisA === axisB) {
-                if (signA === signB) {
-                    return Math.PI;
-                }
-                else {
-                    return 0;
-                }
-            }
-            else {
-                // FIXME: are these the ones we want? Check geometric intuition
-                if (axisA === 'y' && axisB === 'x' ||
-                    axisA === 'x' && axisB === 'z' ||
-                    axisA === 'y' && axisB === 'z') {
-                    return signA * signB * Math.PI / 2;
-                }
-                else {
-                    return -(signA * signB * Math.PI / 2);
-                }
-            }
-        };
-        let facePairsToRotationAxis = (fStr) => {
-            let axisA = fStr[1];
-            let axisB = fStr[4];
-            if (axisA === 'x' && axisB === 'y'
-                || axisA === 'y' && axisB === 'x') {
-                return new THREE.Vector3(1, 0, 0);
-            }
-            if (axisA === 'x' && axisB === 'z'
-                || axisA === 'z' && axisB === 'x') {
-                return new THREE.Vector3(0, 1, 0);
-            }
-            if (axisA === 'y' && axisB === 'z'
-                || axisA === 'z' && axisB === 'y') {
-                return new THREE.Vector3(0, 0, 1);
-            }
-            if (axisA === 'x' && axisB === 'x') {
-                return new THREE.Vector3(0, 1, 0);
-            }
-            if (axisA === 'y' && axisB === 'y') {
-                return new THREE.Vector3(1, 0, 0);
-            }
-            if (axisA === 'z' && axisB === 'z') {
-                return new THREE.Vector3(0, 1, 0);
-            }
-        };
-        let facePairsToTranslationVectorFn = (fStr) => {
-            // Translation dimension is dim(A)
-            // Distance is sign(A) * (cA.dim(A) + cB.dim(B))
-            let signA = fStr[0] === '-' ? -1 : +1;
-            let axisA = fStr[1];
-            let axisB = fStr[4];
-            let dimA = this.axisToDim[axisA];
-            let dimB = this.axisToDim[axisB];
-            // NOTE: see reversal note below
-            let transDist = signA * (baseBlock[dimB] + addBlock[dimA]) / 2;
-            if (axisA === 'x') {
-                return new THREE.Vector3(transDist, 0, 0);
-            }
-            if (axisA === 'y') {
-                return new THREE.Vector3(0, transDist, 0);
-            }
-            if (axisA === 'z') {
-                return new THREE.Vector3(0, 0, transDist);
-            }
-        };
-        let calcOffsetOnRefBlock = (refBlock, moveBlock, endAxis) => {
-            let point = (new THREE.Vector3());
-            if (endAxis === 'center') {
-                return point;
-            }
-            let refOffset = this.__calcBlockDimVectorFromAxis(refBlock, endAxis);
-            let moveOffset = this.__calcBlockDimVectorFromAxis(moveBlock, endAxis);
-            point.add(refOffset.multiplyScalar(0.5));
-            point.add(moveOffset.multiplyScalar(-0.5));
-            return point;
-        };
+    setConnection(parentBlock, connectionObj) {
+        let childName = connectionObj.child;
+        let childBlock = this.findBlockWithName(childName);
+        console.assert(parentBlock !== undefined);
+        console.assert(childBlock !== undefined);
+        let offset = connectionObj.offset || new THREE.Vector3();
+        let isInert = !!connectionObj.isInert;
 
-        // NOTE: reverse order faces otherwise connections are in backwards
-        // configuration for some reason
-        let fStr = [addBlockFace, baseBlockFace].join();
+        let translationVector = parentBlock.position.clone()
+                                    .sub(childBlock.position);
+        let offsetVector = new THREE.Vector3(offset.x, offset.y, offset.z);
 
-        // Rotate translation vector to match baseBlock's quaternion
-        let translationVector = facePairsToTranslationVectorFn(fStr);
-        translationVector.applyQuaternion(baseBlock.quaternion);
-
-        // Rotate translation vector according to table
-        let rotationAxis = facePairsToRotationAxis(fStr);
-        let connectRotationRadians = facePairsToRadians(fStr);
-        translationVector.applyAxisAngle(rotationAxis, connectRotationRadians);
-        let newBPos = (new THREE.Vector3()).copy(baseBlock.position);
-        newBPos.add(translationVector);
-        let effectiveTranslationVector = newBPos.clone().sub(addBlock.position);
-
-        // Apply end offset, itself rotated to match addBlock's quaternion
-        let offsetAlongBase = calcOffsetOnRefBlock(baseBlock, addBlock,
-                                addBlockEnd);
-        let offsetAlongAdd = calcOffsetOnRefBlock(addBlock, baseBlock,
-                                baseBlockEnd);
-        offsetAlongBase.applyQuaternion(baseBlock.quaternion);
-        offsetAlongAdd.applyQuaternion(addBlock.quaternion);
-
-        // Apply modifications to addBlock and all its descendents
-        let applyModificationsToAddBlock = (addBlock) => {
-            // Apply rotation and translation (except for offset)
-            addBlock.quaternion = baseBlock.quaternion;
-            addBlock.rotateOverAxis(rotationAxis, connectRotationRadians);
-            addBlock.position.add(effectiveTranslationVector);
-
-            addBlock.position.sub(offsetAlongBase);
-            // TODO: this is probably causing issues, verify that we
-            // don't need this
-            // addBlock.position.sub(offsetAlongAdd);
-
-            addBlock.baseBlock = false;
+        let applyModificationsToBlock = (block) => {
+            block.position.add(translationVector);
+            block.position.sub(offsetVector);
+            block.baseBlock = false;
         };
         // Update the kinematic tree before gathering descendents and updating
         // positions
         this.connections.push(connectionObj);
-        this.kinematics.addConnectionToTree(baseBlock, addBlock, isInert);
+        this.kinematics.addConnectionToTree(parentBlock, childBlock, isInert);
 
-        let addBlockAndDescendents = [addBlock].concat(addBlock.descendents);
-        addBlockAndDescendents.forEach(block => applyModificationsToAddBlock(block));
+        let childBlockAndDescendents = [childBlock].concat(childBlock.descendents);
+        childBlockAndDescendents.forEach(block => applyModificationsToBlock(block));
         return this;
     }
 
@@ -1541,7 +1435,7 @@ class Stage extends Block {
         }
         console.assert(attributes.driveType !== undefined, attributes);
         this.attributes = attributes;
-        this.loadDriveMechanismStl();
+        // this.loadDriveMechanismStl();
         this.axes = [];
         this.drivingMotors = [];
         this.baseBlock = true;
@@ -2660,23 +2554,23 @@ class Compiler {
             progObj.workEnvelope.position.z
         );
         we.position.copy(wePosition);
-        progObj.motors.forEach((motorData) => {
-            let motor = new Motor(motorData.name, machine, {
-                width: motorData.dimensions.width,
-                height: motorData.dimensions.height,
-                length: motorData.dimensions.length,
-            });
-                motor.invertSteps = motorData.invertSteps;
-            if (motor.connections !== undefined) {
-                motor.connections = motorData.connections;
-            }
-            if (motorData.position !== undefined) {
-                let position = new THREE.Vector3(motorData.position.x,
-                                            motorData.position.y,
-                                            motorData.position.z);
-                motor.position = position;
-            }
-        });
+        // progObj.motors.forEach((motorData) => {
+        //     let motor = new Motor(motorData.name, machine, {
+        //         width: motorData.dimensions.width,
+        //         height: motorData.dimensions.height,
+        //         length: motorData.dimensions.length,
+        //     });
+        //         motor.invertSteps = motorData.invertSteps;
+        //     if (motor.connections !== undefined) {
+        //         motor.connections = motorData.connections;
+        //     }
+        //     if (motorData.position !== undefined) {
+        //         let position = new THREE.Vector3(motorData.position.x,
+        //                                     motorData.position.y,
+        //                                     motorData.position.z);
+        //         motor.position = position;
+        //     }
+        // });
         progObj.mechanisms.forEach((mechanismData) => {
             let CurrentBlockConstructor;
             if (mechanismData.mechanismType === 'nonActuating') {
@@ -2730,43 +2624,34 @@ class Compiler {
                 tool.connections = toolData.connections;
             }
         });
-        const progObjBlocks = progObj.motors.concat(progObj.mechanisms)
-                                            .concat(progObj.tools);
-        progObjBlocks.forEach((progBlock) => {
+        // const progObjBlocks = progObj.motors.concat(progObj.mechanisms)
+        //                                     .concat(progObj.tools);
+        progObj.mechanisms.forEach((progBlock) => {
             if (progBlock.connections !== undefined) {
                 progBlock.connections.forEach((connection) => {
-                    let baseBlock, baseBlockFace, baseBlockEnd,
-                        addBlock, addBlockFace, addBlockEnd;
-                    baseBlock = machine.findBlockWithName(progBlock.name);
-                    addBlock = machine.findBlockWithName(connection.child);
-                    [baseBlockFace, baseBlockEnd] = connection.parentPoint.split('.');
-                    [addBlockFace, addBlockEnd] = connection.childPoint.split('.');
-                    let isInert = !!connection.isInert;
-                    machine.setConnection({
-                        baseBlock, baseBlockFace, baseBlockEnd,
-                        addBlock, addBlockFace, addBlockEnd,
-                    }, isInert);
+                    let baseBlock = machine.findBlockWithName(progBlock.name);
+                    machine.setConnection(baseBlock, connection);
                 });
             }
         });
         // Once we have Blocks and Motors instantiated, set their pointers:
         // Paired motors, driven stages, driving motors
-        progObj.mechanisms.forEach((mechanismData) => {
-            let mechanism = machine.findBlockWithName(mechanismData.name)
-            if (mechanism instanceof Stage) {
-                mechanism.drivingMotors = mechanismData.drivingMotors
-                                        .map((motorName) => {
-                    return machine.findBlockWithName(motorName);
-                });
-            }
-        });
-        progObj.motors.forEach((motorData) => {
-            let motor = machine.findBlockWithName(motorData.name)
-            motor.drivenStages = machine.mechanisms.filter((mechanism) => {
-                return mechanism.drivingMotors !== undefined
-                        && mechanism.drivingMotors.includes(motorData.name);
-            });
-        });
+        // progObj.mechanisms.forEach((mechanismData) => {
+        //     let mechanism = machine.findBlockWithName(mechanismData.name)
+        //     if (mechanism instanceof Stage) {
+        //         mechanism.drivingMotors = mechanismData.drivingMotors
+        //                                 .map((motorName) => {
+        //             return machine.findBlockWithName(motorName);
+        //         });
+        //     }
+        // });
+        // progObj.motors.forEach((motorData) => {
+        //     let motor = machine.findBlockWithName(motorData.name)
+        //     motor.drivenStages = machine.mechanisms.filter((mechanism) => {
+        //         return mechanism.drivingMotors !== undefined
+        //                 && mechanism.drivingMotors.includes(motorData.name);
+        //     });
+        // });
 
         return machine;
     }
