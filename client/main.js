@@ -1904,18 +1904,18 @@ class Kinematics {
     }
 
     determineMachineAxes() {
-        let stages = this.machine.blocks.filter(b => b.axes !== undefined);
-        let allAxes = stages.map(b => b.axes).flat();
+        let blocks = this.machine.blocks.filter(b => b.actuationAxes !== undefined);
+        let allAxes = blocks.map(b => b.actuationAxes).flat();
         let uniqueAxes = allAxes.filter((axis, idx) => {
             return allAxes.indexOf(axis) === idx;
         });
-        let axisToStageLists = {};
+        let axisToBlockLists = {};
         uniqueAxes.forEach((axis) => {
-            axisToStageLists[axis] = stages.filter((stage) => {
-                return stage.axes.indexOf(axis) !== -1;
+            axisToBlockLists[axis] = blocks.filter((block) => {
+                return block.actuationAxes.indexOf(axis) !== -1;
             });
         });
-        return axisToStageLists;
+        return axisToBlockLists;
     }
 
     determineMovingBlocks() {
@@ -1972,21 +1972,25 @@ class Kinematics {
         if (validMove) {
             let machine = this.strangeScene.machine;
             let blockNameToDisplacement = {};
-            // TODO: make these return subobjects
-            this.__addDirectDriveActuations(axesToCoords, blockNameToDisplacement);
-            this.__addHBotActuations(axesToCoords, blockNameToDisplacement);
-            this.turnMotors(motorNameToSteps);
+            machine.blocks.forEach((block) => {
+                if (block.kinematics === 'hBot' || block.kinematics === 'coreXY') {
+                    let axisFirst = block.actuationAxes[0];
+                    let axisSecond = block.actuationAxes[1];
+                    let displacements = [axesToCoords[axisFirst],
+                                         axesToCoords[axisSecond]];
+                    blockNameToDisplacement[block.name] = displacements;
+                }
+                else if (block.kinematics === 'directDrive') {
+                    let axis = block.actuationAxes[0];
+                    let displacement = axesToCoords[axis]
+                    blockNameToDisplacement[block.name] = displacement;
+                }
+            });
+            this.actuateAllBlocks(blockNameToDisplacement);
         }
         return validMove;
     }
 
-    __addDirectDriveActuations(axesToCoords, blockNameToDisplacement) {
-        // TODO
-    }
-
-    __addHBotActuations(axesToCoords, blockNameToDisplacement) {
-        // TODO
-    }
 
     __addDirectDriveIK(axesToCoords, motorNameToSteps) {
         let axisToStageLists = this.determineMachineAxes();
@@ -2042,6 +2046,15 @@ class Kinematics {
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          displacement);
         }
+        this.strangeAnimator.animateToBlockEndPositions();
+    }
+
+    actuateAllBlocks(blockNameToDisplacement) {
+        Object.keys(blockNameToDisplacement).forEach((blockName) => {
+            let block = this.machine.findBlockWithName(blockName);
+            let displacement = blockNameToDisplacement[blockName];
+            this.actuateBlock(block, displacement);
+        });
         this.strangeAnimator.animateToBlockEndPositions();
     }
 
