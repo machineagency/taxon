@@ -29,6 +29,7 @@
         {
             "name": "platform belt",
             "blockType": "linear",
+            "invertDisplacement": true,
             "actuationAxes": [ "x" ],
             "dimensions": {
                 "width": 165,

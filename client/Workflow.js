@@ -95,10 +95,10 @@ class Workflow {
         //     'run();'
         // ];
         let statements = [
-            '$b(\'carriage\').wiggle();',
             '$machine().zero();',
             '$machine().moveTo(50, 50, 50);',
-            '$model().slice();',
+            '$machine().moveTo(25, 25, 25);',
+            '$machine().moveTo(0, 0, 0);'
         ];
         statements.forEach((stat, idx) => {
             this.addLine(statements[idx]);

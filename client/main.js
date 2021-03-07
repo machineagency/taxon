@@ -1968,8 +1968,9 @@ class Kinematics {
     }
 
     moveToolRelative(axesToCoords) {
-        let validMove = this.verifyMoveInWorkEnvelope(axesToCoords);
-        if (validMove) {
+        // FIXME: come back and check WE at a higher layer
+        // let validMove = this.verifyMoveInWorkEnvelope(axesToCoords);
+        if (true) {
             let machine = this.strangeScene.machine;
             let blockNameToDisplacement = {};
             machine.blocks.forEach((block) => {
@@ -1988,7 +1989,6 @@ class Kinematics {
             });
             this.actuateAllBlocks(blockNameToDisplacement);
         }
-        return validMove;
     }
 
 
@@ -2025,6 +2025,7 @@ class Kinematics {
     }
 
     actuateBlock(block, displacement) {
+        let sign = block.invertDisplacement ? -1 : 1;
         let blockNode = this.findNodeWithBlockName(block.name);
         let path = this.pathFromNodeToRoot(blockNode).slice(1);
         let pathBlocks = path.map((node) => {
@@ -2036,17 +2037,16 @@ class Kinematics {
             console.assert(displacement.length && displacement.length === 2)
             this.strangeAnimator
                 .setMoveBlocksOnAxisName(pathBlocks, block.actuationAxes[0],
-                                                         displacement[0]);
+                                         sign * displacement[0]);
             this.strangeAnimator
                 .setMoveBlocksOnAxisName(pathBlocks, block.actuationAxes[1],
-                                                         displacement[1]);
+                                         sign * displacement[1]);
         }
         else if (block.kinematics === 'directDrive') {
             let axisName = block.actuationAxes[0];
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
-                                                         displacement);
+                                                         sign * displacement);
         }
-        this.strangeAnimator.animateToBlockEndPositions();
     }
 
     actuateAllBlocks(blockNameToDisplacement) {
@@ -2623,7 +2623,7 @@ class Compiler {
             }
             if (block instanceof Stage) {
                 block.setActuationAxes(blockData.actuationAxes);
-                block.renderArrows();
+                block.invertDisplacement = !!blockData.invertDisplacement;
             }
         });
         // Set connections after blocks are rendered
