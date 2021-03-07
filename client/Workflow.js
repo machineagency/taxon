@@ -125,7 +125,7 @@ class Workflow {
 
     __generateCurriedWorkflow() {
         // Bindings!
-        let $m = this.generateMSelector();
+        // let $m = this.generateMSelector();
         let $b = this.generateBSelector();
         let $t = this.generateTSelector();
         let $machine = this.generateMachineSelector();
@@ -223,6 +223,8 @@ class Workflow {
     // Lanaguage constructs
 
     generateMSelector() {
+        // FIXME: do not use until we re-implement motors at the lowest level
+        console.assert(false, 'NYI');
         const kinematics = this.kinematics;
         return (motorName) => {
             return {
@@ -247,18 +249,10 @@ class Workflow {
                     const epsSec = 0.01;
                     const delay = (kinematics.strangeAnimator.ANIM_SECONDS +
                                     epsSec) * 1000;
-                    let drivingMotors = block.drivingMotors;
-                    if (block.kinematics === 'directDrive') {
-                        let singleMotorName = drivingMotors[0].name;
-                        kinematics.turnMotors({
-                            [singleMotorName]: wiggleSteps
-                        });
-                        setTimeout(() => {
-                            kinematics.turnMotors({
-                                [singleMotorName]: -wiggleSteps
-                            });
-                        }, delay);
-                    }
+                    kinematics.actuateBlock(block, wiggleSteps);
+                    setTimeout(() => {
+                        kinematics.actuateBlock(block, -wiggleSteps);
+                    }, delay);
                 }
             };
         };

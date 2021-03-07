@@ -450,11 +450,12 @@ class Machine {
         }
         else {
             parentScene.machine = this;
+            this.parentScene.instructionQueue.kinematics = this.kinematics;
         }
     }
 
     get tools() {
-        return this.blocks.filter(b => b.isTool);
+        return this.blocks.filter(b => b.componentType === 'Tool');
     }
 
     recolorAndMoveMachineForPreviewing(recolorName) {
@@ -1970,13 +1971,21 @@ class Kinematics {
         let validMove = this.verifyMoveInWorkEnvelope(axesToCoords);
         if (validMove) {
             let machine = this.strangeScene.machine;
-            let motorNameToSteps = {};
+            let blockNameToDisplacement = {};
             // TODO: make these return subobjects
-            this.__addDirectDriveIK(axesToCoords, motorNameToSteps);
-            this.__addHBotIK(axesToCoords, motorNameToSteps);
+            this.__addDirectDriveActuations(axesToCoords, blockNameToDisplacement);
+            this.__addHBotActuations(axesToCoords, blockNameToDisplacement);
             this.turnMotors(motorNameToSteps);
         }
         return validMove;
+    }
+
+    __addDirectDriveActuations(axesToCoords, blockNameToDisplacement) {
+        // TODO
+    }
+
+    __addHBotActuations(axesToCoords, blockNameToDisplacement) {
+        // TODO
     }
 
     __addDirectDriveIK(axesToCoords, motorNameToSteps) {
@@ -1985,10 +1994,10 @@ class Kinematics {
             return block.kinematics === 'directDrive';
         });
         directDriveStages.forEach((stage) => {
-            console.assert(stage.axes.length === 1, stage);
+            console.assert(stage.actuationAxes.length === 1, stage);
             stage.drivingMotors.forEach((motor) => {
                 let invert = motor.invertSteps ? -1 : 1;
-                let axis = stage.axes[0];
+                let axis = stage.actuationAxes[0];
                 let steps = axesToCoords[axis];
                 motorNameToSteps[motor.name] = steps * invert;
             });
@@ -2009,6 +2018,31 @@ class Kinematics {
             motorNameToSteps[motorA.name] = axisASteps + axisBSteps;
             motorNameToSteps[motorB.name] = axisASteps - axisBSteps;
         });
+    }
+
+    actuateBlock(block, displacement) {
+        let blockNode = this.findNodeWithBlockName(block.name);
+        let path = this.pathFromNodeToRoot(blockNode).slice(1);
+        let pathBlocks = path.map((node) => {
+            let orphanBlocks = node.orphanNodes.map((node) => node.block);
+            return [node.block].concat(orphanBlocks);
+        }).flat();
+        let pathBlockNames = pathBlocks.map((block) => block.name);
+        if (block.kinematics === 'hBot' || block.kinematics === 'coreXY') {
+            console.assert(displacement.length && displacement.length === 2)
+            this.strangeAnimator
+                .setMoveBlocksOnAxisName(pathBlocks, block.actuationAxes[0],
+                                                         displacement[0]);
+            this.strangeAnimator
+                .setMoveBlocksOnAxisName(pathBlocks, block.actuationAxes[1],
+                                                         displacement[1]);
+        }
+        else if (block.kinematics === 'directDrive') {
+            let axisName = block.actuationAxes[0];
+            this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
+                                                         displacement);
+        }
+        this.strangeAnimator.animateToBlockEndPositions();
     }
 
     turnMotors(motorNameToSteps) {
@@ -2644,27 +2678,9 @@ window.testTooltip = () => {
 
 window.testMotor = () => {
     let machine = window.strangeScene.machine;
-    let motors = machine.motors;
-    let motorA = motors.find((motor) => {
-        return motor.name === 'MotorA';
-    });
-    let motorB = motors.find((motor) => {
-        return motor.name === 'MotorB';
-    });
-    let lsMotorA = motors.find((motor) => {
-        return motor.name === 'leadscrew motor a';
-    });
-    let lsMotorB = motors.find((motor) => {
-        return motor.name === 'leadscrew motor b';
-    });
-    let platformMotor = motors.find((motor) => {
-        return motor.name === 'platform belt motor';
-    });
-    window.jobFile.loadFromInputDom().then((result) => {
-        window.jobFile.runJob();
-    }, (error) => {
-        console.error(error);
-    });
+    let kinematics = machine.kinematics;
+    let c = machine.findBlockWithName('carriage');
+    kinematics.actuateBlock(c, 50);
 };
 
 main();
