@@ -437,13 +437,8 @@ class Machine {
         this.parentScene.scene.add(this.rootMeshGroup);
         this.buildEnvironment = undefined;
         this.workEnvelope = undefined;
-        this.mechanisms = [];
-        this.tools = [];
-        this.motors = [];
+        this.blocks = [];
         this.connections = [];
-        // Eagerly store paired motors, whereas parallel motors are
-        // inferred lazily later on.
-        this.pairedMotors = [];
         this.axisToDim = {
             'x': 'width',
             'y': 'height',
@@ -458,9 +453,8 @@ class Machine {
         }
     }
 
-    get blocks() {
-        return this.mechanisms.concat(this.tools)
-                .concat(this.motors);
+    get tools() {
+        return this.blocks.filter(b => b.isTool);
     }
 
     recolorAndMoveMachineForPreviewing(recolorName) {
@@ -526,16 +520,8 @@ class Machine {
         }
     }
 
-    addMechanism(mechanism) {
-        this.mechanisms.push(mechanism);
-    }
-
-    addTool(tool) {
-        this.tools.push(tool);
-    }
-
-    addMotor(motor) {
-        this.motors.push(motor);
+    addBlock(block) {
+        this.blocks.push(block);
     }
 
     findBlockWithName(name) {
@@ -1223,6 +1209,7 @@ class Block extends StrangeComponent {
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
         this.connections = [];
+        this.parentMachine.addBlock(this);
         this.parentMachine.kinematics.addBlockAsRootNode(this);
     }
 
@@ -1254,7 +1241,7 @@ class Block extends StrangeComponent {
 class Tool extends Block {
     static color = 0xe44242;
     static defaultPosition = new THREE.Vector3(0, 150, 0);
-    constructor(name, parentMachine, dimensions, toolType, attributes) {
+    constructor(name, parentMachine, dimensions, attributes) {
         super(name, parentMachine, dimensions);
         this.componentType = 'Tool';
         // NOTE: Tool objects are not base blocks because they are assumed
@@ -1262,10 +1249,8 @@ class Tool extends Block {
         this.baseBlock = false;
         this.endBlock = true;
         console.assert(attributes !== undefined, 'attributes needed at Tool instantation.');
-        console.assert(toolType !== undefined, 'toolType needed at Tool instantiation.');
-        this.toolType = toolType;
+        this.toolType = attributes.toolType;
         this.attributes = attributes;
-        parentMachine.addTool(this);
         this.renderDimensions();
     }
 
@@ -1350,7 +1335,7 @@ class ToolAssembly extends Block {
         super(name, parentMachine, dimensions);
         this.componentType = 'ToolAssembly';
         this.baseBlock = true;
-        parentMachine.addMechanism(this);
+        parentMachine.addBlock(this);
         this.renderDimensions();
     }
 
@@ -1394,7 +1379,7 @@ class Platform extends Block {
         this.componentType = 'Platform';
         this.baseBlock = true;
         this.endBlock = true;
-        parentMachine.addMechanism(this);
+        parentMachine.addBlock(this);
         this.renderDimensions();
     }
 
@@ -1439,7 +1424,6 @@ class Stage extends Block {
         this.axes = [];
         this.drivingMotors = [];
         this.baseBlock = true;
-        parentMachine.addMechanism(this);
     }
 
     loadDriveMechanismStl() {
@@ -1919,8 +1903,8 @@ class Kinematics {
     }
 
     determineMachineAxes() {
-        let stages = this.machine.mechanisms.filter((mechanism) => mechanism.axes !== undefined);
-        let allAxes = stages.map((mechanism) => mechanism.axes).flat();
+        let stages = this.machine.blocks.filter(b => b.axes !== undefined);
+        let allAxes = stages.map(b => b.axes).flat();
         let uniqueAxes = allAxes.filter((axis, idx) => {
             return allAxes.indexOf(axis) === idx;
         });
@@ -2554,79 +2538,49 @@ class Compiler {
             progObj.workEnvelope.position.z
         );
         we.position.copy(wePosition);
-        // progObj.motors.forEach((motorData) => {
-        //     let motor = new Motor(motorData.name, machine, {
-        //         width: motorData.dimensions.width,
-        //         height: motorData.dimensions.height,
-        //         length: motorData.dimensions.length,
-        //     });
-        //         motor.invertSteps = motorData.invertSteps;
-        //     if (motor.connections !== undefined) {
-        //         motor.connections = motorData.connections;
-        //     }
-        //     if (motorData.position !== undefined) {
-        //         let position = new THREE.Vector3(motorData.position.x,
-        //                                     motorData.position.y,
-        //                                     motorData.position.z);
-        //         motor.position = position;
-        //     }
-        // });
-        progObj.mechanisms.forEach((mechanismData) => {
+        progObj.blocks.forEach((blockData) => {
             let CurrentBlockConstructor;
-            if (mechanismData.mechanismType === 'nonActuating') {
-                if (mechanismData.attributes.isToolAssembly) {
+            if (blockData.blockType === 'nonActuating') {
+                if (blockData.isTool) {
+                    CurrentBlockConstructor = Tool;
+                }
+                if (blockData.attributes.isToolAssembly) {
                     CurrentBlockConstructor = ToolAssembly;
                 }
-                if (mechanismData.attributes.isPlatform) {
+                if (blockData.attributes.isPlatform) {
                     CurrentBlockConstructor = Platform;
                 }
             }
-            if (mechanismData.mechanismType === 'linear') {
+            if (blockData.blockType === 'linear') {
                 CurrentBlockConstructor = LinearStage;
             }
-            if (mechanismData.mechanismType === 'parallel') {
+            if (blockData.blockType === 'parallel') {
                 CurrentBlockConstructor = ParallelStage;
             }
-            if (mechanismData.mechanismType === 'cross') {
+            if (blockData.blockType === 'cross') {
                 CurrentBlockConstructor = CrossStage;
             }
-            let mechanism = new CurrentBlockConstructor(mechanismData.name, machine, {
-                width: mechanismData.dimensions.width,
-                height: mechanismData.dimensions.height,
-                length: mechanismData.dimensions.length,
-            }, mechanismData.attributes);
-            if (mechanism.connections !== undefined) {
-                mechanism.connections = mechanismData.connections;
+            let block = new CurrentBlockConstructor(blockData.name, machine, {
+                width: blockData.dimensions.width,
+                height: blockData.dimensions.height,
+                length: blockData.dimensions.length,
+            }, blockData.attributes);
+            if (block.connections !== undefined) {
+                block.connections = blockData.connections;
             }
-            if (mechanismData.position !== undefined) {
-                let position = new THREE.Vector3(mechanismData.position.x,
-                                            mechanismData.position.y,
-                                            mechanismData.position.z);
-                mechanism.position = position;
+            if (blockData.position !== undefined) {
+                let position = new THREE.Vector3(blockData.position.x,
+                                            blockData.position.y,
+                                            blockData.position.z);
+                block.position = position;
             }
-            if (mechanism instanceof Stage) {
-                mechanism.setActuationAxes(mechanismData.actuationAxes);
-                // mechanism.setAttributes(mechanismData.attributes);
-                // mechanism.setKinematics(mechanismData.kinematics);
-                mechanism.renderArrows();
+            if (block instanceof Stage) {
+                block.setActuationAxes(blockData.actuationAxes);
+                block.renderArrows();
             }
         });
-        progObj.tools.forEach((toolData) => {
-            let tool = new Tool(toolData.name, machine, toolData.dimensions,
-                                toolData.toolType, toolData.attributes);
-            if (toolData.position !== undefined) {
-                let position = new THREE.Vector3(toolData.position.x,
-                                            toolData.position.y,
-                                            toolData.position.z);
-                tool.position = position;
-            }
-            if (toolData.connections !== undefined) {
-                tool.connections = toolData.connections;
-            }
-        });
-        // const progObjBlocks = progObj.motors.concat(progObj.mechanisms)
-        //                                     .concat(progObj.tools);
-        progObj.mechanisms.forEach((progBlock) => {
+        // Set connections after blocks are rendered
+        progObj.blocks.forEach((progBlock) => {
             if (progBlock.connections !== undefined) {
                 progBlock.connections.forEach((connection) => {
                     let baseBlock = machine.findBlockWithName(progBlock.name);

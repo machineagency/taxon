@@ -260,8 +260,8 @@ class Constants {
 }
 
 let determineMachineAxes = (machine) => {
-    let stages = machine.mechanisms.filter((mechanism) => mechanism.axes !== undefined);
-    let allAxes = stages.map((mechanism) => mechanism.axes).flat();
+    let stages = machine.blocks.filter(b => b.axes !== undefined);
+    let allAxes = stages.map(b => b.axes).flat();
     let uniqueAxes = allAxes.filter((axis, idx) => {
         return allAxes.indexOf(axis) === idx;
     });
@@ -275,11 +275,12 @@ let determineMachineAxes = (machine) => {
 }
 
 let calculateRotFromMachine = (machine) => {
-    let manufacturingStrategies = machine.tools.map((t) => {
-        return Constants.toolTypeToManufacturingStrategies[t.toolType];
+    let tools = machine.blocks.filter(b => b.isTool);
+    let manufacturingStrategies = tools.map((t) => {
+        return Constants.toolTypeToManufacturingStrategies[t.attributes.toolType];
     });
-    let acceptableMaterials = machine.tools.map((t) => {
-        return Constants.toolTypeToMaterials[t.toolType];
+    let acceptableMaterials = tools.map((t) => {
+        return Constants.toolTypeToMaterials[t.attributes.toolType];
     }).flat();
     let axisToBlocks = determineMachineAxes(machine);
     let axisToSpeedScores = {},

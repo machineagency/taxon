@@ -13,10 +13,10 @@
             "z": 0
         }
     },
-    "mechanisms": [
+    "blocks": [
         {
             "name": "build plate",
-            "mechanismType": "nonActuating",
+            "blockType": "nonActuating",
             "dimensions": {
                 "length": 130,
                 "width": 130,
@@ -28,10 +28,7 @@
         },
         {
             "name": "platform belt",
-            "mechanismType": "linear",
-            "drivingMotors": [
-                "platform belt motor"
-            ],
+            "blockType": "linear",
             "actuationAxes": [ "x" ],
             "dimensions": {
                 "width": 165,
@@ -60,10 +57,7 @@
         },
         {
             "name": "carriage",
-            "mechanismType": "linear",
-            "drivingMotors": [
-                "carriage motor"
-            ],
+            "blockType": "linear",
             "actuationAxes": [ "z" ],
             "dimensions": {
                 "width": 12.5,
@@ -83,10 +77,7 @@
         },
         {
             "name": "y leadscrews",
-            "mechanismType": "parallel",
-            "drivingMotors": [
-                "leadscrew motor a", "leadscrew motor b"
-            ],
+            "blockType": "parallel",
             "actuationAxes": [ "y" ],
             "dimensions": {
                 "width": 20,
@@ -116,7 +107,7 @@
         },
         {
             "name": "extruder assembly",
-            "mechanismType": "nonActuating",
+            "blockType": "nonActuating",
             "dimensions": {
                 "width": 12.5,
                 "height": 25,
@@ -131,18 +122,18 @@
                     "isInert": false
                 }
             ]
-        }
-    ],
-    "tools": [
+        },
         {
             "name": "extruder",
+            "blockType": "nonActuating",
+            "isTool": true,
             "dimensions": {
                 "width": 10,
                 "height": 25,
                 "length": 10
             },
-            "toolType": "print3dFDM",
             "attributes": {
+                "toolType": "print3dFDM",
                 "nozzleCount": 1
             }
         }
