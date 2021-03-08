@@ -1,6 +1,11 @@
 {
     "name": "verticalDoubleLeadScrewFrame",
     "programType": "parts",
+    "bounds": {
+        "width": 20,
+        "height": 150,
+        "length": 170
+    },
     "parts": [
         {
             "name": "left motor",

@@ -619,7 +619,6 @@ class StrangeGui {
         this.loadTextIntoDomForResource(newText, 'partsPrograms');
         let partsCompiler = new PartsCompiler();
         let partsObj = partsCompiler.compile(newText);
-        console.log(partsObj);
         // this.__inflateSceneFromGCText(true);
         // this.strangeScene.positionModelOnWorkEnvelope();
 
