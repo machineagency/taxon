@@ -1,5 +1,6 @@
 {
     "name": "prusa-i3-mk3",
+    "programType" : "blocks",
     "workEnvelope": {
         "shape": "box",
         "dimensions" : {
@@ -83,6 +84,7 @@
         },
         {
             "name": "y leadscrews",
+            "implementation": "verticalDoubleLeadScrewFrame",
             "blockType": "parallel",
             "actuationAxes": [ "y" ],
             "dimensions": {
