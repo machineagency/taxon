@@ -9,6 +9,7 @@ import { LineGeometry } from './build/lines/LineGeometry.js';
 import { LineMaterial } from './build/lines/LineMaterial.js';
 
 import { StrangeGui } from './StrangeGui.js';
+import { PartsCompiler } from './Parts.js';
 import { TestPrograms } from './TestPrograms.js';
 
 class StrangeScene {
