@@ -597,8 +597,32 @@ class StrangeGui {
         }
     }
 
-    __modifyGUIForPartsListClick(event, newText) {
+    __modifyGUIForPartsListClick(event, newText, listItemDom) {
+        // Gather DOM elements for click logic
+        let highlightPreviewClassName = 'preview-machine-highlight';
+        let highlightClassName = 'current-machine-highlight';
+        let oldHighlightedPreviewListItemDom = document
+            .getElementsByClassName(highlightPreviewClassName)[0];
+        let gcDom = document.getElementById('gc-container-1');
+        let oldHighlightedListItemDom = document
+            .getElementsByClassName(highlightClassName)[0];
+
+        // UI edits
+        if (oldHighlightedListItemDom !== undefined) {
+            oldHighlightedListItemDom.classList.remove(highlightClassName);
+        }
+        listItemDom.classList.add(highlightClassName);
+        gcDom.setAttribute('contenteditable', false);
+        gcDom.classList.remove('red-border');
+
+        // Load text and inflate parts
         this.loadTextIntoDomForResource(newText, 'partsPrograms');
+        let partsCompiler = new PartsCompiler();
+        let partsObj = partsCompiler.compile(newText);
+        console.log(partsObj);
+        // this.__inflateSceneFromGCText(true);
+        // this.strangeScene.positionModelOnWorkEnvelope();
+
     }
 
     __inflateAsPreview(newText) {
