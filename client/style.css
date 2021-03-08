@@ -257,6 +257,11 @@ input[type="file"] {
     overflow: scroll;
 }
 
+#parts-list-container {
+    height: 100px;
+    overflow: scroll;
+}
+
 #pre-machine-list {
     margin-bottom: 0px;
 }
