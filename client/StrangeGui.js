@@ -521,7 +521,7 @@ class StrangeGui {
             gcDom.classList.remove('red-border');
             this.__inflateSceneFromGCText(true);
             this.strangeScene.positionModelOnWorkEnvelope();
-            this.loadHeuristicSetForSceneMachine();
+            // this.loadHeuristicSetForSceneMachine();
 
             if (window.strangeScene.previewMachine !== undefined) {
                 oldHighlightedPreviewListItemDom.classList

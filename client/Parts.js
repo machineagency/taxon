@@ -26,7 +26,10 @@ class PartsCompiler {
     constructor() {
     }
 
-    compile() {
+    compile(prog) {
+        return prog;
     }
 }
+
+export { PartsCompiler };
 

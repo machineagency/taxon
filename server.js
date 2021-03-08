@@ -374,9 +374,10 @@ let makeFilterFromQuery = (queryObj) => {
 };
 
 let seedDatabase = (db) => {
+    const blocksProgramsDir = MACHINE_DIR + '/blocks_programs/';
     db.dropDatabase()
     .then((_) => {
-        fs.readdir(MACHINE_DIR, (err, files) => {
+        fs.readdir(blocksProgramsDir, (err, files) => {
             if (err) {
                 throw err;
             }
@@ -384,7 +385,7 @@ let seedDatabase = (db) => {
                 if (filename[0] === '.') {
                     return;
                 }
-                let fullFilename = MACHINE_DIR + filename;
+                let fullFilename = blocksProgramsDir + filename;
                 fs.readFile(fullFilename, (err, data) => {
                     if (err) {
                         throw err;
@@ -392,18 +393,19 @@ let seedDatabase = (db) => {
                     console.log(`Loading and computing heuristicSet for ${fullFilename}.`);
                     let machineObj = JSON.parse(data);
                     db.collection('machines').insertOne(machineObj)
-                    .then((result) => {
-                        let machineDbId = result.insertedId;
-                        let heuristicSetObj = calculateRotFromMachine(machineObj);
-                        heuristicSetObj.machineDbId = machineDbId;
-                        db.collection('heuristicSets').insertOne(heuristicSetObj)
-                        .catch((error) => {
-                            throw error;
-                        });
-                    })
-                    .catch((error) => {
-                        throw error;
-                    });
+                    ;
+                    // .then((result) => {
+                    //     let machineDbId = result.insertedId;
+                    //     let heuristicSetObj = calculateRotFromMachine(machineObj);
+                    //     heuristicSetObj.machineDbId = machineDbId;
+                    //     db.collection('heuristicSets').insertOne(heuristicSetObj)
+                    //     .catch((error) => {
+                    //         throw error;
+                    //     });
+                    // })
+                    // .catch((error) => {
+                    //     throw error;
+                    // });
                 });
             });
         });
