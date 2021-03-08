@@ -62,7 +62,7 @@ let attachRoutesWithDBAndStart = (db) => {
                 .toArray()
                 .then((results) => {
                     res.status(200).json({
-                        machines: results
+                        results: results
                     });
                 })
                 .catch((error) => {
@@ -79,7 +79,7 @@ let attachRoutesWithDBAndStart = (db) => {
             .toArray()
             .then((results) => {
                 res.status(200).json({
-                    machines: results
+                    results: results
                 });
             })
             .catch((error) => {
@@ -103,7 +103,7 @@ let attachRoutesWithDBAndStart = (db) => {
         .then((results) => {
             let statusCode = results.length === 0 ? 404 : 200;
             res.status(statusCode).json({
-                machine: results
+                results: results
             });
         })
         .catch((error) => {
@@ -154,7 +154,7 @@ let attachRoutesWithDBAndStart = (db) => {
         .then((results) => {
             let statusCode = results.length === 0 ? 404 : 200;
             res.status(statusCode).json({
-                machine: results
+                results: results
             });
         })
         .catch((error) => {
@@ -171,7 +171,7 @@ let attachRoutesWithDBAndStart = (db) => {
         .toArray()
         .then((results) => {
             res.status(200).json({
-                heuristicSets: results
+                results: results
             });
         })
         .catch((error) => {
@@ -190,7 +190,7 @@ let attachRoutesWithDBAndStart = (db) => {
         .then((results) => {
             let statusCode = results.length === 0 ? 404 : 200;
             res.status(statusCode).json({
-                heuristicSet: results
+                results: results
             });
         })
         .catch((error) => {
@@ -212,7 +212,7 @@ let attachRoutesWithDBAndStart = (db) => {
         .toArray()
         .then((results) => {
             res.status(200).json({
-                partsPrograms: results
+                results: results
             });
         })
         .catch((error) => {
@@ -231,7 +231,7 @@ let attachRoutesWithDBAndStart = (db) => {
         .then((results) => {
             let statusCode = results.length === 0 ? 404 : 200;
             res.status(statusCode).json({
-                partsProgram: results
+                results: results
             });
         })
         .catch((error) => {
