@@ -1,0 +1,90 @@
+{
+    "name": "verticalDoubleLeadScrewFrame",
+    "programType": "parts",
+    "parts": [
+        {
+            "name": "left motor",
+            "isMotor": true,
+            "implementation": "nema17Motor",
+            "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "joint": {
+                "type": "cylindrical",
+                "child": "left coupling"
+            }
+        },
+        {
+            "name": "right motor",
+            "isMotor": true,
+            "implementation": "nema17Motor",
+            "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "joint": {
+                "type": "cylindrical",
+                "child": "right coupling"
+            }
+        },
+        {
+            "name": "left coupling",
+            "implementation": "shaftCoupling",
+            "joint": {
+                "type": "cylindrical",
+                "child": "left coupler"
+            }
+        },
+        {
+            "name": "right coupling",
+            "implementation": "shaftCoupling",
+            "joint": {
+                "type": "cylindrical",
+                "child": "right coupler"
+            }
+        },
+        {
+            "name": "left lead screw",
+            "implementation": "leadScrew",
+            "joint": {
+                "type": "screw",
+                "child": "left flange nut"
+            }
+        },
+        {
+            "name": "right lead screw",
+            "implementation": "leadScrew",
+            "joint": {
+                "type": "screw",
+                "child": "right flange nut"
+            }
+        },
+        {
+            "name": "left flange nut",
+            "implementation": "flangeNut",
+            "isTerminal": true
+        },
+        {
+            "name": "right flange nut",
+            "implementation": "flangeNut",
+            "isTerminal": true
+        }
+    ],
+    "partsLibrary": {
+        "nema17Motor" : {
+            "mmcPartNumber": "9861T116"
+        },
+        "shaftCoupling" : {
+            "mmcPartNumber": "9861T116"
+        },
+        "leadScrew" : {
+            "mmcPartNumber": "9861T116"
+        },
+        "flangeNut" : {
+            "mmcPartNumber": "9861T116"
+        }
+    }
+}
