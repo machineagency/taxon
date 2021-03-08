@@ -528,15 +528,15 @@ class StrangeGui {
         }
 
         if (resourceName === 'machines') {
-            this.__modifyGUIForMachineListClick(event, newText);
+            this.__modifyGUIForMachineListClick(event, newText, listItemDom);
         }
         else if (resourceName === 'partsPrograms') {
-            this.__modifyGUIForPartsListClick(event, newText);
+            this.__modifyGUIForPartsListClick(event, newText, listItemDom);
         }
 
     }
 
-    __modifyGUIForMachineListClick(event, newText) {
+    __modifyGUIForMachineListClick(event, newText, listItemDom) {
         // Gather DOM elements for click logic
         let highlightPreviewClassName = 'preview-machine-highlight';
         let highlightClassName = 'current-machine-highlight';

@@ -37,9 +37,29 @@ mongoClient.connect(url, { useUnifiedTopology: true })
 let attachRoutesWithDBAndStart = (db) => {
 
     app.get('/machines', (req, res) => {
+        // CASE: there is a request property ID -> just search for
+        //       a single machine by id and do not filter
+        if (req.query.id) {
+            const idOfMachineToFind = ObjectID(req.query.id);
+            db.collection('machines').find({
+                '_id': idOfMachineToFind
+            })
+            .toArray()
+            .then((results) => {
+                let statusCode = results.length === 0 ? 404 : 200;
+                res.status(statusCode).json({
+                    results: results
+                });
+            })
+            .catch((error) => {
+                res.status(500).json({
+                    message: error
+                })
+            });
+        }
         // CASE: queries exist -> search RoTs for machineIds
         //       -> query machines with Ids
-        if (Object.keys(req.query).length > 0) {
+        else if (Object.keys(req.query).length > 0) {
             let heuristicSetFilter;
             try {
                 heuristicSetFilter = makeFilterFromQuery(req.query);
@@ -53,7 +73,8 @@ let attachRoutesWithDBAndStart = (db) => {
             db.collection('heuristicSets').find(heuristicSetFilter)
             .toArray()
             .then((heuristicSetResults) => {
-                let machineIds = heuristicSetResults.map(heuristicSet => heuristicSet.machineDbId);
+                let machineIds = heuristicSetResults.map(heuristicSet =>
+                                    heuristicSet.machineDbId);
                 let machineFilter = {
                     '_id': { $in : machineIds }
                 };
@@ -91,29 +112,6 @@ let attachRoutesWithDBAndStart = (db) => {
     });
 
     app.put('/machines', (req, res) => {
-        // TODO: insert array of machines
-    });
-
-    app.get('/machine', (req, res) => {
-        const idOfMachineToFind = ObjectID(req.query.id);
-        db.collection('machines').find({
-            '_id': idOfMachineToFind
-        })
-        .toArray()
-        .then((results) => {
-            let statusCode = results.length === 0 ? 404 : 200;
-            res.status(statusCode).json({
-                results: results
-            });
-        })
-        .catch((error) => {
-            res.status(500).json({
-                message: error
-            })
-        });
-    });
-
-    app.put('/machine', (req, res) => {
         const idOfMachineToFind = ObjectID(req.body._id);
         db.collection('machines').replaceOne({
             '_id': idOfMachineToFind
@@ -130,7 +128,7 @@ let attachRoutesWithDBAndStart = (db) => {
         });
     });
 
-    app.post('/machine', (req, res) => {
+    app.post('/machines', (req, res) => {
         console.log('Posting...');
         console.log(req.body);
         db.collection('machines').insertOne(req.body)
@@ -146,7 +144,7 @@ let attachRoutesWithDBAndStart = (db) => {
         });
     });
 
-    app.delete('/machine', (req, res) => {
+    app.delete('/machines', (req, res) => {
         const idOfMachineToFind = ObjectID(req.query.id);
         db.collection('machines').deleteOne({
             '_id': idOfMachineToFind
