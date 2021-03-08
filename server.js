@@ -206,6 +206,41 @@ let attachRoutesWithDBAndStart = (db) => {
         });
     });
 
+    app.get('/partsPrograms', (req, res) => {
+        db.collection('partsPrograms').find()
+        .sort({ name: 1 })
+        .toArray()
+        .then((results) => {
+            res.status(200).json({
+                partsPrograms: results
+            });
+        })
+        .catch((error) => {
+            res.status(500).json({
+                message: error
+            })
+        });
+    });
+
+    app.get('/partsProgram', (req, res) => {
+        const progId = ObjectID(req.query.id);
+        db.collection('partsPrograms').find({
+            '_id': progId
+        })
+        .toArray()
+        .then((results) => {
+            let statusCode = results.length === 0 ? 404 : 200;
+            res.status(statusCode).json({
+                partsProgram: results
+            });
+        })
+        .catch((error) => {
+            res.status(500).json({
+                message: error
+            })
+        });
+    });
+
     app.listen(port, () => {
         console.log("Running on port: " + port);
         exports = module.exports = app;
@@ -375,6 +410,7 @@ let makeFilterFromQuery = (queryObj) => {
 
 let seedDatabase = (db) => {
     const blocksProgramsDir = MACHINE_DIR + '/blocks_programs/';
+    const partsProgramsDir = MACHINE_DIR + '/parts_programs/';
     db.dropDatabase()
     .then((_) => {
         fs.readdir(blocksProgramsDir, (err, files) => {
@@ -390,22 +426,30 @@ let seedDatabase = (db) => {
                     if (err) {
                         throw err;
                     }
-                    console.log(`Loading and computing heuristicSet for ${fullFilename}.`);
+                    console.log(`Loading blocks program: ${filename}.`);
                     let machineObj = JSON.parse(data);
-                    db.collection('machines').insertOne(machineObj)
-                    ;
-                    // .then((result) => {
-                    //     let machineDbId = result.insertedId;
-                    //     let heuristicSetObj = calculateRotFromMachine(machineObj);
-                    //     heuristicSetObj.machineDbId = machineDbId;
-                    //     db.collection('heuristicSets').insertOne(heuristicSetObj)
-                    //     .catch((error) => {
-                    //         throw error;
-                    //     });
-                    // })
-                    // .catch((error) => {
-                    //     throw error;
-                    // });
+                    db.collection('machines').insertOne(machineObj);
+                });
+            });
+        });
+    })
+    .then((_) => {
+        fs.readdir(partsProgramsDir, (err, files) => {
+            if (err) {
+                throw err;
+            }
+            files.forEach((filename) => {
+                if (filename[0] === '.') {
+                    return;
+                }
+                let fullFilename = partsProgramsDir + filename;
+                fs.readFile(fullFilename, (err, data) => {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log(`Loading parts program: ${filename}.`);
+                    let partsObj = JSON.parse(data);
+                    db.collection('partsPrograms').insertOne(partsObj);
                 });
             });
         });
