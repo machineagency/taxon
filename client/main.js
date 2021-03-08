@@ -1317,9 +1317,9 @@ class Tool extends Block {
         this.geometries = [geom, edgesGeom];
         this.setPositionToDefault();
         this.addMeshGroupToScene();
-        this.__loadToolStl().then((toolMesh) => {
-            this.meshGroup.add(toolMesh);
-        });
+        // this.__loadToolStl().then((toolMesh) => {
+        //     this.meshGroup.add(toolMesh);
+        // });
     }
 
     setPositionToDefault() {
