@@ -2,6 +2,7 @@
 
 import * as THREE from './build/three.module.js';
 import { Workflow } from './Workflow.js';
+import { PartsCompiler } from './Parts.js';
 import { TestPrograms } from './TestPrograms.js';
 import { STLLoader } from './build/STLLoader.js';
 
@@ -26,6 +27,8 @@ class StrangeGui {
         this.modelValueDom = document.getElementById('model-value');
         this.materialValueDom = document.getElementById('material-value');
         this.filterDom = document.getElementById('filter-container');
+        this.partsProgramListDom = document.getElementById('parts-list');
+        this.partsProgramDom = document.getElementById('parts-container');
         this.filterDom.addEventListener('keydown', (event) => {
             if (event.keyCode === 13) {
                 // Enter
@@ -72,6 +75,7 @@ class StrangeGui {
         });
         this.workflow = new Workflow(this);
         this.fetchAndRenderMachineNames();
+        this.fetchAndRenderPartsNames();
         document.addEventListener('dblclick', (event) => {
             let programPadClicked = this.programPadDom.contains(event.target);
             let jobPadClicked = this.programPadDom.contains(event.target);
@@ -203,14 +207,21 @@ class StrangeGui {
         });
     }
 
-    loadTextIntoGCDom(text) {
-        this.gcDom.innerHTML = '';
+    loadTextIntoDomForResource(text, resourceName) {
+        let textDom;
+        if (resourceName === 'machines') {
+            textDom = this.gcDom;
+        }
+        else if (resourceName === 'partsPrograms') {
+            textDom = this.partsProgramDom;
+        }
+        textDom.innerHTML = '';
         let lines = text.split('\n');
         lines.forEach((lineText, lineNum) => {
             let node = document.createElement('div');
             node.innerText = lineText;
             // FIXME: won't work if there is a newline after "name"
-            if (lineText.includes('"name"')) {
+            if (resourceName === 'machines' && lineText.includes('"name"')) {
                 let blockName = lineText.split(':')[1]
                                     .replace('"', '')
                                     .replace('"', '')
@@ -236,7 +247,7 @@ class StrangeGui {
                     });
                 }, false);
             }
-            this.gcDom.appendChild(node);
+            textDom.appendChild(node);
         });
     }
 
@@ -278,13 +289,16 @@ class StrangeGui {
         });
     }
 
-    buildFetchMachineUrl() {
+    buildFetchUrl(resourceName) {
+        console.assert(resourceName === 'machines'
+                    || resourceName === 'partsPrograms'
+                    || resourceName === 'metricsPrograms');
         const encodeParams = (paramObj) => {
             return Object.entries(paramObj).map((kv) => {
                 return kv.map(encodeURIComponent).join("=");
             }).join("&");
         }
-        const baseUrl = StrangeGui.serverURL + '/machines';
+        const baseUrl = StrangeGui.serverURL + '/' + resourceName;
         const urlParams = {};
         const filterText = this.filterDom.innerText;
         const filterStrings = filterText.split(',')
@@ -297,7 +311,7 @@ class StrangeGui {
     }
 
     fetchAndRenderMachineNames() {
-        let url = this.buildFetchMachineUrl();
+        let url = this.buildFetchUrl('machines');
         fetch(url, {
             method: 'GET'
         })
@@ -305,7 +319,7 @@ class StrangeGui {
             if (response.ok) {
                 response.json()
                 .then((responseJson) => {
-                    let machineList = responseJson.machines;
+                    let machineList = responseJson.results;
                     let machineNames = machineList.map(m => m.name);
                     let machineIds = machineList.map(m => m._id);
                     let mListDom = document.getElementById('load-machine-list');
@@ -316,9 +330,44 @@ class StrangeGui {
                         mLi.setAttribute('data-server-id', machineIds[idx]);
                         mLi.onclick = () => {
                             window.strangeGui
-                                .loadMachineFromListItemDom(mLi, event);
+                                .loadResourceFromListItemDom('machines', mLi, event);
                         };
                         mListDom.appendChild(mLi);
+                    });
+                });
+            }
+            else {
+                const errorHighlightLengthMS = 2000;
+                this.filterDom.classList.add('red-border');
+                setTimeout(() => {
+                    this.filterDom.classList.remove('red-border');
+                }, errorHighlightLengthMS);
+            }
+        });
+    }
+
+    fetchAndRenderPartsNames() {
+        let url = this.buildFetchUrl('partsPrograms');
+        fetch(url, {
+            method: 'GET'
+        })
+        .then((response) => {
+            if (response.ok) {
+                response.json()
+                .then((responseJson) => {
+                    let partsProgramList = responseJson.results;
+                    let partsProgramNames = partsProgramList.map(m => m.name);
+                    let partsProgramIds = partsProgramList.map(m => m._id);
+                    this.partsProgramListDom.innerHTML = '';
+                    partsProgramNames.forEach((mName, idx) => {
+                        let mLi = document.createElement('li');
+                        mLi.innerText = mName;
+                        mLi.setAttribute('data-server-id', partsProgramIds[idx]);
+                        mLi.onclick = () => {
+                            window.strangeGui
+                                .loadResourceFromListItemDom('partsPrograms', mLi, event);
+                        };
+                        this.partsProgramListDom.appendChild(mLi);
                     });
                 });
             }
@@ -456,26 +505,38 @@ class StrangeGui {
         heuristicSetDom.innerText = heuristicSetText;
     }
 
-    async loadMachineFromListItemDom(listItemDom, event) {
-        // TODO: use ids not names for machine identifiers
+    async loadResourceFromListItemDom(resourceName, listItemDom, event) {
+        console.assert(resourceName === 'machines'
+                    || resourceName === 'partsPrograms'
+                    || resourceName === 'metricsPrograms');
         let machineName = listItemDom.innerText.toLowerCase();
         let machineId = listItemDom.dataset.serverId;
-        let url = StrangeGui.serverURL + `/machine?id=${machineId}`;
+        let url = StrangeGui.serverURL + `/${resourceName}?id=${machineId}`;
         let response = await fetch(url, {
             method: 'GET'
         });
         let newText;
         if (response.ok) {
             let outerJson = await response.json();
-            let machineJson = outerJson.machine[0];
+            let resultsJson = outerJson.results[0];
             let indentSpaces = 2
-            newText = JSON.stringify(machineJson, undefined, indentSpaces);
+            newText = JSON.stringify(resultsJson, undefined, indentSpaces);
         }
         else {
             console.error('Could not find machine.');
             return;
         }
 
+        if (resourceName === 'machines') {
+            this.__modifyGUIForMachineListClick(event, newText);
+        }
+        else if (resourceName === 'partsPrograms') {
+            this.__modifyGUIForPartsListClick(event, newText);
+        }
+
+    }
+
+    __modifyGUIForMachineListClick(event, newText) {
         // Gather DOM elements for click logic
         let highlightPreviewClassName = 'preview-machine-highlight';
         let highlightClassName = 'current-machine-highlight';
@@ -512,7 +573,7 @@ class StrangeGui {
         }
         // CASE: bare click swaps current machine and removes preview
         else {
-            this.loadTextIntoGCDom(newText);
+            this.loadTextIntoDomForResource(newText, 'machines');
             if (oldHighlightedListItemDom !== undefined) {
                 oldHighlightedListItemDom.classList.remove(highlightClassName);
             }
@@ -534,6 +595,10 @@ class StrangeGui {
             }
             this.machineValueDom.innerText = window.strangeScene.machine.name;
         }
+    }
+
+    __modifyGUIForPartsListClick(event, newText) {
+        this.loadTextIntoDomForResource(newText, 'partsPrograms');
     }
 
     __inflateAsPreview(newText) {
