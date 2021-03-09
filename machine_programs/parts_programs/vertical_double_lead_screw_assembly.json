@@ -2,9 +2,9 @@
     "name": "verticalDoubleLeadScrewFrame",
     "programType": "parts",
     "bounds": {
-        "width": 20,
-        "height": 150,
-        "length": 170
+        "width": 50,
+        "height": 225,
+        "length": 250
     },
     "parts": [
         {
@@ -14,7 +14,7 @@
             "position": {
                 "x": 0,
                 "y": 0,
-                "z": 0
+                "z": -50
             },
             "joint": {
                 "type": "cylindrical",
@@ -28,7 +28,7 @@
             "position": {
                 "x": 0,
                 "y": 0,
-                "z": 0
+                "z": 50
             },
             "joint": {
                 "type": "cylindrical",
