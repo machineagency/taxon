@@ -13,6 +13,7 @@ class PartsAssembly {
     constructor(parentScene, bounds) {
         this.parentScene = parentScene;
         this.parts = [];
+        this.joints = [];
         this.rootMeshGroup = new THREE.Group();
         this.parentScene.scene.add(this.rootMeshGroup);
         this.parentScene.partsAssembly = this;
@@ -21,9 +22,38 @@ class PartsAssembly {
     }
 
     addPart(part) {
-        console.assert(part.meshGroup !== undefined);
-        this.rootMeshGroup.add(part.meshGroup);
         this.parts.push(part);
+    }
+
+    addJointForParent(joint, parentPart) {
+        this.joints.push(joint);
+        let calcFaceOffsetForParent = (face, parentPart) => {
+            let axisToDim = {
+                x: 'width',
+                y: 'height',
+                z: 'length'
+            }
+            let sign = face[0] === '-' ? -1 : 1;
+            let letter = face[1];
+            console.assert(letter === 'x' || letter === 'y'
+                                          || letter === 'z');
+            let magnitude = parentPart.dimensions[axisToDim[letter]];
+            let offset = new THREE.Vector3();
+            offset[letter] = sign * magnitude;
+            return offset;
+
+        }
+        let childPart = this.findPartWithName(joint.child);
+        console.assert(parentPart && childPart);
+        let mainTranslation = parentPart.position.clone()
+                                .sub(childPart.position);
+        let offsetTranslation = calcFaceOffsetForParent(joint.face, parentPart);
+        childPart.position.add(mainTranslation)
+                          .add(offsetTranslation);
+    }
+
+    findPartWithName(name) {
+        return this.parts.find(p => p.name === name);
     }
 
     renderBounds() {
@@ -54,17 +84,24 @@ class Part {
         this.partsAssembly = partsAssembly;
         this.name = partProgObj.name;
         this.isMotor = !!partProgObj.isMotor;
+        this.meshGroup = new THREE.Group();
+        this.partsAssembly.parentScene.scene.add(this.meshGroup);
         // TODO: read dimensions/position from implementation or explicit
-        this.position = new THREE.Vector3(partProgObj.position.x,
-                                          partProgObj.position.y,
-                                          partProgObj.position.z);
+        if (partProgObj.position) {
+            this.meshGroup.position.setX(partProgObj.position.x);
+            this.meshGroup.position.setY(partProgObj.position.y);
+            this.meshGroup.position.setZ(partProgObj.position.z);
+        }
         this.dimensions = {
             width: 25,
             height: 25,
             length: 25
         }
         this.render();
-        this.partsAssembly.addPart(this);
+    }
+
+    get position() {
+        return this.meshGroup.position;
     }
 
     render() {
@@ -91,7 +128,6 @@ class Part {
         });
         let mesh = new THREE.Mesh(geom, meshMaterial);
         let wireSegments = new THREE.LineSegments(edgesGeom, edgesMaterial);
-        this.meshGroup = new THREE.Group();
         this.meshGroup.add(wireSegments);
         this.meshGroup.add(mesh);
         this.meshGroup.name = this.name;
@@ -127,8 +163,16 @@ class PartsCompiler {
         let pObj = JSON.parse(prog);
         let bounds = pObj.bounds
         let pa = new PartsAssembly(window.strangeScene, bounds);
-        let motors = pObj.parts.filter(p => p.isMotor);
-        motors.forEach(m => new Part(m, pa));
+        pObj.parts.forEach(m => {
+            pa.addPart(new Part(m, pa));
+        });
+        pObj.parts.forEach(partProg => {
+            let joint = partProg.joint;
+            if (joint) {
+                let parentPart = pa.findPartWithName(partProg.name);
+                pa.addJointForParent(joint, parentPart);
+            }
+        });
         return prog;
     }
 }
