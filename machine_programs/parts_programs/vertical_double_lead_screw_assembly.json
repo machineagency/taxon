@@ -2,19 +2,19 @@
     "name": "verticalDoubleLeadScrewFrame",
     "programType": "parts",
     "bounds": {
-        "width": 50,
-        "height": 225,
-        "length": 250
+        "width": 100,
+        "height": 400,
+        "length": 500
     },
     "parts": [
         {
             "name": "left motor",
             "isMotor": true,
-            "implementation": "nema17Motor",
+            "implementation": "nema23Motor",
             "position": {
                 "x": 0,
-                "y": 0,
-                "z": -50
+                "y": -100,
+                "z": -100
             },
             "joint": {
                 "type": "cylindrical",
@@ -25,11 +25,11 @@
         {
             "name": "right motor",
             "isMotor": true,
-            "implementation": "nema17Motor",
+            "implementation": "nema23Motor",
             "position": {
                 "x": 0,
-                "y": 0,
-                "z": 50
+                "y": -100,
+                "z": 100
             },
             "joint": {
                 "type": "cylindrical",
@@ -85,17 +85,41 @@
         }
     ],
     "partsLibrary": {
-        "nema17Motor" : {
-            "mmcPartNumber": "9861T116"
+        "nema23Motor" : {
+            "mmcPartNumber": "6627T53",
+            "modelMeshFilepath": "block_models/motor.stl",
+            "dimensions": {
+                "width": 57.15,
+                "height": 76.2,
+                "length": 57.15
+            }
         },
         "shaftCoupling" : {
-            "mmcPartNumber": "9861T116"
+            "mmcPartNumber": "9861T732",
+            "modelMeshFilepath": "block_models/coupling.stl",
+            "dimensions": {
+                "width": 25.4,
+                "height": 38.1,
+                "length": 25.4
+            }
         },
         "leadScrew" : {
-            "mmcPartNumber": "9861T116"
+            "mmcPartNumber": "9861T116",
+            "modelMeshFilepath": "block_models/lead_screw.stl",
+            "dimensions": {
+                "width": 6.35,
+                "height": 150,
+                "length": 6.35 
+            }
         },
         "flangeNut" : {
-            "mmcPartNumber": "9861T116"
+            "mmcPartNumber": "9861T116",
+            "modelMeshFilepath": "block_models/flange_nut.stl",
+            "dimensions": {
+                "width": 18.3,
+                "height": 18.2,
+                "length": 20
+            }
         }
     }
 }
