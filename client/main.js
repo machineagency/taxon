@@ -1170,7 +1170,7 @@ class WorkEnvelope extends StrangeComponent {
         super(name, parentMachine, dimensions);
         this.componentType = 'WorkEnvelope';
         parentMachine.workEnvelope = this;
-        this.renderDimensions();
+        // this.renderDimensions();
     }
 
     get shape() {
@@ -1304,15 +1304,17 @@ class Tool extends Block {
         });
         let edgesGeom = new THREE.EdgesGeometry(bboxGeom);
         let material = new THREE.MeshLambertMaterial({
-            color : Tool.color
+            color : Tool.color,
+            transparent: true,
+            opacity: 0.50
         });
         let edgesMaterial = new THREE.LineBasicMaterial({
             color: 0x222222
         });
-        this.mesh = new THREE.Mesh(geom, material);
+        this.mesh = new THREE.Mesh(bboxGeom, material);
         this.wireSegments = new THREE.LineSegments(edgesGeom, edgesMaterial);
         this.meshGroup = new THREE.Group();
-        // this.meshGroup.add(this.mesh);
+        this.meshGroup.add(this.mesh);
         this.meshGroup.add(this.wireSegments);
         this.meshGroup.blockName = this.name;
         this.geometries = [geom, edgesGeom];
@@ -1393,7 +1395,7 @@ class Platform extends Block {
         this.material = new THREE.MeshLambertMaterial({
             color : Platform.caseColor,
             transparent: true,
-            opacity: 0.05
+            opacity: 0.25
         });
         this.edgesMaterial = new THREE.LineBasicMaterial({
             color: 0x222222

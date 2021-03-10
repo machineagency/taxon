@@ -23,11 +23,13 @@ class PartsAssembly {
 
     addPart(part) {
         this.parts.push(part);
+        return part;
     }
 
     addJointForParent(joint, parentPart) {
         this.joints.push(joint);
-        let calcFaceOffsetForParent = (face, parentPart) => {
+        parentPart.joint = parentPart;
+        let calcFaceOffset = (face, parentPart, childPart) => {
             let axisToDim = {
                 x: 'width',
                 y: 'height',
@@ -37,19 +39,36 @@ class PartsAssembly {
             let letter = face[1];
             console.assert(letter === 'x' || letter === 'y'
                                           || letter === 'z');
-            let magnitude = parentPart.dimensions[axisToDim[letter]];
+            let parentOffset = parentPart.dimensions[axisToDim[letter]];
+            let childOffset = childPart.dimensions[axisToDim[letter]];
             let offset = new THREE.Vector3();
-            offset[letter] = sign * magnitude;
+            offset[letter] = sign * (parentOffset + childOffset) / 2;
             return offset;
 
+        }
+        let calcDescendants = (part) => {
+            let helper = (currPart, listSoFar) => {
+                listSoFar.push(currPart);
+                if (currPart.joint) {
+                    let childPart = this.findPartWithName(child);
+                    console.assert(childPart);
+                    return helper(childPart, listSoFar);
+                }
+                return listSoFar;
+            };
+            let descendants = [];
+            helper(part, descendants);
+            return descendants;
         }
         let childPart = this.findPartWithName(joint.child);
         console.assert(parentPart && childPart);
         let mainTranslation = parentPart.position.clone()
                                 .sub(childPart.position);
-        let offsetTranslation = calcFaceOffsetForParent(joint.face, parentPart);
-        childPart.position.add(mainTranslation)
-                          .add(offsetTranslation);
+        let offsetTranslation = calcFaceOffset(joint.face, parentPart, childPart);
+        let descendants = calcDescendants(childPart);
+        descendants.forEach(part => {
+            part.position.add(mainTranslation).add(offsetTranslation);
+        });
     }
 
     findPartWithName(name) {
@@ -80,8 +99,9 @@ class Part {
     static DefaultColor = 0x222222;
     static MotorColor = 0xffed90;
 
-    constructor(partProgObj, partsAssembly) {
+    constructor(partProgObj, implementation, partsAssembly) {
         this.partsAssembly = partsAssembly;
+        this.implementation = implementation;
         this.name = partProgObj.name;
         this.isMotor = !!partProgObj.isMotor;
         this.meshGroup = new THREE.Group();
@@ -92,10 +112,15 @@ class Part {
             this.meshGroup.position.setY(partProgObj.position.y);
             this.meshGroup.position.setZ(partProgObj.position.z);
         }
-        this.dimensions = {
-            width: 25,
-            height: 25,
-            length: 25
+        if (implementation) {
+            this.addImplementationProperties(implementation)
+        }
+        else {
+            this.dimensions = {
+                width: 25,
+                height: 25,
+                length: 25
+            }
         }
         this.render();
     }
@@ -133,6 +158,9 @@ class Part {
         this.meshGroup.name = this.name;
         let geometries = [geom, edgesGeom];
         this.meshGroup.position.copy(this.position);
+        if (this.implementation) {
+            this.loadImplementationStl();
+        }
     }
 
     removeFromScene() {
@@ -141,7 +169,40 @@ class Part {
         }
     }
 
-    loadDetailFromImplementation(implementationObj) {
+    addImplementationProperties(implementationObj) {
+        console.assert(implementationObj.modelMeshFilepath);
+        console.assert(implementationObj.dimensions);
+        this.stlFilepath = implementationObj.modelMeshFilepath;
+        this.dimensions = implementationObj.dimensions;
+    }
+
+    loadImplementationStl() {
+        const meshColor = 0xfefefe;
+        let loadPromise = new Promise(resolve => {
+            let loader = new STLLoader();
+            let stlMesh;
+            return loader.load(this.stlFilepath, (stlGeom) => {
+                let material = new THREE.MeshLambertMaterial({
+                    color : meshColor,
+                    // Do not cull triangles with inward-pointing normals
+                    side: THREE.DoubleSide
+                });
+                stlGeom.center();
+                stlMesh = new THREE.Mesh(stlGeom, material);
+                stlMesh.isLoadedStl = true;
+                // if (this.axes[0] === 'y') {
+                //     stlMesh.rotateZ(Math.PI / 2);
+                // }
+                // else if (this.axes[0] === 'z') {
+                //     stlMesh.rotateY(Math.PI / 2);
+                // }
+                this.meshGroup.add(stlMesh);
+                resolve(stlMesh);
+            }, undefined, (errorMsg) => {
+                console.log(errorMsg);
+            });
+        });
+        return loadPromise;
     }
 }
 
@@ -163,13 +224,14 @@ class PartsCompiler {
         let pObj = JSON.parse(prog);
         let bounds = pObj.bounds
         let pa = new PartsAssembly(window.strangeScene, bounds);
-        pObj.parts.forEach(m => {
-            pa.addPart(new Part(m, pa));
+        pObj.parts.forEach(partProg => {
+            let implementation = pObj.partsLibrary[partProg.implementation];
+            let part = pa.addPart(new Part(partProg, implementation, pa));
         });
         pObj.parts.forEach(partProg => {
+            let parentPart = pa.findPartWithName(partProg.name);
             let joint = partProg.joint;
             if (joint) {
-                let parentPart = pa.findPartWithName(partProg.name);
                 pa.addJointForParent(joint, parentPart);
             }
         });
