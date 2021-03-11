@@ -2,6 +2,7 @@
 
 import * as THREE from './build/three.module.js';
 import { Workflow } from './Workflow.js';
+import { MetricsCompiler } from './Metrics.js';
 import { PartsCompiler } from './Parts.js';
 import { TestPrograms } from './TestPrograms.js';
 import { STLLoader } from './build/STLLoader.js';
@@ -27,6 +28,8 @@ class StrangeGui {
         this.modelValueDom = document.getElementById('model-value');
         this.materialValueDom = document.getElementById('material-value');
         this.filterDom = document.getElementById('filter-container');
+        this.metricsProgramListDom = document.getElementById('metrics-list');
+        this.metricsProgramDom = document.getElementById('metrics-container');
         this.partsProgramListDom = document.getElementById('parts-list');
         this.partsProgramDom = document.getElementById('parts-container');
         this.filterDom.addEventListener('keydown', (event) => {
@@ -75,6 +78,7 @@ class StrangeGui {
         });
         this.workflow = new Workflow(this);
         this.fetchAndRenderMachineNames();
+        this.fetchAndRenderMetricsNames();
         this.fetchAndRenderPartsNames();
         document.addEventListener('dblclick', (event) => {
             let programPadClicked = this.programPadDom.contains(event.target);
@@ -212,6 +216,9 @@ class StrangeGui {
         if (resourceName === 'machines') {
             textDom = this.gcDom;
         }
+        else if (resourceName === 'metricsPrograms') {
+            textDom = this.metricsProgramDom;
+        }
         else if (resourceName === 'partsPrograms') {
             textDom = this.partsProgramDom;
         }
@@ -310,6 +317,8 @@ class StrangeGui {
         return baseUrl + '?' + encodeParams(urlParams);
     }
 
+    // TODO: make the following 3 functions one function
+
     fetchAndRenderMachineNames() {
         let url = this.buildFetchUrl('machines');
         fetch(url, {
@@ -333,6 +342,41 @@ class StrangeGui {
                                 .loadResourceFromListItemDom('machines', mLi, event);
                         };
                         mListDom.appendChild(mLi);
+                    });
+                });
+            }
+            else {
+                const errorHighlightLengthMS = 2000;
+                this.filterDom.classList.add('red-border');
+                setTimeout(() => {
+                    this.filterDom.classList.remove('red-border');
+                }, errorHighlightLengthMS);
+            }
+        });
+    }
+
+    fetchAndRenderMetricsNames() {
+        let url = this.buildFetchUrl('metricsPrograms');
+        fetch(url, {
+            method: 'GET'
+        })
+        .then((response) => {
+            if (response.ok) {
+                response.json()
+                .then((responseJson) => {
+                    let metricsProgramList = responseJson.results;
+                    let metricsProgramNames = metricsProgramList.map(m => m.name);
+                    let metricsProgramIds = metricsProgramList.map(m => m._id);
+                    this.metricsProgramListDom.innerHTML = '';
+                    metricsProgramNames.forEach((mName, idx) => {
+                        let mLi = document.createElement('li');
+                        mLi.innerText = mName;
+                        mLi.setAttribute('data-server-id', metricsProgramIds[idx]);
+                        mLi.onclick = () => {
+                            window.strangeGui
+                                .loadResourceFromListItemDom('metricsPrograms', mLi, event);
+                        };
+                        this.metricsProgramListDom.appendChild(mLi);
                     });
                 });
             }
@@ -530,6 +574,9 @@ class StrangeGui {
         if (resourceName === 'machines') {
             this.__modifyGUIForMachineListClick(event, newText, listItemDom);
         }
+        else if (resourceName === 'metricsPrograms') {
+            this.__modifyGUIForMetricsListClick(event, newText, listItemDom);
+        }
         else if (resourceName === 'partsPrograms') {
             this.__modifyGUIForPartsListClick(event, newText, listItemDom);
         }
@@ -595,6 +642,33 @@ class StrangeGui {
             }
             this.machineValueDom.innerText = window.strangeScene.machine.name;
         }
+    }
+
+    __modifyGUIForMetricsListClick(event, newText, listItemDom) {
+        // Gather DOM elements for click logic
+        let highlightPreviewClassName = 'preview-machine-highlight';
+        let highlightClassName = 'current-machine-highlight';
+        let oldHighlightedPreviewListItemDom = document
+            .getElementsByClassName(highlightPreviewClassName)[0];
+        let gcDom = document.getElementById('gc-container-1');
+        let oldHighlightedListItemDom = document
+            .getElementsByClassName(highlightClassName)[0];
+
+        // UI edits
+        if (oldHighlightedListItemDom !== undefined) {
+            oldHighlightedListItemDom.classList.remove(highlightClassName);
+        }
+        listItemDom.classList.add(highlightClassName);
+        gcDom.setAttribute('contenteditable', false);
+        gcDom.classList.remove('red-border');
+
+        // Load text and inflate parts
+        this.loadTextIntoDomForResource(newText, 'metricsPrograms');
+        let metricsCompiler = new MetricsCompiler();
+        let metricsObj = metricsCompiler.compile(newText);
+        // this.__inflateSceneFromGCText(true);
+        // this.strangeScene.positionModelOnWorkEnvelope();
+
     }
 
     __modifyGUIForPartsListClick(event, newText, listItemDom) {
