@@ -4,7 +4,7 @@
     "bounds": {
         "width": 100,
         "height": 400,
-        "length": 500
+        "length": 400
     },
     "parts": [
         {
@@ -13,8 +13,8 @@
             "implementation": "nema23Motor",
             "position": {
                 "x": 0,
-                "y": -100,
-                "z": -100
+                "y": -150,
+                "z": -150
             },
             "joint": {
                 "type": "cylindrical",
@@ -28,8 +28,8 @@
             "implementation": "nema23Motor",
             "position": {
                 "x": 0,
-                "y": -100,
-                "z": 100
+                "y": -150,
+                "z": 150
             },
             "joint": {
                 "type": "cylindrical",
@@ -109,7 +109,7 @@
             "dimensions": {
                 "width": 6.35,
                 "height": 150,
-                "length": 6.35 
+                "length": 6.35
             }
         },
         "flangeNut" : {

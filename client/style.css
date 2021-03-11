@@ -262,6 +262,11 @@ input[type="file"] {
     overflow: scroll;
 }
 
+#metrics-container {
+    height: 200px;
+    overflow: scroll;
+}
+
 #pre-machine-list {
     margin-bottom: 0px;
 }

@@ -1,5 +1,5 @@
 {
-    "name": "averagePrinter",
+    "name": "average printer",
     "programType": "metrics",
     "workEnvelope": {
         "shape": "box",
@@ -16,6 +16,6 @@
     },
     "manufacturingStrategies": [
         "additive"
-    ]
-    "resolution": 0.0125,
+    ],
+    "resolution": 0.0125
 }
