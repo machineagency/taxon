@@ -1157,56 +1157,6 @@ class BuildEnvironment extends StrangeComponent {
     }
 }
 
-class WorkEnvelope extends StrangeComponent {
-    static color = 0x9d8dff;
-    static shapes = ['rectangle', 'box', 'cylinder'];
-
-    constructor(parentMachine, dimensions) {
-        if (!WorkEnvelope.shapes.includes(dimensions.shape)) {
-            console.error(`Invalid shape ${dimensions.shape}, defaulting to rectangle.`);
-            dimensions.shape = 'rectangle';
-        }
-        name = 'WorkEnvelope';
-        super(name, parentMachine, dimensions);
-        this.componentType = 'WorkEnvelope';
-        parentMachine.workEnvelope = this;
-        // this.renderDimensions();
-    }
-
-    get shape() {
-        return this.dimensions.shape;
-    }
-
-    set shape(newShape) {
-        if (!WorkEnvelope.shapes.includes(newShape)) {
-            console.error(`Invalid shape ${newShape}.`);
-        }
-        else {
-            this.dimensions.shape = newShape;
-        }
-    }
-
-    renderDimensions() {
-        this.removeMeshGroupFromScene();
-        let geom = WorkEnvelope.geometryFactories.workEnvelope(this.dimensions);
-        let material = new THREE.MeshLambertMaterial({
-            color : WorkEnvelope.color,
-            transparent : true,
-            opacity : 0.25
-        });
-        this.mesh = new THREE.Mesh(geom, material);
-        this.mesh.isWorkEnvelopeMesh = true;
-        this.meshGroup = new THREE.Group();
-        this.meshGroup.blockName = this.name;
-        this.meshGroup.add(this.mesh);
-        this.geometries = [geom];
-        if (this.dimensions.shape === 'rectangle') {
-            this.rotateToXYPlane();
-        }
-        this.addMeshGroupToScene();
-    }
-}
-
 class Block extends StrangeComponent {
     constructor(name, parentMachine, dimensions) {
         super(name, parentMachine, dimensions);
@@ -2576,18 +2526,6 @@ class Compiler {
             width: defaultBEdimension,
             length: defaultBEdimension
         });
-        let we = new WorkEnvelope(machine, {
-            shape: progObj.workEnvelope.shape,
-            width: progObj.workEnvelope.dimensions.width,
-            length: progObj.workEnvelope.dimensions.length,
-            height: progObj.workEnvelope.dimensions.height,
-        });
-        let wePosition = new THREE.Vector3(
-            progObj.workEnvelope.position.x,
-            progObj.workEnvelope.position.y,
-            progObj.workEnvelope.position.z
-        );
-        we.position.copy(wePosition);
         progObj.blocks.forEach((blockData) => {
             let CurrentBlockConstructor;
             if (blockData.blockType === 'nonActuating') {
