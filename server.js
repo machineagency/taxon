@@ -162,46 +162,45 @@ let attachRoutesWithDBAndStart = (db) => {
         });
     });
 
-    app.get('/heuristicSets', (req, res) => {
-        let filter = makeFilterFromQuery(req.query);
-        db.collection('heuristicSets').find(filter)
-        .sort({ name: 1 })
-        .toArray()
-        .then((results) => {
-            res.status(200).json({
-                results: results
-            });
-        })
-        .catch((error) => {
-            res.status(500).json({
-                message: error
+    app.get('/metricsPrograms', (req, res) => {
+        // CASE: there is a request property ID -> just search for
+        //       a single metrics program
+        if (req.query.id) {
+            const metricsId = ObjectID(req.query.id);
+            db.collection('metricsPrograms').find({
+                '_id': metricsId
             })
-        });
-    });
-
-    app.get('/heuristicSet', (req, res) => {
-        const machineId = ObjectID(req.query.id);
-        db.collection('heuristicSets').find({
-            'machineDbId': machineId
-        })
-        .toArray()
-        .then((results) => {
-            let statusCode = results.length === 0 ? 404 : 200;
-            res.status(statusCode).json({
-                results: results
-            });
-        })
-        .catch((error) => {
-            res.status(500).json({
-                message: error
+            .toArray()
+            .then((results) => {
+                let statusCode = results.length === 0 ? 404 : 200;
+                res.status(statusCode).json({
+                    results: results
+                });
             })
-        });
-    });
-
-    app.get('/heuristicNames', (req, res) => {
-        res.status(200).json({
-            heuristicNames: Constants.heuristicNames
-        });
+            .catch((error) => {
+                res.status(500).json({
+                    message: error
+                })
+            });
+        }
+        // CASE: there are filter params -> filter and return all
+        //       possible metrics programs
+        else {
+            let filter = makeFilterFromQuery(req.query);
+            db.collection('metricsPrograms').find(filter)
+            .sort({ name: 1 })
+            .toArray()
+            .then((results) => {
+                res.status(200).json({
+                    results: results
+                });
+            })
+            .catch((error) => {
+                res.status(500).json({
+                    message: error
+                })
+            });
+        }
     });
 
     app.get('/partsPrograms', (req, res) => {
@@ -236,6 +235,12 @@ let attachRoutesWithDBAndStart = (db) => {
             res.status(500).json({
                 message: error
             })
+        });
+    });
+
+    app.get('/heuristicNames', (req, res) => {
+        res.status(200).json({
+            heuristicNames: Constants.heuristicNames
         });
     });
 
@@ -407,9 +412,31 @@ let makeFilterFromQuery = (queryObj) => {
 };
 
 let seedDatabase = (db) => {
+    const metricsProgramsDir = MACHINE_DIR + '/metrics_programs/';
     const blocksProgramsDir = MACHINE_DIR + '/blocks_programs/';
     const partsProgramsDir = MACHINE_DIR + '/parts_programs/';
     db.dropDatabase()
+    .then((_) => {
+        fs.readdir(metricsProgramsDir, (err, files) => {
+            if (err) {
+                throw err;
+            }
+            files.forEach((filename) => {
+                if (filename[0] === '.') {
+                    return;
+                }
+                let fullFilename = metricsProgramsDir + filename;
+                fs.readFile(fullFilename, (err, data) => {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log(`Loading metrics program: ${filename}.`);
+                    let metricsObj = JSON.parse(data);
+                    db.collection('metricsPrograms').insertOne(metricsObj);
+                });
+            });
+        });
+    })
     .then((_) => {
         fs.readdir(blocksProgramsDir, (err, files) => {
             if (err) {
