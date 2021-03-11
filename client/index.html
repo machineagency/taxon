@@ -16,10 +16,15 @@
 <div id="program-pad" data-mode="single">
     <pre id="filter-container" class="code-field" contenteditable="true"></pre>
     <div id="filter-autocomplete" class="hidden"></div>
-    <pre id="heuristic-set-container" class="code-field" contenteditable="false">
+    <pre id="metrics-list-container" class="code-field" contenteditable="false">
+        <ul id="metrics-list" class="load-machine-list">
+        </ul>
+    </pre>
+    <pre id="metrics-container" class="gc-container code-field" contenteditable="false">
     </pre>
     <div id="machine-list-container" class="list-container">
         <ul id="pre-machine-list" class="load-machine-list">
+            <!--
             <li>
                 <label for="new-machine-input">(new machine)</label>
                 <input id="new-machine-input" type="file" accept="application/JSON"
@@ -27,17 +32,18 @@
                        onchange="window.strangeGui.uploadNewMachine(this.files[0]);">
             </li>
             <li onclick="window.strangeGui.deleteGCFromServer();">(delete machine)</li>
+            -->
         </ul>
         <ul id="load-machine-list" class="load-machine-list">
         </ul>
     </div>
-    <pre id="gc-container-1" class="hidden gc-container code-field" contenteditable="false">
+    <pre id="gc-container-1" class="gc-container code-field" contenteditable="false">
     </pre>
-    <pre id="parts-list-container" class="list-container" contenteditable="false">
+    <pre id="parts-list-container" class="hidden list-container" contenteditable="false">
         <ul id="parts-list" class="load-machine-list">
         </ul>
     </pre>
-    <pre id="parts-container" class="gc-container code-field" contenteditable="false">
+    <pre id="parts-container" class="hidden gc-container code-field" contenteditable="false">
     </pre>
 </div>
 
