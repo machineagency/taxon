@@ -257,6 +257,10 @@ input[type="file"] {
     overflow: scroll;
 }
 
+#metrics-list-container {
+    overflow: scroll;
+}
+
 #parts-list-container {
     height: 100px;
     overflow: scroll;
