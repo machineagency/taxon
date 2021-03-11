@@ -90,13 +90,14 @@ class PartsAssembly {
         let geometries = [geom, edgesGeom];
         this.parentScene.addSceneObjectDirectly(meshGroup);
         this.parentScene.camera.lookAt(meshGroup.position);
-        this.parentScene.camera.zoom = 2;
+        this.parentScene.camera.zoom = 1;
         this.parentScene.camera.updateProjectionMatrix();
     }
 }
 
 class Part {
     static DefaultColor = 0x222222;
+    static TerminalColor = 0xe44242;
     static MotorColor = 0xffed90;
 
     constructor(partProgObj, implementation, partsAssembly) {
@@ -104,6 +105,7 @@ class Part {
         this.implementation = implementation;
         this.name = partProgObj.name;
         this.isMotor = !!partProgObj.isMotor;
+        this.isTerminal = !!partProgObj.isTerminal;
         this.meshGroup = new THREE.Group();
         this.partsAssembly.parentScene.scene.add(this.meshGroup);
         // TODO: read dimensions/position from implementation or explicit
@@ -143,12 +145,15 @@ class Part {
         if (this.isMotor) {
             meshColor = Part.MotorColor;
         }
+        else if (this.isTerminal) {
+            meshColor = Part.TerminalColor;
+        }
         else {
             meshColor = Part.DefaultColor;
         }
         let meshMaterial = new THREE.MeshLambertMaterial({
             transparent: true,
-            opacity: 0.05,
+            opacity: 0.10,
             color: meshColor
         });
         let mesh = new THREE.Mesh(geom, meshMaterial);
