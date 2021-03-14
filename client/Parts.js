@@ -30,6 +30,9 @@ class PartsAssembly {
         this.joints.push(joint);
         parentPart.joint = parentPart;
         let calcFaceOffset = (face, parentPart, childPart) => {
+            if (joint.face === 'center') {
+                return new THREE.Vector3();
+            }
             let axisToDim = {
                 x: 'width',
                 y: 'height',
@@ -100,12 +103,12 @@ class Part {
     static TerminalColor = 0xe44242;
     static MotorColor = 0xffed90;
 
-    constructor(partProgObj, implementation, partsAssembly) {
+    constructor(partProgObj, partsAssembly) {
         this.partsAssembly = partsAssembly;
-        this.implementation = implementation;
         this.name = partProgObj.name;
-        this.isMotor = !!partProgObj.isMotor;
-        this.isTerminal = !!partProgObj.isTerminal;
+        this.type = partProgObj.type;
+        this.mechanismData = partProgObj.mechanismData;
+        this.modelMeshFilepath = partProgObj.modelMeshFilepath;
         this.meshGroup = new THREE.Group();
         this.partsAssembly.parentScene.scene.add(this.meshGroup);
         // TODO: read dimensions/position from implementation or explicit
@@ -114,8 +117,8 @@ class Part {
             this.meshGroup.position.setY(partProgObj.position.y);
             this.meshGroup.position.setZ(partProgObj.position.z);
         }
-        if (implementation) {
-            this.addImplementationProperties(implementation)
+        if (partProgObj.dimensions) {
+            this.dimensions = partProgObj.dimensions;
         }
         else {
             this.dimensions = {
@@ -142,10 +145,10 @@ class Part {
             color: PartsAssembly.boundsColor
         });
         let meshColor;
-        if (this.isMotor) {
+        if (this.type === 'motor') {
             meshColor = Part.MotorColor;
         }
-        else if (this.isTerminal) {
+        else if (this.type === 'terminal') {
             meshColor = Part.TerminalColor;
         }
         else {
@@ -163,7 +166,7 @@ class Part {
         this.meshGroup.name = this.name;
         let geometries = [geom, edgesGeom];
         this.meshGroup.position.copy(this.position);
-        if (this.implementation) {
+        if (this.modelMeshFilepath) {
             this.loadImplementationStl();
         }
     }
@@ -174,19 +177,12 @@ class Part {
         }
     }
 
-    addImplementationProperties(implementationObj) {
-        console.assert(implementationObj.modelMeshFilepath);
-        console.assert(implementationObj.dimensions);
-        this.stlFilepath = implementationObj.modelMeshFilepath;
-        this.dimensions = implementationObj.dimensions;
-    }
-
     loadImplementationStl() {
         const meshColor = 0xfefefe;
         let loadPromise = new Promise(resolve => {
             let loader = new STLLoader();
             let stlMesh;
-            return loader.load(this.stlFilepath, (stlGeom) => {
+            return loader.load(this.modelMeshFilepath, (stlGeom) => {
                 let material = new THREE.MeshLambertMaterial({
                     color : meshColor,
                     // Do not cull triangles with inward-pointing normals
@@ -230,8 +226,7 @@ class PartsCompiler {
         let bounds = pObj.bounds
         let pa = new PartsAssembly(window.strangeScene, bounds);
         pObj.parts.forEach(partProg => {
-            let implementation = pObj.partsLibrary[partProg.implementation];
-            let part = pa.addPart(new Part(partProg, implementation, pa));
+            let part = pa.addPart(new Part(partProg, pa));
         });
         pObj.parts.forEach(partProg => {
             let parentPart = pa.findPartWithName(partProg.name);
