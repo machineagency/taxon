@@ -241,7 +241,7 @@ input[type="file"] {
 }
 
 .gc-container {
-    height: 325px;
+    height: 150px;
 }
 
 .hidden {
@@ -253,7 +253,7 @@ input[type="file"] {
 }
 
 #machine-list-container {
-    height: 150px;
+    height: 100px;
     overflow: scroll;
 }
 
@@ -267,7 +267,7 @@ input[type="file"] {
 }
 
 #metrics-container {
-    height: 200px;
+    height: 150px;
     overflow: scroll;
 }
 
