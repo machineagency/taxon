@@ -1,7 +1,7 @@
 {
     "name": "prusa-i3-mk3",
     "programType" : "blocks",
-    "implementsMetrics": {
+    "metrics": {
         "workEnvelope": {
             "shape": "box",
             "dimensions" : {
@@ -17,7 +17,24 @@
         },
         "manufacturingStrategies": [
             "additive"
-        ]
+        ],
+        "materialCompatibility": {
+            "include": [
+                "plastic"
+            ],
+            "exclude": [
+                "wood", "metal"
+            ]
+        },
+        "metafeatures": {
+            "version": 2.0,
+            "machineType": "printer3d",
+            "vendorInfo": {
+                "price": 749,
+                "website": "https://www.prusa3d.com/",
+                "numUsers" : 5000
+            }
+        }
     },
     "blocks": [
         {
@@ -132,15 +149,6 @@
                 "nozzleCount": 1
             }
         }
-    ],
-    "metafeatures": {
-        "version": 2.0,
-        "machineType": "printer3d",
-        "vendorInfo": {
-            "price": 749,
-            "website": "https://www.prusa3d.com/",
-            "numUsers" : 5000
-        }
-    }
+    ]
 }
 
