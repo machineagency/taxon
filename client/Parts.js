@@ -78,6 +78,11 @@ class PartsAssembly {
         return this.parts.find(p => p.name === name);
     }
 
+    clearFromScene() {
+        this.parentScene.scene.remove(this.rootMeshGroup);
+        this.rootMeshGroup = new THREE.Group();
+    }
+
     renderBounds() {
         const triPerFace = 2;
         let geom = new THREE.BoxBufferGeometry(this.bounds.width, this.bounds.height,
@@ -91,10 +96,7 @@ class PartsAssembly {
         meshGroup.add(wireSegments);
         meshGroup.name = 'bounds';
         let geometries = [geom, edgesGeom];
-        this.parentScene.addSceneObjectDirectly(meshGroup);
-        this.parentScene.camera.lookAt(meshGroup.position);
-        this.parentScene.camera.zoom = 1;
-        this.parentScene.camera.updateProjectionMatrix();
+        this.rootMeshGroup.add(meshGroup);
     }
 }
 
@@ -110,7 +112,7 @@ class Part {
         this.mechanismData = partProgObj.mechanismData;
         this.modelMeshFilepath = partProgObj.modelMeshFilepath;
         this.meshGroup = new THREE.Group();
-        this.partsAssembly.parentScene.scene.add(this.meshGroup);
+        this.partsAssembly.rootMeshGroup.add(this.meshGroup);
         // TODO: read dimensions/position from implementation or explicit
         if (partProgObj.position) {
             this.meshGroup.position.setX(partProgObj.position.x);
