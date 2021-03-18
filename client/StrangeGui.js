@@ -571,6 +571,15 @@ class StrangeGui {
             return;
         }
 
+        // Remove old machine or PA from scene
+        if (this.strangeScene.machine) {
+            this.strangeScene.machine.clearMachineFromScene();
+        }
+        if (this.strangeScene.partsAssembly) {
+            this.strangeScene.partsAssembly.clearFromScene();
+        }
+
+        // Load new one
         if (resourceName === 'machines') {
             this.__modifyGUIForMachineListClick(event, newText, listItemDom);
         }
