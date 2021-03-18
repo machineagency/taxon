@@ -560,15 +560,10 @@ class Machine {
             this.workEnvelope.removeMeshGroupFromScene();
             this.workEnvelope = undefined;
         }
-        let blocksMotorsTools = this.blocks
-                                    .concat(this.motors)
-                                    .concat(this.tools);
-        blocksMotorsTools.forEach((block, index) => {
+        this.blocks.forEach((block, index) => {
             block.removeMeshGroupFromScene();
         });
         this.blocks = [];
-        this.tools = [];
-        this.motors = [];
         if (this.isPreview) {
             this.parentScene.previewMachine = undefined;
         }
