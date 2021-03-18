@@ -74,6 +74,11 @@ input[type="file"] {
     cursor: pointer;
 }
 
+input[type="checkbox"] {
+    background-color: black;
+    border: 1px solid white;
+}
+
 #model-container {
     height: 200px;
     width: 250px;
@@ -289,6 +294,15 @@ input[type="file"] {
     padding-bottom: 5px;
     cursor: pointer;
     list-style-type: none;
+}
+
+#rot-container {
+    padding-top: 10px;
+    height: 150px;
+}
+
+.rot-item * {
+    display: inline-block;
 }
 
 .current-machine-highlight {
