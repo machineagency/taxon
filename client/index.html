@@ -14,8 +14,6 @@
 <div id="container"></div>
 
 <div id="program-pad" data-mode="single">
-    <pre id="filter-container" class="code-field" contenteditable="true"></pre>
-    <div id="filter-autocomplete" class="hidden"></div>
     <pre id="metrics-list-container" class="list-container" contenteditable="false">
         <ul id="metrics-list" class="load-machine-list">
         </ul>
@@ -47,8 +45,30 @@
     </pre>
 </div>
 
-<div id="job-pad" class="hidden">
-    <div id="widget-show-machine">
+<div id="job-pad" class="">
+    <pre id="filter-container" class="code-field" contenteditable="true"></pre>
+    <div id="filter-autocomplete" class="hidden"></div>
+    <div id="rot-container" class="code-field" contenteditable="false">
+        <div data-rot-name="material-match-machine" class="rot-item">
+            <input type="checkbox"/>
+            <div class="rot-description">
+                material must match machine
+            </div>
+        </div>
+        <div data-rot-name="envelope-fit" class="rot-item">
+            <input type="checkbox"/>
+            <div class="rot-description">
+                model must fit in envelope
+            </div>
+        </div>
+        <div data-rot-name="tall-features" class="rot-item">
+            <input type="checkbox"/>
+            <div class="rot-description">
+                machine must handle tall features
+            </div>
+        </div>
+    </div>
+    <div id="widget-show-machine" class="hidden">
         <div class="button-bar">
             <input id="machine-non-input" type="file"
                    style="position: fixed; top: -100em">
@@ -74,12 +94,6 @@
             <div id="material-value" class="upload-btn-value">none selected</div>
         </div>
     </div>
-    <pre id="rot-console" class="code-field" contenteditable="false">
-
-- material must match machine
-- model must fit in envelope
-- machine must handle tall features
-    </pre>
     <div id="workflow-container" class="code-field" contenteditable="true"></div>
     <pre id="workflow-console" class="code-field" contenteditable="false">
 I am the console.
