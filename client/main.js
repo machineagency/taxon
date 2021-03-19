@@ -2521,14 +2521,18 @@ class Compiler {
                     CurrentBlockConstructor = Platform;
                 }
             }
-            if (blockData.blockType === 'linear') {
+            else if (blockData.blockType === 'linear') {
                 CurrentBlockConstructor = LinearStage;
             }
-            if (blockData.blockType === 'parallel') {
+            else if (blockData.blockType === 'parallel') {
                 CurrentBlockConstructor = ParallelStage;
             }
-            if (blockData.blockType === 'cross') {
+            else if (blockData.blockType === 'cross') {
                 CurrentBlockConstructor = CrossStage;
+            }
+            else {
+                // TODO: make a default or handle binary linear
+                CurrentBlockConstructor = LinearStage
             }
             let block = new CurrentBlockConstructor(blockData.name, machine, {
                 width: blockData.dimensions.width,
