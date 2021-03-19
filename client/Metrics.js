@@ -43,14 +43,30 @@ class WorkEnvelope {
         this.meshGroup.position.copy(newPos);
     }
 
+    get width() {
+        return this.dimensions.width;
+    }
+
+    get height() {
+        return this.dimensions.height;
+    }
+
+    get length() {
+        return this.dimensions.length;
+    }
+
     renderDimensions() {
         let geom = this.calcGeometry(this.dimensions);
-        let material = new THREE.MeshLambertMaterial({
+        let edgesGeom = new THREE.EdgesGeometry(geom);
+        let material = new THREE.LineDashedMaterial({
             color : WorkEnvelope.color,
-            transparent : true,
-            opacity : 0.25
+            linewidth: 1,
+            scale: 1,
+            dashSize: 3,
+            gapSize: 3
         });
-        this.mesh = new THREE.Mesh(geom, material);
+        this.mesh = new THREE.LineSegments(edgesGeom, material);
+        this.mesh.computeLineDistances();
         this.mesh.isWorkEnvelopeMesh = true;
         this.meshGroup.blockName = this.name;
         this.meshGroup.add(this.mesh);
@@ -61,6 +77,11 @@ class WorkEnvelope {
                                               -Math.PI / 2);
             this.meshGroup.applyQuaternion(rotateQuaternion);
         }
+    }
+
+    removeMeshGroupFromScene() {
+        this.parentMetrics.parentScene.scene.remove(this.meshGroup);
+        this.meshGroup = new THREE.Group();
     }
 
     calcGeometry(dimensions) {
@@ -87,6 +108,7 @@ class MetricsCompiler {
     compile(prog) {
         let mObj = JSON.parse(prog);
         let metrics = new Metrics(window.strangeScene, mObj);
+        window.strangeScene.metrics = metrics;
         return prog;
     }
 }
