@@ -1918,8 +1918,8 @@ class Kinematics {
 
     moveToolRelative(axesToCoords) {
         // FIXME: come back and check WE at a higher layer
-        // let validMove = this.verifyMoveInWorkEnvelope(axesToCoords);
-        if (true) {
+        let validMove = this.verifyMoveInWorkEnvelope(axesToCoords);
+        if (validMove) {
             let machine = this.strangeScene.machine;
             let blockNameToDisplacement = {};
             machine.blocks.forEach((block) => {
@@ -1937,6 +1937,9 @@ class Kinematics {
                 }
             });
             this.actuateAllBlocks(blockNameToDisplacement);
+        }
+        else {
+            console.log('Move outside work envelope.');
         }
     }
 
