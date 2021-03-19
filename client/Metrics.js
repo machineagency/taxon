@@ -75,7 +75,7 @@ class WorkEnvelope {
         this.meshGroup.blockName = this.name;
         this.meshGroup.add(this.mesh);
         this.geometries = [geom];
-        if (this.dimensions.shape === 'rectangle') {
+        if (this.shape === 'rectangle') {
             let rotateQuaternion = new THREE.Quaternion();
             rotateQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0),
                                               -Math.PI / 2);
