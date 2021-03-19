@@ -412,31 +412,9 @@ let makeFilterFromQuery = (queryObj) => {
 };
 
 let seedDatabase = (db) => {
-    const metricsProgramsDir = MACHINE_DIR + '/metrics_programs/';
     const blocksProgramsDir = MACHINE_DIR + '/blocks_programs/';
     const partsProgramsDir = MACHINE_DIR + '/parts_programs/';
     db.dropDatabase()
-    .then((_) => {
-        fs.readdir(metricsProgramsDir, (err, files) => {
-            if (err) {
-                throw err;
-            }
-            files.forEach((filename) => {
-                if (filename[0] === '.') {
-                    return;
-                }
-                let fullFilename = metricsProgramsDir + filename;
-                fs.readFile(fullFilename, (err, data) => {
-                    if (err) {
-                        throw err;
-                    }
-                    console.log(`Loading metrics program: ${filename}.`);
-                    let metricsObj = JSON.parse(data);
-                    db.collection('metricsPrograms').insertOne(metricsObj);
-                });
-            });
-        });
-    })
     .then((_) => {
         fs.readdir(blocksProgramsDir, (err, files) => {
             if (err) {

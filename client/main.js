@@ -202,7 +202,7 @@ class StrangeScene {
         if (this.model === undefined) {
             return;
         }
-        let wePos = this.machine.workEnvelope.position.clone();
+        let wePos = this.metrics.workEnvelope.position.clone();
         let xOff = (this.modelBox3.max.x - this.modelBox3.min.x) / 2;
         let yOff = (this.modelBox3.max.y - this.modelBox3.min.y);
         let zOff = (this.modelBox3.max.z - this.modelBox3.min.z) / 2;
@@ -251,8 +251,8 @@ class StrangeScene {
     checkModelFitsInWorkEnvelope() {
         console.assert(this.machine !== undefined, this);
         console.assert(this.model !== undefined, this);
-        let origin = this.machine.workEnvelope.position.clone();
-        let we = this.machine.workEnvelope;
+        let origin = this.metrics.workEnvelope.position.clone();
+        let we = this.metrics.workEnvelope;
         let weSizeVect = new THREE.Vector3(we.width, we.height, we.length);
         let weBox = new THREE.Box3();
         weBox.setFromCenterAndSize(origin, weSizeVect);
@@ -1697,13 +1697,14 @@ class Kinematics {
         this.rootKNodes = [];
         this.strangeScene = strangeScene;
         this.strangeAnimator = new StrangeAnimator(strangeScene);
-        if (this.strangeScene.machine !== undefined) {
-            this.machine = this.strangeScene.machine;
-        }
     }
 
     get machine() {
         return this.strangeScene.machine;
+    }
+
+    get metrics() {
+        return this.strangeScene.metrics;
     }
 
     addBlockAsRootNode(block) {
@@ -1728,8 +1729,8 @@ class Kinematics {
     zeroAtCurrentPosition() {
         this.zeroPosition = this.getWorldPosition();
         // NOTE: we may want to move this to a UI class
-        let we = this.strangeScene.machine.workEnvelope;
-        let sizeMultiplier = 1.2;
+        let we = this.strangeScene.metrics.workEnvelope;
+        let sizeMultiplier = 1.0;
         let gridSize = sizeMultiplier * Math.max(we.width, we.height, we.length);
         let divisions = Math.floor(gridSize / 10);
         this.zeroGrid = new THREE.GridHelper(gridSize, divisions);
@@ -1750,8 +1751,8 @@ class Kinematics {
             let platformMotionAxis = 'x';
             worldPosition.setX(-maybePlatform.position.x);
         }
-        if (this.machine.workEnvelope.shape === 'rectangle') {
-            let wePos = this.machine.workEnvelope.position;
+        if (this.metrics.workEnvelope.shape === 'rectangle') {
+            let wePos = this.metrics.workEnvelope.position;
             worldPosition.setY(wePos.y);
         }
         return worldPosition;
@@ -1872,7 +1873,7 @@ class Kinematics {
     }
 
     verifyMoveInWorkEnvelope(axesToCoords) {
-        if (this.machine.workEnvelope === undefined) {
+        if (this.metrics.workEnvelope === undefined) {
             this.determineWorkEnvelope();
         }
         let toolGoalPosition = new THREE.Vector3(axesToCoords['x'],
@@ -1887,7 +1888,7 @@ class Kinematics {
     }
 
     checkContainsPoint(point) {
-        let we = this.machine.workEnvelope;
+        let we = this.metrics.workEnvelope;
         let unzeroedPoint = this.unzeroPoint(point);
         let center = we.position;
         let bbox = new THREE.Box3();
@@ -2394,23 +2395,6 @@ class Compiler {
             width: machine.buildEnvironment.width,
             length: machine.buildEnvironment.length
         };
-        let progWorkEnvelope;
-        if (machine.workEnvelope === undefined) {
-            progWorkEnvelope = {};
-        }
-        else {
-            progWorkEnvelope = {
-                shape: machine.workEnvelope.shape,
-                width: machine.workEnvelope.width || 0,
-                height: machine.workEnvelope.height || 0,
-                length: machine.workEnvelope.length || 0,
-                position: {
-                    x: machine.workEnvelope.position.x,
-                    y: machine.workEnvelope.position.y,
-                    z: machine.workEnvelope.position.z
-                }
-            };
-        }
 
         let progBlocks = machine.blocks.map((block) => {
             let progBlock = {
