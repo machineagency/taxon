@@ -39,8 +39,12 @@ class WorkEnvelope {
                                          weProg.position.z);
     }
 
+    get position() {
+        return this.meshGroup.position;
+    }
+
     set position(newPos) {
-        this.meshGroup.position.copy(newPos);
+        this.position.copy(newPos);
     }
 
     get width() {
