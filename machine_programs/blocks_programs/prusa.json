@@ -1,6 +1,5 @@
 {
     "name": "prusa-i3-mk3",
-    "programType" : "blocks",
     "metrics": {
         "workEnvelope": {
             "shape": "box",
