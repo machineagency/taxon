@@ -1,0 +1,109 @@
+{
+    "name": "axidraw-v3",
+    "metrics": {
+        "workEnvelope": {
+            "shape": "rectangle",
+            "dimensions" : {
+                "width": 250,
+                "height": 0,
+                "length": 250
+            },
+            "position": {
+                "x": -92.5,
+                "y": 12.6,
+                "z": 0
+            }
+        },
+        "manufacturingStrategies": [
+            "drawing"
+        ],
+        "materialCompatibility": {
+            "include": [
+                "paper"
+            ],
+            "exclude": [
+                "wood", "metal", "plastic"
+            ]
+        },
+        "metafeatures": {
+            "version": 3.0,
+            "machineType": "plotter",
+            "vendorInfo": {
+                "price": 475,
+                "website": "https://axidraw.com/",
+                "numUsers" : 1000
+            }
+        }
+    },
+    "blocks": [
+        {
+            "name": "Servo",
+            "blockType": "binary",
+            "actuationAxes": [ "y" ],
+            "attributes": {
+                "driveType": "timingBelt",
+                "stepDisplacementRatio": "0.7"
+            },
+            "dimensions": {
+                "width": 12.5,
+                "height": 25,
+                "length": 50
+            },
+            "connections": [
+                {
+                    "child": "Rapidograph",
+                    "isInert": false,
+                    "offset": {
+                        "x": 12.5,
+                        "y": 0,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Rapidograph",
+            "blockType": "nonActuating",
+            "isTool": true,
+            "attributes": {
+                "toolType": "pen",
+                "thickness": 0.35
+            },
+            "dimensions": {
+                "width": 12.5,
+                "height": 50,
+                "length": 12.5
+            }
+        },
+        {
+            "name": "Bottom-Top",
+            "blockType": "cross",
+            "actuationAxes": [ "x", "z" ],
+            "dimensions": {
+                "width": 250,
+                "height": 50,
+                "length": 250
+            },
+            "attributes": {
+                "driveType": "timingBelt",
+                "stepDisplacementRatio": "0.7"
+            },
+            "position": {
+                "x": 50,
+                "y": 37.6,
+                "z": 0
+            },
+            "connections": [
+                {
+                    "child": "Servo",
+                    "isInert": false,
+                    "offset": {
+                        "x": 131.25,
+                        "y": -12.5,
+                        "z": 0
+                    }
+                }
+            ]
+        }
+    ]
+}
