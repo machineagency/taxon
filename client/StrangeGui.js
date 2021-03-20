@@ -32,6 +32,7 @@ class StrangeGui {
         this.metricsProgramDom = document.getElementById('metrics-container');
         this.partsProgramListDom = document.getElementById('parts-list');
         this.partsProgramDom = document.getElementById('parts-container');
+        this.consoleDom = document.getElementById('workflow-console');
         this.filterDom.addEventListener('keydown', (event) => {
             if (event.keyCode === 13) {
                 // Enter
@@ -129,6 +130,16 @@ class StrangeGui {
                 this.autocompleteDom.appendChild(node);
             }
         });
+    }
+
+    setConsoleErrorColor() {
+        this.consoleDom.classList.add('red-border');
+        this.consoleDom.classList.add('red-text');
+    }
+
+    removeConsoleErrorColor() {
+        this.consoleDom.classList.remove('red-border');
+        this.consoleDom.classList.remove('red-text');
     }
 
     __addToScene(threeObj) {

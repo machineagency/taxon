@@ -44,6 +44,7 @@ class Workflow {
             return;
         }
         if (this.__currLineNum > 0) {
+            this.parentGui.removeConsoleErrorColor();
             this.progCurrFn = this.progCurrFn();
         }
         this.__stepHighlightLine();
@@ -60,6 +61,7 @@ class Workflow {
         }
         this.stepButtonDom.classList.remove('grayed');
         this.consoleDom.innerText = '';
+        this.parentGui.removeConsoleErrorColor();
     }
 
     __splitProgTextIntoStatements(progText) {
@@ -110,6 +112,9 @@ class Workflow {
             apply: (target, thisArg, argList) => {
                 let msg = argList[0];
                 this.consoleDom.innerText = msg;
+                if (target.name === 'error') {
+                    this.parentGui.setConsoleErrorColor();
+                }
                 return target(msg);
             }
         };
@@ -119,6 +124,7 @@ class Workflow {
         const runDom = document.getElementById('widget-run');
         // FIXME: cannot unbind this uh oh
         console.log = new Proxy(console.log, consoleHandler);
+        console.error = new Proxy(console.error, consoleHandler);
         let curriedWorkflow = this.__generateCurriedWorkflow();
         return curriedWorkflow;
     }
