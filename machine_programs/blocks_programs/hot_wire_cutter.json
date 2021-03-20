@@ -1,3 +1,50 @@
 {
-    "name": "hot wire cutter"
+    "name": "hot wire cutter",
+    "metrics": {
+        "workEnvelope": {
+            "shape": "box",
+            "dimensions" : {
+                "width": 130,
+                "height": 110,
+                "length": 130
+            },
+            "position": {
+                "x": 0,
+                "y": 102.6,
+                "z": 0
+            }
+        },
+        "manufacturingStrategies": [
+            "subtractive"
+        ],
+        "materialCompatibility": {
+            "include": [
+                "styrofoam"
+            ],
+            "exclude": [
+                "wood", "metal", "plastic", "paper"
+            ]
+        }
+    },
+    "blocks": [
+        {
+            "name": "doubleLeadscrewPlatform",
+            "blockType": "redundantLinear",
+            "actuationAxes": [ "x" ],
+            "dimensions": {
+                "width": 400,
+                "height": 25,
+                "length": 300
+            },
+            "attributes": {
+                "driveType": "timingBelt",
+                "stepDisplacementRatio": 0.7
+            },
+            "position": {
+                "x": 0,
+                "y": 25,
+                "z": 0
+            }
+        }
+    ]
 }
