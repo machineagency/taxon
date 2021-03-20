@@ -1879,74 +1879,71 @@ class Kinematics {
     }
 
     verifyMoveInWorkEnvelope(axesToCoords) {
-        if (this.metrics.workEnvelope === undefined) {
-            this.determineWorkEnvelope();
-        }
         let toolGoalPosition = new THREE.Vector3(axesToCoords['x'],
                                                  axesToCoords['y'],
                                                  axesToCoords['z']);
         let containResult = this.checkContainsPoint(toolGoalPosition);
         if (!containResult) {
             let e = `Move to ${axesToCoords.x} ${axesToCoords.y} ${axesToCoords.z} is outside work envelope.`;
-            window.strangeGui.writeErrorToJobLog(e);
+            console.error(e);
         }
         return containResult;
     }
 
     checkContainsPoint(point) {
+        // Hack to handle precision errors with work envelope sizes
+        const eps = 0.25;
         let we = this.metrics.workEnvelope;
         let unzeroedPoint = this.unzeroPoint(point);
         let center = we.position;
         let bbox = new THREE.Box3();
-        let size = new THREE.Vector3(we.width, we.height, we.length);
+        let size = new THREE.Vector3(we.width + eps, we.height + eps,
+                                     we.length + eps);
         bbox.setFromCenterAndSize(center, size);
         return bbox.containsPoint(unzeroedPoint);
     }
 
     moveTool(axesToCoords) {
-        // TODO
         // NOTE: distinction between coords (zero applied) and position
         // matters here, as well is in verifyMoveInWorkEnvelope, but not
         // in the rest of moveToolRelative
-        let axesToCoordsAdjusted = {};
-        let currentPositionMachineCoords = this.getZeroedPosition();
-        let adjustedPoint = new THREE.Vector3(axesToCoords.x,
-                                              axesToCoords.y,
-                                              axesToCoords.z);
-        adjustedPoint.sub(currentPositionMachineCoords);
-        axesToCoordsAdjusted = {
-            x: adjustedPoint.x,
-            y: adjustedPoint.y,
-            z: adjustedPoint.z,
-        };
-        return this.moveToolRelative(axesToCoordsAdjusted);
+        let validMove = this.verifyMoveInWorkEnvelope(axesToCoords);
+        if (validMove) {
+            let axesToCoordsAdjusted = {};
+            let currentPositionMachineCoords = this.getZeroedPosition();
+            let adjustedPoint = new THREE.Vector3(axesToCoords.x,
+                                                  axesToCoords.y,
+                                                  axesToCoords.z);
+            adjustedPoint.sub(currentPositionMachineCoords);
+            axesToCoordsAdjusted = {
+                x: adjustedPoint.x,
+                y: adjustedPoint.y,
+                z: adjustedPoint.z,
+            };
+            this.moveToolRelative(axesToCoordsAdjusted);
+            return true;
+        }
+        return false;
     }
 
     moveToolRelative(axesToCoords) {
-        // FIXME: come back and check WE at a higher layer
-        let validMove = this.verifyMoveInWorkEnvelope(axesToCoords);
-        if (validMove) {
-            let machine = this.strangeScene.machine;
-            let blockNameToDisplacement = {};
-            machine.blocks.forEach((block) => {
-                if (block.kinematics === 'hBot' || block.kinematics === 'coreXY') {
-                    let axisFirst = block.actuationAxes[0];
-                    let axisSecond = block.actuationAxes[1];
-                    let displacements = [axesToCoords[axisFirst],
-                                         axesToCoords[axisSecond]];
-                    blockNameToDisplacement[block.name] = displacements;
-                }
-                else if (block.kinematics === 'directDrive') {
-                    let axis = block.actuationAxes[0];
-                    let displacement = axesToCoords[axis]
-                    blockNameToDisplacement[block.name] = displacement;
-                }
-            });
-            this.actuateAllBlocks(blockNameToDisplacement);
-        }
-        else {
-            console.log('Move outside work envelope.');
-        }
+        let machine = this.strangeScene.machine;
+        let blockNameToDisplacement = {};
+        machine.blocks.forEach((block) => {
+            if (block.kinematics === 'hBot' || block.kinematics === 'coreXY') {
+                let axisFirst = block.actuationAxes[0];
+                let axisSecond = block.actuationAxes[1];
+                let displacements = [axesToCoords[axisFirst],
+                                     axesToCoords[axisSecond]];
+                blockNameToDisplacement[block.name] = displacements;
+            }
+            else if (block.kinematics === 'directDrive') {
+                let axis = block.actuationAxes[0];
+                let displacement = axesToCoords[axis]
+                blockNameToDisplacement[block.name] = displacement;
+            }
+        });
+        this.actuateAllBlocks(blockNameToDisplacement);
     }
 
 
