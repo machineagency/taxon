@@ -560,6 +560,9 @@ class Machine {
             this.workEnvelope.removeMeshGroupFromScene();
             this.workEnvelope = undefined;
         }
+        if (this.kinematics.zeroGrid) {
+            this.parentScene.removeFromScene(this.kinematics.zeroGrid);
+        }
         this.blocks.forEach((block, index) => {
             block.removeMeshGroupFromScene();
         });
@@ -1367,8 +1370,8 @@ class Stage extends Block {
         if (this.constructor === Stage) {
             throw new Error('Can\'t instantiate abstract class Stage.');
         }
-        console.assert(attributes.driveType !== undefined, attributes);
-        this.attributes = attributes;
+        // console.assert(attributes.driveType !== undefined, attributes);
+        // this.attributes = attributes;
         // this.loadDriveMechanismStl();
         this.axes = [];
         this.drivingMotors = [];
@@ -1733,6 +1736,9 @@ class Kinematics {
         let sizeMultiplier = 1.0;
         let gridSize = sizeMultiplier * Math.max(we.width, we.height, we.length);
         let divisions = Math.floor(gridSize / 10);
+        if (this.zeroGrid) {
+            this.strangeScene.removeFromScene(this.zeroGrid);
+        }
         this.zeroGrid = new THREE.GridHelper(gridSize, divisions);
         this.strangeScene.addSceneObjectDirectly(this.zeroGrid);
         this.zeroGrid.position.copy(this.zeroPosition);
