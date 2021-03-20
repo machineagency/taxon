@@ -578,6 +578,9 @@ class StrangeGui {
         if (this.strangeScene.partsAssembly) {
             this.strangeScene.partsAssembly.clearFromScene();
         }
+        if (this.strangeScene.metrics) {
+            this.strangeScene.metrics.workEnvelope.clearFromScene();
+        }
 
         // Load new one
         if (resourceName === 'machines') {

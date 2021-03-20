@@ -83,7 +83,7 @@ class WorkEnvelope {
         }
     }
 
-    removeMeshGroupFromScene() {
+    clearFromScene() {
         this.parentMetrics.parentScene.scene.remove(this.meshGroup);
         this.meshGroup = new THREE.Group();
     }
