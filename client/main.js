@@ -1736,10 +1736,21 @@ class Kinematics {
         let sizeMultiplier = 1.0;
         let gridSize = sizeMultiplier * Math.max(we.width, we.height, we.length);
         let divisions = Math.floor(gridSize / 10);
+        let centerColor = 0xaaaaaa;
+        let mainColor = 0xcccccc;
         if (this.zeroGrid) {
             this.strangeScene.removeFromScene(this.zeroGrid);
         }
-        this.zeroGrid = new THREE.GridHelper(gridSize, divisions);
+        this.zeroGrid = new THREE.GridHelper(gridSize, divisions,
+                                             centerColor, mainColor);
+        if (we.shape === 'rectangle') {
+            if (we.width === 0) {
+                this.zeroGrid.rotateZ(Math.PI / 2);
+            }
+            else if (we.length === 0) {
+                this.zeroGrid.rotateX(Math.PI / 2);
+            }
+        }
         this.strangeScene.addSceneObjectDirectly(this.zeroGrid);
         this.zeroGrid.position.copy(this.zeroPosition);
     }
@@ -1756,10 +1767,6 @@ class Kinematics {
             // TODO: make a Platform method that has user set motionAxis
             let platformMotionAxis = 'x';
             worldPosition.setX(-maybePlatform.position.x);
-        }
-        if (this.metrics.workEnvelope.shape === 'rectangle') {
-            let wePos = this.metrics.workEnvelope.position;
-            worldPosition.setY(wePos.y);
         }
         return worldPosition;
     }

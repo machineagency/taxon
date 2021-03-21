@@ -62,6 +62,10 @@ class Workflow {
         this.stepButtonDom.classList.remove('grayed');
         this.consoleDom.innerText = '';
         this.parentGui.removeConsoleErrorColor();
+        let zg = this.kinematics.zeroGrid;
+        if (zg) {
+            this.parentGui.strangeScene.removeFromScene(zg);
+        }
     }
 
     __splitProgTextIntoStatements(progText) {
