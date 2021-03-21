@@ -17,6 +17,13 @@ far. ideally, we would also rotate the wire---or perhaps we just remove a
 degree of freedom and just say that the upperstages must be parallel... in
 that case, it's just a 2 DOF wire cutter. okay, let's clarify that.
 
+also the work envelope... if we only can move in the x and z directions,
+it doesn't make sense to say that the work envelope is a box in this case.
+but then also, i need to make a vertical 2d work envelope agh.
+
+okay i went ahead and edited work envelope instantiation to account for
+this. now we can have rectangles of all orientations!
+
 **possible rules of thumb**
 
 - the positions of the stages must not move in such a way that causes the
