@@ -75,12 +75,6 @@ class WorkEnvelope {
         this.meshGroup.blockName = this.name;
         this.meshGroup.add(this.mesh);
         this.geometries = [geom];
-        if (this.shape === 'rectangle') {
-            let rotateQuaternion = new THREE.Quaternion();
-            rotateQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0),
-                                              -Math.PI / 2);
-            this.meshGroup.applyQuaternion(rotateQuaternion);
-        }
     }
 
     clearFromScene() {
@@ -90,8 +84,24 @@ class WorkEnvelope {
 
     calcGeometry(dimensions) {
         if (this.shape === 'rectangle') {
-            return new THREE.PlaneBufferGeometry(dimensions.length,
-                                                 dimensions.width);
+            let geom;
+            if (this.height === 0) {
+                geom = new THREE.PlaneBufferGeometry(dimensions.length,
+                                                     dimensions.width);
+                geom.rotateX(Math.PI / 2);
+                return geom;
+            }
+            else if (this.width === 0) {
+                geom = new THREE.PlaneBufferGeometry(dimensions.height,
+                                                     dimensions.length);
+                geom.rotateZ(Math.PI / 2);
+                return geom;
+            }
+            else {
+                geom = new THREE.PlaneBufferGeometry(dimensions.width,
+                                                     dimensions.height);
+                return geom;
+            }
         }
         if (this.shape === 'box') {
             return new THREE.BoxBufferGeometry(dimensions.width,
