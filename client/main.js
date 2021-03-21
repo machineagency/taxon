@@ -1242,13 +1242,10 @@ class Tool extends Block {
 
     renderDimensions() {
         this.removeMeshGroupFromScene();
-        let geom = BuildEnvironment.geometryFactories.tool(this.dimensions);
-        geom.computeBoundingBox();
-        let bbox = geom.boundingBox;
         let bboxGeom = BuildEnvironment.geometryFactories.stageCase({
-            width: bbox.max.x - bbox.min.x,
-            height: bbox.max.y - bbox.min.y,
-            length: bbox.max.z - bbox.min.z
+            width: this.width,
+            height: this.height,
+            length: this.length
         });
         let edgesGeom = new THREE.EdgesGeometry(bboxGeom);
         let material = new THREE.MeshLambertMaterial({
@@ -1265,7 +1262,7 @@ class Tool extends Block {
         this.meshGroup.add(this.mesh);
         this.meshGroup.add(this.wireSegments);
         this.meshGroup.blockName = this.name;
-        this.geometries = [geom, edgesGeom];
+        this.geometries = [edgesGeom];
         this.setPositionToDefault();
         this.addMeshGroupToScene();
         // this.__loadToolStl().then((toolMesh) => {
@@ -1889,6 +1886,19 @@ class Kinematics {
         let toolGoalPosition = new THREE.Vector3(axesToCoords['x'],
                                                  axesToCoords['y'],
                                                  axesToCoords['z']);
+        // In the case of 2D work envelopes, for simplicity's sake, project
+        // the toolGoalPosition on the null axis to the envelope
+        // if (this.metrics.workEnvelope.shape === 'rectangle') {
+        //     if (this.metrics.workEnvelope.width === 0) {
+        //         toolGoalPosition.setX(this.metrics.workEnvelope.position.x);
+        //     }
+        //     else if (this.metrics.workEnvelope.height === 0) {
+        //         toolGoalPosition.setY(this.metrics.workEnvelope.position.y);
+        //     }
+        //     else {
+        //         toolGoalPosition.setZ(this.metrics.workEnvelope.position.z);
+        //     }
+        // }
         let containResult = this.checkContainsPoint(toolGoalPosition);
         if (!containResult) {
             let e = `Move to ${axesToCoords.x} ${axesToCoords.y} ${axesToCoords.z} is outside work envelope.`;
@@ -2174,6 +2184,7 @@ class StrangeAnimator {
     }
 
     setMoveBlocksOnAxisName(blocks, axisName, displacement) {
+        console.assert(blocks.length > 0);
         let currEndPos;
         blocks.forEach((block) => {
             if (this.blockNameEndPositions[block.name] === undefined) {

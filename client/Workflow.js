@@ -102,9 +102,8 @@ class Workflow {
         // ];
         let statements = [
             '$machine().zero();',
-            '$machine().moveTo(50, 50, 50);',
-            '$machine().moveTo(25, 25, 25);',
-            '$machine().moveTo(0, 0, 0);'
+            '$machine().moveTo(0, 10, 0);',
+            '$machine().moveTo(0, 0, 0);',
         ];
         statements.forEach((stat, idx) => {
             this.addLine(statements[idx]);
