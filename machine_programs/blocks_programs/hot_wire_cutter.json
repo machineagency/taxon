@@ -1,16 +1,16 @@
 {
-    "name": "hot wire cutter",
+    "name": "hot wire cutter (2dof)",
     "metrics": {
         "workEnvelope": {
-            "shape": "box",
+            "shape": "rectangle",
             "dimensions" : {
-                "width": 130,
-                "height": 110,
-                "length": 130
+                "width": 400,
+                "height": 200,
+                "length": 0
             },
             "position": {
                 "x": 0,
-                "y": 102.6,
+                "y": 92.5,
                 "z": 0
             }
         },
@@ -36,14 +36,53 @@
                 "height": 25,
                 "length": 300
             },
-            "attributes": {
-                "driveType": "timingBelt",
-                "stepDisplacementRatio": 0.7
-            },
             "position": {
                 "x": 0,
                 "y": 25,
                 "z": 0
+            },
+            "connections": [
+                {
+                    "child": "verticalWireHolder",
+                    "offset": {
+                        "x": 0,
+                        "y": -112.5,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "verticalWireHolder",
+            "blockType": "redundantLinear",
+            "actuationAxes": [ "y" ],
+            "dimensions": {
+                "width": 25,
+                "height": 200,
+                "length": 300
+            },
+            "connections": [
+                {
+                    "child": "wire",
+                    "offset": {
+                        "x": 0,
+                        "y": 95,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "wire",
+            "blockType": "nonActuating",
+            "isTool": true,
+            "dimensions": {
+                "width": 10,
+                "height": 10,
+                "length": 300
+            },
+            "attributes": {
+                "toolType": "wire"
             }
         }
     ]
