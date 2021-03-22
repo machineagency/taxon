@@ -102,15 +102,30 @@ perhaps at the part level, we would need to indicate sub-bounding boxes of
 either the actual collision-prone subvolumes, or maybe it would be easier
 to just designate the voids.
 
+more things actually: regions (tool parking, smd storage area, pcb area) and
+tool parking logic. in fact, we might want to say that the action language
+as it is presented in the paper is just a start of a much larger enterprise;
+you can imagine a region as a class in the language that had to be added
+because we need to support it with workflows involving a pick and place machine,
+and then later on people can add functionality to the class, add more rots
+about it (i'll add some below) and just add more functionality to the action
+language in general. this is a point that we should be very explicit about in
+the paper.
+
 **rules of thumb**
 
 - certain footprints of pcbs can only be picked up with certain tools
 - work envelope checking with a 2dof tool that can be raised and lowered (this
 includes the axidraw) needs to be handled in a special way (e.g. projecting
 to the planar work envelope).
-- camera routine somehow---the routine seems to just fire at the beginning
+- camera routine somehow—the routine seems to just fire at the beginning
 when the camera checks the pcb for fiducials to localize/zero its subsequent
 movement commands.
 - for all machines, designate sub-bounding boxes of blocks that actually would
 result in collision, versus parts of blocks where material intersecting is not
-a problem. the most common example of this are redundant linear stages
+a problem. the most common example of this are redundant linear stages.
+- tool parking and regions—there are rules around where the tool can move
+when we are in one of these subprocedures
+- the "model" in this case is not a 3d model but instead a bunch of coordinate
+positions of an uploaded pcb design. the creater of the machine indicates that
+this is an common output from kicad/eagle etc.
