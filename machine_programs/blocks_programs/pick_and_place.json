@@ -1,3 +1,40 @@
 {
-    "name": "pcb pick and place"
+    "name": "pcb pick and place",
+    "metrics": {
+        "workEnvelope": {
+            "shape": "box",
+            "dimensions" : {
+                "width": 130,
+                "height": 110,
+                "length": 130
+            },
+            "position": {
+                "x": 0,
+                "y": 102.6,
+                "z": 0
+            }
+        },
+        "manufacturingStrategies": [
+            "nonManufacturing"
+        ],
+        "materialCompatibility": {
+            "include": [
+                "pcb"
+            ],
+            "exclude": [
+                "wood", "metal", "plastic", "clay", "paper"
+            ]
+        },
+        "metafeatures": {
+            "version": 2.0,
+            "machineType": "pickAndPlace",
+            "vendorInfo": {
+                "price": 1799,
+                "website": "https://liteplacer.com/",
+                "numUsers" : 5000
+            }
+        }
+    },
+    "blocks": [
+    ]
 }
