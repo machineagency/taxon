@@ -22,11 +22,26 @@ it doesn't make sense to say that the work envelope is a box in this case.
 but then also, i need to make a vertical 2d work envelope agh.
 
 okay i went ahead and edited work envelope instantiation to account for
-this. now we can have rectangles of all orientations!
+this. now we can have rectangles of all orientations! #equality
 
 **possible rules of thumb**
 
 - the positions of the stages must not move in such a way that causes the
 wire to snap, but i think this is avoided by making it a 2 DOF cutter and
 making it composed of two redundant linear stages.
+
+## wasp clay 3D printer
+
+this is the 2040 model, and they have a data sheet from their website, yay.
+the first thing i notice is that they specify the work envelope (in their
+words, "building volume") with a height and diameter... so looks like it's
+time to support cylindrical work envelopes. i knew doing delta bot kinematics
+was going to be a bit of a challenge, even though we are now working at the
+block level so we're punting a bunch of the actual forward and inverse
+kinematics calculations. however, there several forms of delta bot kinematics,
+even, one with revolute joints and one ... with different ones? i need to look
+into the kind that the wasp printer has a bit more deeply.
+
+i have to implement a new class to handle a non-moving platform. actually no,
+i'll just have current platforms be allowed to be non-actuating.
 
