@@ -1516,6 +1516,41 @@ class RotaryStage {
     // TODO
 }
 
+class DeltaBotStage extends Stage {
+    static caseColor = 0x222222;
+
+    constructor(name, parentMachine, dimensions, attributes = {}) {
+        super(name, parentMachine, dimensions, attributes);
+        this.componentType = 'DeltaBotStage';
+        this.kinematics = 'deltaBot';
+        this.renderDimensions();
+    }
+
+    renderDimensions() {
+        this.removeMeshGroupFromScene();
+        this.caseGeom = BuildEnvironment.geometryFactories
+                                .stageCase(this.dimensions);
+        this.edgesGeom = new THREE.EdgesGeometry(this.caseGeom);
+        this.caseMaterial = new THREE.MeshLambertMaterial({
+            color : DeltaBotStage.caseColor,
+            transparent: true,
+            opacity: 0.05
+        });
+        this.edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x222222
+        });
+        this.caseMesh = new THREE.Mesh(this.caseGeom, this.caseMaterial);
+        this.wireSegments = new THREE.LineSegments(this.edgesGeom,
+                                this.edgesMaterial);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.caseMesh);
+        this.meshGroup.add(this.wireSegments);
+        this.meshGroup.blockName = this.name;
+        this.geometries = [this.caseGeom, this.edgesGeom]
+        this.addMeshGroupToScene();
+    }
+}
+
 class ParallelStage extends Stage {
     static caseColor = 0x222222;
     static validKinematicsNames = [ 'directDrive' ];
@@ -1733,7 +1768,9 @@ class Kinematics {
         // NOTE: we may want to move this to a UI class
         let we = this.strangeScene.metrics.workEnvelope;
         let sizeMultiplier = 1.0;
-        let gridSize = sizeMultiplier * Math.max(we.width, we.height, we.length);
+        let gridSize = sizeMultiplier * Math.max(we.width || 0,
+                                                 we.height || 0,
+                                                 we.length || 0);
         let divisions = Math.floor(gridSize / 10);
         let centerColor = 0xaaaaaa;
         let mainColor = 0xcccccc;
@@ -1971,6 +2008,15 @@ class Kinematics {
                 let displacement = axesToCoords[axis]
                 blockNameToDisplacement[block.name] = displacement;
             }
+            else if (block.kinematics === 'deltaBot') {
+                let axisFirst = block.actuationAxes[0];
+                let axisSecond = block.actuationAxes[1];
+                let axisThird = block.actuationAxes[2];
+                let displacements = [axesToCoords[axisFirst],
+                                     axesToCoords[axisSecond],
+                                     axesToCoords[axisThird]];
+                blockNameToDisplacement[block.name] = displacements;
+            }
         });
         this.actuateAllBlocks(blockNameToDisplacement);
     }
@@ -2025,6 +2071,18 @@ class Kinematics {
             this.strangeAnimator
                 .setMoveBlocksOnAxisName(pathBlocks, block.actuationAxes[1],
                                          sign * displacement[1]);
+        }
+        else if (block.kinematics === 'deltaBot') {
+            console.assert(displacement.length && displacement.length === 3)
+            this.strangeAnimator
+                .setMoveBlocksOnAxisName(pathBlocks, block.actuationAxes[0],
+                                         sign * displacement[0]);
+            this.strangeAnimator
+                .setMoveBlocksOnAxisName(pathBlocks, block.actuationAxes[1],
+                                         sign * displacement[1]);
+            this.strangeAnimator
+                .setMoveBlocksOnAxisName(pathBlocks, block.actuationAxes[2],
+                                         sign * displacement[2]);
         }
         else if (block.kinematics === 'directDrive') {
             let axisName = block.actuationAxes[0];
@@ -2563,8 +2621,12 @@ class Compiler {
             else if (blockData.blockType === 'cross') {
                 CurrentBlockConstructor = CrossStage;
             }
+            else if (blockData.blockType === 'deltaBot') {
+                CurrentBlockConstructor = DeltaBotStage;
+            }
             else {
                 // TODO: make a default or handle binary linear
+                console.warn('Making a linear stage by default');
                 CurrentBlockConstructor = LinearStage
             }
             let block = new CurrentBlockConstructor(blockData.name, machine, {

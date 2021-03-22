@@ -102,7 +102,7 @@ class Workflow {
         // ];
         let statements = [
             '$machine().zero();',
-            '$machine().moveTo(0, 10, 0);',
+            '$machine().moveTo(50, 100, 50);',
             '$machine().moveTo(0, 0, 0);',
         ];
         statements.forEach((stat, idx) => {
