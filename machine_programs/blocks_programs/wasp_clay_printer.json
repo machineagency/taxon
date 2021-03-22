@@ -1,3 +1,101 @@
 {
-    "name": "wasp clay printer"
+    "name": "wasp 2040 clay 3D printer",
+    "metrics": {
+        "workEnvelope": {
+            "shape": "cylinder",
+            "dimensions" : {
+                "radius": 100,
+                "height": 400
+            },
+            "position": {
+                "x": 0,
+                "y": 205,
+                "z": 0
+            }
+        },
+        "manufacturingStrategies": [
+            "additive"
+        ],
+        "materialCompatibility": {
+            "include": [
+                "clay", "gres", "porcelain"
+            ],
+            "exclude": [
+                "wood", "metal", "plastic", "paper"
+            ]
+        },
+        "metafeatures": {
+            "version": 2.0,
+            "machineType": "printer3d",
+            "vendorInfo": {
+                "price": 3000,
+                "website": "https://www.3dwasp.com/en/clay-3d-printer-delta-wasp-2040-clay/",
+                "numUsers" : 1000
+            }
+        }
+    },
+    "blocks": [
+        {
+            "name": "immobileClayBuildPlate",
+            "blockType": "nonActuating",
+            "dimensions": {
+                "width": 300,
+                "height": 25,
+                "length": 300
+            },
+            "attributes": {
+                "isPlatform": true
+            },
+            "position": {
+                "x": 0,
+                "y": 5,
+                "z": 0
+            }
+        },
+        {
+            "name": "railAndBearingVerticalDeltaBotAssembly",
+            "blockType": "deltaBot",
+            "actuationAxes": [ "x", "y", "z" ],
+            "dimensions": {
+                "width": 490,
+                "height": 870,
+                "length": 440
+            },
+            "position": {
+                "x": 0,
+                "y": 435,
+                "z": 0
+            },
+            "attributes": {
+                "driveType": "timingBelt",
+                "stepDisplacementRatio": "0.7"
+            },
+            "connections": [
+                {
+                    "child": "augerAndExtruderAssembly",
+                    "offset": {
+                        "x": 0,
+                        "y": 375,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "augerAndExtruderAssembly",
+            "blockType": "nonActuating",
+            "isTool": true,
+            "dimensions": {
+                "width": 50,
+                "height": 100,
+                "length": 50
+            },
+            "attributes": {
+                "toolType": "print3dClay",
+                "nozzleCount": 1,
+                "minCompressionKPa": 800
+            }
+
+        }
+    ]
 }
