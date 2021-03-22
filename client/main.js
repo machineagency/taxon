@@ -1337,7 +1337,7 @@ class Platform extends Block {
     renderDimensions() {
         this.removeMeshGroupFromScene();
         this.geom = BuildEnvironment.geometryFactories
-                                   .toolAssembly(this.dimensions);
+                                   .stageCase(this.dimensions);
         this.edgesGeom = new THREE.EdgesGeometry(this.geom);
         this.material = new THREE.MeshLambertMaterial({
             color : Platform.caseColor,
@@ -1915,11 +1915,21 @@ class Kinematics {
         let we = this.metrics.workEnvelope;
         let unzeroedPoint = this.unzeroPoint(point);
         let center = we.position;
-        let bbox = new THREE.Box3();
-        let size = new THREE.Vector3(we.width + eps, we.height + eps,
-                                     we.length + eps);
-        bbox.setFromCenterAndSize(center, size);
-        return bbox.containsPoint(unzeroedPoint);
+        if (we.shape === 'cylinder') {
+            let magnitudeNormalized = Math.sqrt(
+                (unzeroedPoint.x - we.position.x) ** 2
+                + (unzeroedPoint.z - we.position.z) ** 2);
+            return unzeroedPoint.y >= we.position.y - we.height / 2
+                && unzeroedPoint.y <= we.position.y + we.height / 2
+                && magnitudeNormalized <= we.radius;
+        }
+        else {
+            let bbox = new THREE.Box3();
+            let size = new THREE.Vector3(we.width + eps, we.height + eps,
+                                         we.length + eps);
+            bbox.setFromCenterAndSize(center, size);
+            return bbox.containsPoint(unzeroedPoint);
+        }
     }
 
     moveTool(axesToCoords) {
