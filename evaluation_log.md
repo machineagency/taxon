@@ -53,3 +53,26 @@ and bounds checking for work envelopes needs to be implemented as a rule
 of thumb anyway. this makes me think, is the rule of thumb for work envelope
 checking "polymorphic" over different types (shapes) of work envelopes?
 
+# liteplacer open source diy smd pick and place machine
+
+wow have i opened a can of worms with this one. first, the specific design
+that i will be using is the liteplacer by juha kuusama, which is an open
+source hardware design that uses another open source software control system
+for pick and place machines called openpnp. the machine itself is way cooler
+and more complicated than i originally suspected when i was browing the internet
+looking for any pick and place machine to add to my slides for my quals talk.
+
+namely, one thing to note is that the tool assembly is pretty complex, and
+supports tool-changing for pick and place tips. when it comes to the sizes
+of things it can pick up, the creater talks about different classes of smd
+parts like 0402, 0603, sot-23, and soic-8. i assume all of these are different
+profiles of smd footprints and of course nadya is going to be mad at me that
+i don't know this sort of thing already and that i am not a #realmaker, but
+alas, i will once again solve this sort of problem by codifying it in the
+action language! let the programmer deal with it, make a rule of thumb based
+on tool selection and different type of smd footprint... ooh, i'm good, i'm
+going to add this below right now.
+
+**rules of thumb**
+
+- certain footprints of pcbs can only be picked up with certain tools
