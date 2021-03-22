@@ -59,6 +59,10 @@ class WorkEnvelope {
         return this.dimensions.length;
     }
 
+    get radius() {
+        return this.dimensions.radius;
+    }
+
     renderDimensions() {
         let geom = this.calcGeometry(this.dimensions);
         let edgesGeom = new THREE.EdgesGeometry(geom);
