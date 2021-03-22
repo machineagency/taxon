@@ -45,3 +45,11 @@ into the kind that the wasp printer has a bit more deeply.
 i have to implement a new class to handle a non-moving platform. actually no,
 i'll just have current platforms be allowed to be non-actuating.
 
+**rules of thumb**
+
+- not super innovative, but the way we do bounds checking for work envelopes
+that are defined cylindrically is different than with cuboid work envelopes,
+and bounds checking for work envelopes needs to be implemented as a rule
+of thumb anyway. this makes me think, is the rule of thumb for work envelope
+checking "polymorphic" over different types (shapes) of work envelopes?
+
