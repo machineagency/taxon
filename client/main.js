@@ -1324,14 +1324,15 @@ class ToolAssembly extends Block {
 
 class Platform extends Block {
     static caseColor = 0x222222;
-    constructor(name, parentMachine, dimensions) {
+    constructor(name, parentMachine, dimensions, attributes) {
         dimensions['height'] = 10;
         super(name, parentMachine, dimensions);
         this.componentType = 'Platform';
         this.baseBlock = true;
         this.endBlock = true;
-        parentMachine.addBlock(this);
+        // parentMachine.addBlock(this);
         this.renderDimensions();
+        this.isImmobile = attributes.isImmobile;
     }
 
     renderDimensions() {
@@ -1799,7 +1800,7 @@ class Kinematics {
         let bottomOfToolPoint = tool.position.clone().add(halfToolHeightVect);
         worldPosition.copy(bottomOfToolPoint);
         let maybePlatform = this.machine.getPlatform();
-        if (maybePlatform !== undefined) {
+        if (maybePlatform !== undefined && !maybePlatform.isImmobile) {
             // TODO: make a Platform method that has user set motionAxis
             let platformMotionAxis = 'x';
             worldPosition.setX(-maybePlatform.position.x);

@@ -44,7 +44,8 @@
                 "length": 300
             },
             "attributes": {
-                "isPlatform": true
+                "isPlatform": true,
+                "isImmobile": true
             },
             "position": {
                 "x": 0,
