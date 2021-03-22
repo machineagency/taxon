@@ -90,6 +90,18 @@ off height-wise. pragmatically, for now, we just project the y-coordinate
 onto the plane and just check the x and z bounds, but it'd be nice to formalize
 this in some way.
 
+the x-/base gantry has two rails with timing belts (one for each side) but only
+one motor to control it, where the motor's motion is carried to the other
+side with an axle. i've never seen any construction like this and this kind
+of challenges the definition of linear versus redundant linear block—technically
+it would be a linear block... that's super wide. this also makes me think for
+when we do collision checks—and this is for any machine, including the axidraw
+and the wasp printer-any material often gets put within the volume of a block,
+but this should not result in a collision because it's empty space. i think
+perhaps at the part level, we would need to indicate sub-bounding boxes of
+either the actual collision-prone subvolumes, or maybe it would be easier
+to just designate the voids.
+
 **rules of thumb**
 
 - certain footprints of pcbs can only be picked up with certain tools
@@ -99,3 +111,6 @@ to the planar work envelope).
 - camera routine somehow---the routine seems to just fire at the beginning
 when the camera checks the pcb for fiducials to localize/zero its subsequent
 movement commands.
+- for all machines, designate sub-bounding boxes of blocks that actually would
+result in collision, versus parts of blocks where material intersecting is not
+a problem. the most common example of this are redundant linear stages
