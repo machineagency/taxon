@@ -1152,6 +1152,8 @@ class BuildEnvironment extends StrangeComponent {
         this.geometries = [geom];
         this.rotateToXYPlane();
         this.addMeshGroupToScene();
+        const beHeight = 25;
+        this.meshGroup.position.setY(-1 * beHeight / 2);
     }
 }
 
