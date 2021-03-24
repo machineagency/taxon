@@ -2596,9 +2596,18 @@ class Compiler {
         machine.machineType = progObj.machineType;
         machine.price = progObj.price;
         const defaultBEdimension = 500;
+        let beWidth, beLength;
+        if (progObj.metrics.footprint) {
+            beWidth = progObj.metrics.footprint.width;
+            beLength = progObj.metrics.footprint.length;
+        }
+        else {
+            beWidth = defaultBEdimension;
+            beLength = defaultBEdimension;
+        }
         let be = new BuildEnvironment(machine, {
-            width: defaultBEdimension,
-            length: defaultBEdimension
+            width: beWidth,
+            length: beLength
         });
         progObj.blocks.forEach((blockData) => {
             let CurrentBlockConstructor;
