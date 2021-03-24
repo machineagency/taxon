@@ -1,7 +1,18 @@
 # evaluation log
 
 the purpose of this log is to do a microautoethnography of my efforts to
-implement the six test machines.
+implement the six test machines. innovations in the table below denote
+additions to either actions or rules of thumb, or even to the core language,
+that i add to taxon to support a workflow with this machine.
+
+| Machine | Domain | Innovations |
+| ---     | ---    | ---         |
+| **hwc** | practice | rotary blocks, work envelope orientation, collision voids |
+| **wasp** | practice | delta bot block, cylindrical work envelope |
+| **pnp** | practice | tool changing, envelope regions, explicit footprint, (camera) |
+| **peng** | research | tbd |
+| **tian** | research | tbd |
+| **jubilee** | research | tbd |
 
 ## hot wire cutter
 
@@ -23,6 +34,8 @@ but then also, i need to make a vertical 2d work envelope agh.
 
 okay i went ahead and edited work envelope instantiation to account for
 this. now we can have rectangles of all orientations! #equality
+
+i think i need to come back to this and add a rotary stage.
 
 **possible rules of thumb**
 
@@ -112,12 +125,28 @@ about it (i'll add some below) and just add more functionality to the action
 language in general. this is a point that we should be very explicit about in
 the paper.
 
+instagram update: the size of this machine is way huger than the build volume;
+i think i should take nadya's advice of including the machine footprint in the
+metrics and then making the build environment match such a footprint if it
+exists.
+
+instagram update ii: this thing needs a rotary block. i said it, it's gotta
+happen, which means we're gonna have a rotary block earlier for the hot
+wire cutter as well. this is because we need the needle to rotate to align
+the pcbs.
+
 **rules of thumb**
 
 - certain footprints of pcbs can only be picked up with certain tools
 - work envelope checking with a 2dof tool that can be raised and lowered (this
 includes the axidraw) needs to be handled in a special way (e.g. projecting
-to the planar work envelope).
+to the planar work envelope). update: i thought about this longer and i think
+the answer to this is to say that 2d work envelopes only check for bounds in
+their two dimensions, while not checking the third dimensions. that means that
+2d work envelopes ("shape" : "rectangle") are more permissive than 3d/box
+work envelopes. in the case of both the axidraw and the pnp machine, but
+especially the later, it is the case that the tool can actually move in 3d,
+but we only define bounds checking for two.
 - camera routine somehow—the routine seems to just fire at the beginning
 when the camera checks the pcb for fiducials to localize/zero its subsequent
 movement commands.
@@ -129,3 +158,5 @@ when we are in one of these subprocedures
 - the "model" in this case is not a 3d model but instead a bunch of coordinate
 positions of an uploaded pcb design. the creater of the machine indicates that
 this is an common output from kicad/eagle etc.
+- there is a metric called footprint (unrelated to pcb footprints) that's optional,
+but if it's defined, it cannot be smaller than the bounding box of the entire machine
