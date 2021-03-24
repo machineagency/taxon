@@ -160,3 +160,10 @@ positions of an uploaded pcb design. the creater of the machine indicates that
 this is an common output from kicad/eagle etc.
 - there is a metric called footprint (unrelated to pcb footprints) that's optional,
 but if it's defined, it cannot be smaller than the bounding box of the entire machine
+
+## em printer
+
+i am looking up the details to the printer that they used and they hacked an
+existing delta bot printer by adding two rotary axes to it in a really complex
+way... this is not even considering the complexity of the tool head. i am
+scared to try to implement this.
