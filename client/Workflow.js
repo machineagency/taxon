@@ -1,6 +1,7 @@
 'use strict';
 
 import { Slicer } from './Slicer.js';
+import { Material } from './Material.js';
 
 class Workflow {
 
@@ -100,10 +101,13 @@ class Workflow {
         //     'sliceModel();',
         //     'run();'
         // ];
+        // let statements = [
+        //     '$machine().zero();',
+        //     '$machine().moveTo(50, 100, 50);',
+        //     '$machine().moveTo(0, 0, 0);',
+        // ];
         let statements = [
-            '$machine().zero();',
-            '$machine().moveTo(50, 100, 50);',
-            '$machine().moveTo(0, 0, 0);',
+            '$material(\'wood\').size(50, 25, 50).placeAt(0, 0, 0);',
         ];
         statements.forEach((stat, idx) => {
             this.addLine(statements[idx]);
@@ -292,8 +296,16 @@ class Workflow {
     }
 
     generateMaterialSelector() {
+        const attributeDict = {
+            'wood' : {
+                'materialClass': 'subtractive'
+            }
+        };
         return (materialName) => {
-            // If materialName is undefined, help me pick one
+            // TODO: If materialName is undefined, help me pick one
+            // dims come from size method
+            let material = new Material(materialName, scene, attributes,
+                dimensions);
         };
     }
 
