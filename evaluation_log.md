@@ -5,14 +5,14 @@ implement the six test machines. innovations in the table below denote
 additions to either actions or rules of thumb, or even to the core language,
 that i add to taxon to support a workflow with this machine.
 
-| Machine | Domain | Innovations |
-| ---     | ---    | ---         |
-| **basic 3d printers**| practice | comparing work envelopes, drive mechanism types
-| **hot wire cutter** | practice | rotary blocks, work envelope orientation, collision voids |
-| **wasp clay printer** | practice | delta bot block, cylindrical work envelope |
-| **pick and place** | practice | tool changing, envelope regions, explicit footprint, (camera) |
-| **patching** | research | multitool, rotary again, regions again |
-| **x print** | research | tbd |
+| Machine | Domain | Difficulty | Innovations |
+| ---     | ---    | ---- | ---         |
+| **basic 3d printers**| practice | easy | comparing work envelopes, drive mechanism types
+| **hot wire cutter** | practice | easy | rotary blocks, work envelope orientation, collision voids |
+| **wasp clay printer** | practice | easy | delta bot block, cylindrical work envelope |
+| **pick and place** | practice | hard | tool changing, envelope regions, explicit footprint, (camera) |
+| **patching** | research | hard | multitool, rotary again, regions again |
+| **x print** | research | medium | tbd |
 
 ## hot wire cutter
 
