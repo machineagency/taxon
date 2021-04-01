@@ -107,7 +107,7 @@ class Workflow {
         //     '$machine().moveTo(0, 0, 0);',
         // ];
         let statements = [
-            '$material(\'wood\').size(50, 25, 50).placeAt(0, 0, 0);',
+            '$material(\'wood\').makeBox(100, 50, 100);',
         ];
         statements.forEach((stat, idx) => {
             this.addLine(statements[idx]);
@@ -301,11 +301,15 @@ class Workflow {
                 'materialClass': 'subtractive'
             }
         };
+        const defaultAttributes = {
+            'materialClass': 'nonManufacturing'
+        }
         return (materialName) => {
-            // TODO: If materialName is undefined, help me pick one
-            // dims come from size method
-            let material = new Material(materialName, scene, attributes,
-                dimensions);
+            let scene = this.kinematics.strangeScene;
+            let attributes = attributeDict[materialName] || defaultAttributes;
+            // Note: we do not create a mesh right away because the
+            // user must call .makeBox which provides dimensions
+            return new Material(materialName, scene, attributes);
         };
     }
 
