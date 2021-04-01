@@ -28,6 +28,43 @@
     },
     "blocks": [
         {
+            "name": "rotatingStage",
+            "blockType": "rotary",
+            "actuationAxes": [ "beta" ],
+            "dimensions": {
+                "width": 150,
+                "height": 50,
+                "length": 150
+            },
+            "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "connections": [
+                {
+                    "child": "workpiecePlatform",
+                    "offset": {
+                        "x": 0,
+                        "y": -30,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "workpiecePlatform",
+            "blockType": "nonActuating",
+            "attributes": {
+                "isPlatform": true
+            },
+            "dimensions": {
+                "width": 150,
+                "height": 10,
+                "length": 150
+            }
+        },
+        {
             "name": "doubleLeadscrewPlatform",
             "blockType": "redundantLinear",
             "actuationAxes": [ "x" ],
@@ -38,7 +75,7 @@
             },
             "position": {
                 "x": 0,
-                "y": 25,
+                "y": 0,
                 "z": 0
             },
             "connections": [
