@@ -88,7 +88,7 @@ class Material {
         let wires = new THREE.LineSegments(edgesGeom, edgesMaterial);
         this.meshGroup.add(mesh);
         this.meshGroup.add(wires);
-        this.meshGroup.position.setY(25);
+        this.meshGroup.position.setY(this.height / 2);
     }
 }
 

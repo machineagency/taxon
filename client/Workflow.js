@@ -107,7 +107,7 @@ class Workflow {
         //     '$machine().moveTo(0, 0, 0);',
         // ];
         let statements = [
-            '$material(\'wood\').makeBox(100, 50, 100);',
+            '$material(\'foam\').makeBox(100, 100, 100);',
         ];
         statements.forEach((stat, idx) => {
             this.addLine(statements[idx]);
@@ -299,7 +299,10 @@ class Workflow {
         const attributeDict = {
             'wood' : {
                 'materialClass': 'subtractive'
-            }
+            },
+            'foam' : {
+                'materialClass': 'subtractive'
+            },
         };
         const defaultAttributes = {
             'materialClass': 'nonManufacturing'
