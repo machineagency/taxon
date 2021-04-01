@@ -13,16 +13,22 @@ class Material {
      * of material, so dimensions contains a start and end point. For "subtractive,"
      * the dimensions are of the material's bounding box.
      */
-    constructor(name, parentScene, attributes, dimensions) {
+    constructor(name, parentScene, attributes) {
         console.assert(attributes.materialClass === 'additive'
             || attributes.materialClass === 'subtractive',
             'Must specify material class: additive or subtractive');
         this.parentScene = parentScene;
         this.meshGroup = new THREE.Group();
-        this.meshGroup.type = 'material';
         this.attributes = attributes;
-        this.dimensions = dimensions;
         parentScene.addSceneObjectDirectly(this.meshGroup);
+        this.meshGroup.name = 'material';
+    }
+
+    makeBox(width, height, length) {
+        this.dimensions = {
+            width, height, length
+        };
+        this.render();
     }
 
     get width() {
@@ -47,9 +53,9 @@ class Material {
     }
 
     derender() {
-        this.parentScene.remove(this.meshGroup);
+        this.parentScene.scene.remove(this.meshGroup);
         this.meshGroup = new THREE.Group();
-        this.meshGroup.type = 'material';
+        this.meshGroup.name = 'material';
     }
 
     render() {
@@ -66,19 +72,23 @@ class Material {
     }
 
     __renderSubtractive() {
-        this.derender();
+        // this.derender();
         let geom = new THREE.BoxBufferGeometry(this.width, this.height,
             this.length, 2, 2, 2)
+        let edgesGeom = new THREE.EdgesGeometry(geom);
         let material = new THREE.MeshLambertMaterial({
             color : Material.subtractiveColor,
             transparent: true,
             opacity: 0.5
         });
-        this.mesh = new THREE.Mesh(geom, material);
-        this.meshGroup.add(this.mesh);
-        this.geometries = [geom];
-        this.rotateToXYPlane();
-        this.addMeshGroupToScene();
+        let edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x222222
+        });
+        let mesh = new THREE.Mesh(geom, material);
+        let wires = new THREE.LineSegments(edgesGeom, edgesMaterial);
+        this.meshGroup.add(mesh);
+        this.meshGroup.add(wires);
+        this.meshGroup.position.setY(25);
     }
 }
 
