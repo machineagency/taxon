@@ -246,7 +246,7 @@ input[type="checkbox"] {
 }
 
 .gc-container {
-    height: 200px;
+    height: 500px;
 }
 
 .hidden {
@@ -258,7 +258,7 @@ input[type="checkbox"] {
 }
 
 #machine-list-container {
-    height: 100px;
+    height: 200px;
     overflow: scroll;
 }
 
