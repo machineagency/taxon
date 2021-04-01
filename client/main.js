@@ -1165,6 +1165,43 @@ class Block extends StrangeComponent {
         this.parentMachine.kinematics.addBlockAsRootNode(this);
     }
 
+    setVoid(voidDims) {
+        const offsetEps = 0.5;
+        this.void = voidDims;
+        let offsetDims = {
+            width: voidDims.width + offsetEps,
+            height: voidDims.height + offsetEps,
+            length: voidDims.length + offsetEps
+        };
+        let geom = StrangeComponent.geometryFactories
+                                .stageCase(offsetDims);
+        let meshMaterial = new THREE.MeshLambertMaterial({
+            color : 0xffed90,
+            transparent: true,
+            opacity: 0.10
+        });
+        let mesh = new THREE.Mesh(geom, meshMaterial);
+        let edgesGeom = new THREE.EdgesGeometry(geom);
+        let edgesMaterial = new THREE.LineDashedMaterial({
+            color: 0x222222,
+            linewidth: 1,
+            scale: 1,
+            dashSize: 3,
+            gapSize: 3
+        });
+        let wireSegments = new THREE.LineSegments(edgesGeom,
+                                edgesMaterial);
+        wireSegments.computeLineDistances();
+        // FIXME: non y aligned blocks have voids rotated for some
+        // reason
+        if (this.actuationAxes && this.actuationAxes[0] !== 'y') {
+          mesh.rotateY(Math.PI / 2);
+          wireSegments.rotateY(Math.PI / 2);
+        }
+        this.meshGroup.add(mesh);
+        this.meshGroup.add(wireSegments);
+    }
+
     get descendents() {
         // Convention: we are actually getting all ancestors
         let dfs = (kNode, listSoFar) => {
@@ -2656,6 +2693,9 @@ class Compiler {
             if (block instanceof Stage) {
                 block.setActuationAxes(blockData.actuationAxes);
                 block.invertDisplacement = !!blockData.invertDisplacement;
+            }
+            if (blockData.void !== undefined) {
+                block.setVoid(blockData.void);
             }
         });
         // Set connections after blocks are rendered
