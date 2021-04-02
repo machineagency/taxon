@@ -200,7 +200,7 @@ input[type="checkbox"] {
 }
 
 #workflow-container {
-    height: 100px;
+    height: 200px;
     padding-top: 10px;
     padding-left: 20px;
     border: 1px dashed #ffffff;

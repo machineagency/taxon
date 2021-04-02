@@ -341,7 +341,7 @@ class InstructionQueue {
             let zeroGrid = this.kinematics.zeroGrid;
             this.kinematics.strangeScene.removeFromScene(zeroGrid);
             jobFile.removeDomHighlight();
-            window.strangeScene.removeMaterialMarks();
+            // window.strangeScene.removeMaterialMarks();
             return;
         }
         if (this.motorsBusy) {
@@ -1934,6 +1934,24 @@ class StrangeAnimator {
         // Note that mixers must stay in StrangeScene for rendering
     }
 
+    isAnimatingAPlatform() {
+        let maybePlatform = this.strangeScene.machine.getPlatform();
+        return maybePlatform && !maybePlatform.isImmobile;
+    }
+
+    calcPlatformTranslation() {
+        let platform = this.strangeScene.machine.getPlatform();
+        let currPos = platform.position;
+        let endPos = this.blockNameEndPositions[platform.name];
+        return endPos.clone().sub(currPos);
+    }
+
+    calcPlatformPos() {
+        let platform = this.strangeScene.machine.getPlatform();
+        let currPos = platform.position.clone().setY(0);
+        return currPos;
+    }
+
     animateToBlockEndPositions() {
         let actions = Object.keys(this.blockNameEndPositions).map((blockName) => {
             let block = this.strangeScene.machine.findBlockWithName(blockName);
@@ -1946,8 +1964,20 @@ class StrangeAnimator {
             action.loop = THREE.LoopOnce;
             action.clampWhenFinished = true;
             // TODO: better design for turning this on and off
-            if (false && block.componentType === 'Tool') {
-                let materialMCPair = this.makeMaterialMixerClipMair(block, endPos);
+            if (block.componentType === 'Tool') {
+                let materialStartPos, materialEndPos;
+                if (this.isAnimatingAPlatform()) {
+                    let platformT = this.calcPlatformTranslation();
+                    let platformPos = this.calcPlatformPos();
+                    materialStartPos = block.position.clone().sub(platformT);
+                    materialEndPos = endPos.clone().sub(platformT);
+                }
+                else {
+                    materialStartPos = block.position.clone();
+                    materialEndPos = endPos.clone();
+                }
+                let materialMCPair = this.makeMaterialMixerClipMair(
+                    block, materialStartPos, materialEndPos);
                 let mixer = materialMCPair[0];
                 let clip = materialMCPair[1];
                 this.strangeScene.mixers.push(mixer);
@@ -1956,9 +1986,21 @@ class StrangeAnimator {
                 materialAction.clampWhenFinished = true;
                 return [action, materialAction];
             }
-            else if (block.componentType === 'Platform') {
-                // TODO: compute offset and make another tube
-                return action;
+            if (block.componentType === 'Platform' && !block.isImmobile) {
+                // TODO: translate all material marks here in addition to the
+                // platform movement action
+                let matGroup = this.strangeScene.materialMarks;
+                let platformT = this.calcPlatformTranslation();
+                let endPos = matGroup.position.clone().add(platformT);
+                let mixerClipPair = this.makeMoveMixerClipPair(matGroup, endPos);
+                let mixer = mixerClipPair[0];
+                this.strangeScene.mixers.push(mixer);
+                let clip = mixerClipPair[1];
+                let matMoveAction = mixer.clipAction(clip);
+                matMoveAction.loop = THREE.LoopOnce;
+                matMoveAction.clampWhenFinished = true;
+                return [action, matMoveAction];
+                // return action;
             }
             else {
                 return action;
@@ -2011,8 +2053,8 @@ class StrangeAnimator {
         return [mixer, clip];
     };
 
-    makeMaterialMixerClipMair(obj, newPos) {
-        const numTubeSegs = obj.position.distanceTo(newPos);
+    makeMaterialMixerClipMair(obj, startPos, newPos) {
+        const numTubeSegs = Math.floor(obj.position.distanceTo(newPos));
         const radius = 1;
         const radialSegs = 4;
         const isClosed = false;
@@ -2021,9 +2063,11 @@ class StrangeAnimator {
         let heightOffset = new THREE.Vector3(0, obj.height / 2, 0);
         let points = [
             obj.position.clone().sub(heightOffset),
+            // startPos,
             newPos.clone().sub(heightOffset)
         ];
         let path = new THREE.CatmullRomCurve3(points);
+        console.log(path.points);
         let geom = new THREE.TubeBufferGeometry(path, numTubeSegs, radius,
                         radialSegs, isClosed);
         geom.setDrawRange(0, 0);
