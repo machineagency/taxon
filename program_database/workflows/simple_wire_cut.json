@@ -1,0 +1,8 @@
+{
+    "name": "simpleWireCut",
+    "actions": [
+        "$material('foam').makeBox(100, 100, 100);",
+        "$machine().zero();",
+        "$machine().moveTo(-300, 25, 0);"
+    ]
+}
