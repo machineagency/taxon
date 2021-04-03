@@ -15,7 +15,7 @@ let port = process.env.PORT || 3000; // set our port
 app.use(bodyParser.json()); // for parsing application/json
 app.use(express.static(__dirname + '/client')); // set the static files location /public/img will be /img for users
 const DO_SEED_DATABASE = true;
-const MACHINE_DIR = './machine_programs/';
+const MACHINE_DIR = './program_database/';
 
 // connect to db ===========================================
 console.log('Looking for MongoDB instance...');
@@ -238,6 +238,23 @@ let attachRoutesWithDBAndStart = (db) => {
         });
     });
 
+    app.get('/workflows', (req, res) => {
+        const filter = req.query.id ? { '_id': ObjectID(req.query.id) } : {};
+        db.collection('workflows').find(filter)
+        .sort({ name: 1 })
+        .toArray()
+        .then((results) => {
+            let statusCode = results.length === 0 ? 404 : 200;
+            res.status(statusCode).json({
+                results: results
+            });
+        })
+        .catch((error) => {
+            res.status(500).json({
+                message: error
+            })
+        });
+    });
     app.get('/heuristicNames', (req, res) => {
         res.status(200).json({
             heuristicNames: Constants.heuristicNames
@@ -412,11 +429,11 @@ let makeFilterFromQuery = (queryObj) => {
 };
 
 let seedDatabase = (db) => {
-    const blocksProgramsDir = MACHINE_DIR + '/blocks_programs/';
-    const partsProgramsDir = MACHINE_DIR + '/parts_programs/';
+    const plansDir = MACHINE_DIR + 'machine_plans/';
+    const workflowsDir = MACHINE_DIR + 'workflows/';
     db.dropDatabase()
     .then((_) => {
-        fs.readdir(blocksProgramsDir, (err, files) => {
+        fs.readdir(plansDir, (err, files) => {
             if (err) {
                 throw err;
             }
@@ -424,12 +441,12 @@ let seedDatabase = (db) => {
                 if (filename[0] === '.') {
                     return;
                 }
-                let fullFilename = blocksProgramsDir + filename;
+                let fullFilename = plansDir + filename;
                 fs.readFile(fullFilename, (err, data) => {
                     if (err) {
                         throw err;
                     }
-                    console.log(`Loading blocks program: ${filename}.`);
+                    console.log(`Loading machine plan: ${filename}.`);
                     let machineObj = JSON.parse(data);
                     db.collection('machines').insertOne(machineObj);
                 });
@@ -437,7 +454,7 @@ let seedDatabase = (db) => {
         });
     })
     .then((_) => {
-        fs.readdir(partsProgramsDir, (err, files) => {
+        fs.readdir(workflowsDir, (err, files) => {
             if (err) {
                 throw err;
             }
@@ -445,14 +462,14 @@ let seedDatabase = (db) => {
                 if (filename[0] === '.') {
                     return;
                 }
-                let fullFilename = partsProgramsDir + filename;
+                let fullFilename = workflowsDir + filename;
                 fs.readFile(fullFilename, (err, data) => {
                     if (err) {
                         throw err;
                     }
-                    console.log(`Loading parts program: ${filename}.`);
-                    let partsObj = JSON.parse(data);
-                    db.collection('partsPrograms').insertOne(partsObj);
+                    console.log(`Loading workflow: ${filename}.`);
+                    let workflowObj = JSON.parse(data);
+                    db.collection('workflows').insertOne(workflowObj);
                 });
             });
         });
