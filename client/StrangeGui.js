@@ -653,12 +653,6 @@ class StrangeGui {
             this.__inflateSceneFromGCText(true);
             this.strangeScene.positionModelOnWorkEnvelope();
 
-            // I am sorry
-            let metrics = JSON.parse(newText).metrics;
-            let metricsText = JSON.stringify(metrics, undefined, 2);
-            let metricsCompiler = new MetricsCompiler();
-            let metricsObj = metricsCompiler.compile(metricsText);
-
             if (window.strangeScene.previewMachine !== undefined) {
                 oldHighlightedPreviewListItemDom.classList
                     .remove(highlightPreviewClassName);
@@ -672,31 +666,9 @@ class StrangeGui {
         }
     }
 
-    __modifyGUIForMetricsListClick(event, newText, listItemDom) {
-        // Gather DOM elements for click logic
-        let highlightPreviewClassName = 'preview-machine-highlight';
-        let highlightClassName = 'current-machine-highlight';
-        let oldHighlightedPreviewListItemDom = document
-            .getElementsByClassName(highlightPreviewClassName)[0];
-        let gcDom = document.getElementById('gc-container-1');
-        let oldHighlightedListItemDom = document
-            .getElementsByClassName(highlightClassName)[0];
-
-        // UI edits
-        if (oldHighlightedListItemDom !== undefined) {
-            oldHighlightedListItemDom.classList.remove(highlightClassName);
-        }
-        listItemDom.classList.add(highlightClassName);
-        gcDom.setAttribute('contenteditable', false);
-        gcDom.classList.remove('red-border');
-
-        // Load text and inflate parts
-        this.loadTextIntoDomForResource(newText, 'metricsPrograms');
-        let metricsCompiler = new MetricsCompiler();
-        let metricsObj = metricsCompiler.compile(newText);
-        // this.__inflateSceneFromGCText(true);
-        // this.strangeScene.positionModelOnWorkEnvelope();
-
+    __modifyGUIForWorkflowListClick(event, newText, listItemDom) {
+        // Load text
+        this.loadTextIntoDomForResource(newText, 'workflows');
     }
 
     __modifyGUIForPartsListClick(event, newText, listItemDom) {

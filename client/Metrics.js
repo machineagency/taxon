@@ -126,8 +126,7 @@ class MetricsCompiler {
     compile(prog) {
         let mObj = JSON.parse(prog);
         let metrics = new Metrics(window.strangeScene, mObj);
-        window.strangeScene.metrics = metrics;
-        return prog;
+        return metrics;
     }
 }
 

@@ -9,6 +9,7 @@ import { LineGeometry } from './build/lines/LineGeometry.js';
 import { LineMaterial } from './build/lines/LineMaterial.js';
 
 import { StrangeGui } from './StrangeGui.js';
+import { MetricsCompiler } from './Metrics.js';
 import { PartsCompiler } from './Parts.js';
 import { TestPrograms } from './TestPrograms.js';
 
@@ -1964,7 +1965,7 @@ class StrangeAnimator {
             action.loop = THREE.LoopOnce;
             action.clampWhenFinished = true;
             // TODO: better design for turning this on and off
-            if (block.componentType === 'Tool' && block.attributes.toolType.print3d) {
+            if (block.componentType === 'Tool' && block.attributes.toolType === 'print3d') {
                 let materialStartPos, materialEndPos;
                 if (this.isAnimatingAPlatform()) {
                     let platformT = this.calcPlatformTranslation();
@@ -1986,7 +1987,7 @@ class StrangeAnimator {
                 materialAction.clampWhenFinished = true;
                 return [action, materialAction];
             }
-            if (block.componentType === 'Tool' && block.attributes.toolType.wire) {
+            if (block.componentType === 'Tool' && block.attributes.toolType === 'wire') {
                 let materialStartPos = block.position.clone();
                 let materialEndPos = endPos.clone();
                 let materialMCPair = this.makeCutPlaneMixerClipPair(
@@ -2492,24 +2493,10 @@ class Compiler {
                 });
             }
         });
-        // Once we have Blocks and Motors instantiated, set their pointers:
-        // Paired motors, driven stages, driving motors
-        // progObj.mechanisms.forEach((mechanismData) => {
-        //     let mechanism = machine.findBlockWithName(mechanismData.name)
-        //     if (mechanism instanceof Stage) {
-        //         mechanism.drivingMotors = mechanismData.drivingMotors
-        //                                 .map((motorName) => {
-        //             return machine.findBlockWithName(motorName);
-        //         });
-        //     }
-        // });
-        // progObj.motors.forEach((motorData) => {
-        //     let motor = machine.findBlockWithName(motorData.name)
-        //     motor.drivenStages = machine.mechanisms.filter((mechanism) => {
-        //         return mechanism.drivingMotors !== undefined
-        //                 && mechanism.drivingMotors.includes(motorData.name);
-        //     });
-        // });
+
+        let metricsProg = JSON.stringify(progObj.metrics, undefined, 2);
+        let metricsCompiler = new MetricsCompiler();
+        window.strangeScene.metrics = metricsCompiler.compile(metricsProg);
 
         return machine;
     }
