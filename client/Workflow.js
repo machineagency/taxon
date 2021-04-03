@@ -102,18 +102,23 @@ class Workflow {
         //     'sliceModel();',
         //     'run();'
         // ];
-        let statements = [
-            '$machine().zero();',
-            '$machine().moveTo(25, 0, 25);',
-            '$machine().moveTo(0, 0, 50);',
-            '$machine().moveTo(25, 0, -25);',
-            '$machine().moveTo(0, 0, 0);'
-        ];
         // let statements = [
-        //     '$material(\'foam\').makeBox(100, 100, 100);',
         //     '$machine().zero();',
-        //     '$machine().moveTo(-300, 25, 0);'
+        //     '$machine().moveTo(0, 0, 50);',
+        //     '$machine().moveTo(50, 0, 50);',
+        //     '$machine().moveTo(50, 0, 0);',
+        //     '$machine().moveTo(0, 0, 0);',
+        //     '$machine().moveTo(0, 2, 0);',
+        //     '$machine().moveTo(0, 2, 50);',
+        //     '$machine().moveTo(50, 2, 50);',
+        //     '$machine().moveTo(50, 2, 0);',
+        //     '$machine().moveTo(0, 2, 0);',
         // ];
+        let statements = [
+            '$material(\'foam\').makeBox(100, 100, 100);',
+            '$machine().zero();',
+            '$machine().moveTo(-300, 25, 0);'
+        ];
         statements.forEach((stat, idx) => {
             this.addLine(statements[idx]);
         });

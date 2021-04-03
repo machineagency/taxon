@@ -1964,7 +1964,7 @@ class StrangeAnimator {
             action.loop = THREE.LoopOnce;
             action.clampWhenFinished = true;
             // TODO: better design for turning this on and off
-            if (block.componentType === 'Tool') {
+            if (block.componentType === 'Tool' && block.attributes.toolType.print3d) {
                 let materialStartPos, materialEndPos;
                 if (this.isAnimatingAPlatform()) {
                     let platformT = this.calcPlatformTranslation();
@@ -1977,6 +1977,19 @@ class StrangeAnimator {
                     materialEndPos = endPos.clone();
                 }
                 let materialMCPair = this.makeMaterialMixerClipMair(
+                    block, materialStartPos, materialEndPos);
+                let mixer = materialMCPair[0];
+                let clip = materialMCPair[1];
+                this.strangeScene.mixers.push(mixer);
+                let materialAction = mixer.clipAction(clip)
+                materialAction.loop = THREE.LoopOnce;
+                materialAction.clampWhenFinished = true;
+                return [action, materialAction];
+            }
+            if (block.componentType === 'Tool' && block.attributes.toolType.wire) {
+                let materialStartPos = block.position.clone();
+                let materialEndPos = endPos.clone();
+                let materialMCPair = this.makeCutPlaneMixerClipPair(
                     block, materialStartPos, materialEndPos);
                 let mixer = materialMCPair[0];
                 let clip = materialMCPair[1];
@@ -2067,7 +2080,56 @@ class StrangeAnimator {
             newPos.clone().sub(heightOffset)
         ];
         let path = new THREE.CatmullRomCurve3(points);
-        console.log(path.points);
+        let geom = new THREE.TubeBufferGeometry(path, numTubeSegs, radius,
+                        radialSegs, isClosed);
+        geom.setDrawRange(0, 0);
+        let mat = new THREE.MeshLambertMaterial({
+            color: Tool.color
+        });
+        let mesh = new THREE.Mesh(geom, mat);
+        this.strangeScene.materialMarks.add(mesh);
+
+        // Set up animation
+        const nMax = 3 * radialSegs * numTubeSegs * 2;
+        let mixer = new THREE.AnimationMixer(mesh);
+        mixer.addEventListener('finished', (event) => {
+            mixer.stopAllAction();
+            let idx = this.strangeScene.mixers.indexOf(mixer);
+            if (idx !== -1) {
+                this.strangeScene.mixers.splice(idx, 1);
+            }
+            geom.setDrawRange(0, nMax);
+            if (this.strangeScene.mixers.length === 0) {
+                this.strangeScene.instructionQueue.unsetMotorsBusy();
+                this.strangeScene.instructionQueue.executeNextInstruction();
+            }
+        });
+        let positionKF = new THREE.NumberKeyframeTrack('.geometry[drawRange].count',
+                            [0, this.ANIM_SECONDS],
+                            [0, nMax],
+                            THREE.InterpolateSmooth);
+        let clip = new THREE.AnimationClip('Action',
+                        this.ANIM_SECONDS, [ positionKF ]);
+        return [mixer, clip];
+    }
+
+    makeCutPlaneMixerClipPair(obj, startPos, newPos) {
+        // TODO: make a cut plane, project on material bdding box or better yet
+        // be really clever with calculating and setting draw range w
+        // plane geometry
+        const numTubeSegs = Math.floor(obj.position.distanceTo(newPos));
+        const radius = 1;
+        const radialSegs = 4;
+        const isClosed = false;
+
+        // Make material mesh
+        let heightOffset = new THREE.Vector3(0, obj.height / 2, 0);
+        let points = [
+            obj.position.clone().sub(heightOffset),
+            // startPos,
+            newPos.clone().sub(heightOffset)
+        ];
+        let path = new THREE.CatmullRomCurve3(points);
         let geom = new THREE.TubeBufferGeometry(path, numTubeSegs, radius,
                         radialSegs, isClosed);
         geom.setDrawRange(0, 0);

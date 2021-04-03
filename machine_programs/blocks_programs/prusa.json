@@ -144,7 +144,7 @@
                 "length": 25
             },
             "attributes": {
-                "toolType": "print3dFDM",
+                "toolType": "print3d",
                 "nozzleCount": 1
             }
         }

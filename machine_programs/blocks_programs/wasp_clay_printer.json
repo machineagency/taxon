@@ -92,7 +92,7 @@
                 "length": 50
             },
             "attributes": {
-                "toolType": "print3dClay",
+                "toolType": "print3d",
                 "nozzleCount": 1,
                 "minCompressionKPa": 800
             }
