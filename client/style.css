@@ -199,6 +199,11 @@ input[type="checkbox"] {
     border: 1px dashed #ffffff;
 }
 
+#workflow-list-container {
+    height: 100px;
+    margin-bottom: 10px;
+}
+
 #workflow-container {
     height: 200px;
     padding-top: 10px;
