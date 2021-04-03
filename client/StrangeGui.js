@@ -32,6 +32,8 @@ class StrangeGui {
         this.metricsProgramDom = document.getElementById('metrics-container');
         this.partsProgramListDom = document.getElementById('parts-list');
         this.partsProgramDom = document.getElementById('parts-container');
+        this.workflowListDom = document.getElementById('workflow-list');
+        this.workflowDom = document.getElementById('workflow-container');
         this.consoleDom = document.getElementById('workflow-console');
         this.filterDom.addEventListener('keydown', (event) => {
             if (event.keyCode === 13) {
@@ -79,8 +81,9 @@ class StrangeGui {
         });
         this.workflow = new Workflow(this);
         this.fetchAndRenderMachineNames();
-        this.fetchAndRenderMetricsNames();
-        this.fetchAndRenderPartsNames();
+        this.fetchAndRenderWorkflowNames();
+        // this.fetchAndRenderMetricsNames();
+        // this.fetchAndRenderPartsNames();
         document.addEventListener('dblclick', (event) => {
             let programPadClicked = this.programPadDom.contains(event.target);
             let jobPadClicked = this.programPadDom.contains(event.target);
@@ -233,6 +236,9 @@ class StrangeGui {
         else if (resourceName === 'partsPrograms') {
             textDom = this.partsProgramDom;
         }
+        else if (resourceName === 'workflows') {
+            textDom = this.workflowDom;
+        }
         textDom.innerHTML = '';
         let lines = text.split('\n');
         lines.forEach((lineText, lineNum) => {
@@ -309,6 +315,7 @@ class StrangeGui {
 
     buildFetchUrl(resourceName) {
         console.assert(resourceName === 'machines'
+                    || resourceName === 'workflows'
                     || resourceName === 'partsPrograms'
                     || resourceName === 'metricsPrograms');
         const encodeParams = (paramObj) => {
@@ -366,8 +373,8 @@ class StrangeGui {
         });
     }
 
-    fetchAndRenderMetricsNames() {
-        let url = this.buildFetchUrl('metricsPrograms');
+    fetchAndRenderWorkflowNames() {
+        let url = this.buildFetchUrl('workflows');
         fetch(url, {
             method: 'GET'
         })
@@ -375,19 +382,19 @@ class StrangeGui {
             if (response.ok) {
                 response.json()
                 .then((responseJson) => {
-                    let metricsProgramList = responseJson.results;
-                    let metricsProgramNames = metricsProgramList.map(m => m.name);
-                    let metricsProgramIds = metricsProgramList.map(m => m._id);
-                    this.metricsProgramListDom.innerHTML = '';
-                    metricsProgramNames.forEach((mName, idx) => {
+                    let workflowList = responseJson.results;
+                    let workflowNames = workflowList.map(m => m.name);
+                    let workflowIds = workflowList.map(m => m._id);
+                    this.workflowListDom.innerHTML = '';
+                    workflowNames.forEach((mName, idx) => {
                         let mLi = document.createElement('li');
                         mLi.innerText = mName;
-                        mLi.setAttribute('data-server-id', metricsProgramIds[idx]);
+                        mLi.setAttribute('data-server-id', workflowIds[idx]);
                         mLi.onclick = () => {
                             window.strangeGui
-                                .loadResourceFromListItemDom('metricsPrograms', mLi, event);
+                                .loadResourceFromListItemDom('workflows', mLi, event);
                         };
-                        this.metricsProgramListDom.appendChild(mLi);
+                        this.workflowListDom.appendChild(mLi);
                     });
                 });
             }
@@ -562,11 +569,12 @@ class StrangeGui {
 
     async loadResourceFromListItemDom(resourceName, listItemDom, event) {
         console.assert(resourceName === 'machines'
+                    || resourceName === 'workflows'
                     || resourceName === 'partsPrograms'
                     || resourceName === 'metricsPrograms');
-        let machineName = listItemDom.innerText.toLowerCase();
-        let machineId = listItemDom.dataset.serverId;
-        let url = StrangeGui.serverURL + `/${resourceName}?id=${machineId}`;
+        let itemName = listItemDom.innerText.toLowerCase();
+        let itemId = listItemDom.dataset.serverId;
+        let url = StrangeGui.serverURL + `/${resourceName}?id=${itemId}`;
         let response = await fetch(url, {
             method: 'GET'
         });
@@ -575,7 +583,12 @@ class StrangeGui {
             let outerJson = await response.json();
             let resultsJson = outerJson.results[0];
             let indentSpaces = 2
-            newText = JSON.stringify(resultsJson, undefined, indentSpaces);
+            if (resourceName === 'workflows') {
+                newText = resultsJson.actions.join('\n');
+            }
+            else {
+                newText = JSON.stringify(resultsJson, undefined, indentSpaces);
+            }
         }
         else {
             console.error('Could not find machine.');
@@ -583,27 +596,20 @@ class StrangeGui {
         }
 
         // Remove old machine or PA from scene
-        if (this.strangeScene.machine) {
+        if (resourceName === 'machines' && this.strangeScene.machine) {
             this.strangeScene.machine.clearMachineFromScene();
-        }
-        if (this.strangeScene.partsAssembly) {
-            this.strangeScene.partsAssembly.clearFromScene();
-        }
-        if (this.strangeScene.metrics) {
-            this.strangeScene.metrics.workEnvelope.clearFromScene();
         }
 
         // Load new one
         if (resourceName === 'machines') {
             this.__modifyGUIForMachineListClick(event, newText, listItemDom);
         }
-        else if (resourceName === 'metricsPrograms') {
-            this.__modifyGUIForMetricsListClick(event, newText, listItemDom);
+        else if (resourceName === 'workflows') {
+            this.__modifyGUIForWorkflowListClick(event, newText, listItemDom);
         }
         else if (resourceName === 'partsPrograms') {
             this.__modifyGUIForPartsListClick(event, newText, listItemDom);
         }
-
     }
 
     __modifyGUIForMachineListClick(event, newText, listItemDom) {
