@@ -84,9 +84,7 @@ class StrangeGui {
         this.fetchAndRenderMachineNames();
         this.fetchAndRenderWorkflowNames();
         this.fetchAndRenderRotNames();
-        // this.fetchAndRenderMetricsNames();
-        // this.fetchAndRenderPartsNames();
-        document.addEventListener('dblclick', (event) => {
+        this.gcDom.addEventListener('dblclick', (event) => {
             let programPadClicked = this.programPadDom.contains(event.target);
             let jobPadClicked = this.programPadDom.contains(event.target);
             if (!programPadClicked && !jobPadClicked) {
