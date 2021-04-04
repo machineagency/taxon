@@ -262,7 +262,20 @@ let attachRoutesWithDBAndStart = (db) => {
     });
 
     app.get('/rots', (req, res) => {
-        const filter = req.query.id ? { '_id': ObjectID(req.query.id) } : {};
+        let filter;
+        if (req.query.ids) {
+            const rotArrRaw = req.query.ids.split(',');
+            const rotIds = rotArrRaw.map(rid => ObjectID(rid));
+            filter = {
+                _id: {
+                    $in: rotIds
+                },
+                type: 'filtering'
+            };
+        }
+        else {
+            filter = {};
+        }
         db.collection('rots').find(filter)
         .sort({ name: 1 })
         .toArray()
