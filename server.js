@@ -57,25 +57,36 @@ let attachRoutesWithDBAndStart = (db) => {
                 })
             });
         }
-        // CASE: ROT id is provided -> search for the ROT in the database
+        // CASE: ROT id array is provided -> search for the ROTs in the database
         //       -> get full list of machines -> run ROT as a JS filter over
-        //       the list -> respond with remaining list
-        else if (req.query.rotId) {
-            const rotId = ObjectID(req.query.id);
-            db.collection('rots').findOne({
-                _id: rotId,
+        //       the list, ANDing the results -> respond with remaining list
+        else if (req.query.rotIds) {
+            const rotArrRaw = req.query.rotIds.split(',');
+            const rotIds = rotArrRaw.map(rid => ObjectID(rid));
+            db.collection('rots').find({
+                _id: {
+                    $in: rotIds
+                },
                 type: 'filtering'
             })
-            .then((rot) => {
-                if (!rot) {
-                    throw 'Could not find rule of thumb.';
+            .toArray()
+            .then((rots) => {
+                if (!rots || rots.length === 0) {
+                    throw 'Could not find rules of thumb.';
                 }
                 db.collection('machines').find()
                 .sort({ name: 1 })
                 .toArray()
                 .then((machineList) => {
-                    let rotFilterFn = eval(rot.code);
-                    let filteredMachines = machineList.filter(rotFilterFn);
+                    let rotCodes = rots.map(rot => rot.code);
+                    let rotFns = rotCodes.map(code => eval(code));
+                    let totalFilter = (machine) => {
+                        let resultBooleans = rotFns.map(rotFn => rotFn(machine));
+                        return resultBooleans.reduce((acc, currEl) => {
+                            return acc && currEl;
+                        }, true);
+                    }
+                    let filteredMachines = machineList.filter(totalFilter);
                     res.status(200).json({
                         results: filteredMachines
                     });
