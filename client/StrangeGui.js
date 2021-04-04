@@ -313,7 +313,7 @@ class StrangeGui {
         });
     }
 
-    buildFetchUrl(resourceName) {
+    buildFetchUrl(resourceName, urlParams = {}) {
         console.assert(resourceName === 'machines'
                     || resourceName === 'workflows'
                     || resourceName === 'rots'
@@ -325,14 +325,6 @@ class StrangeGui {
             }).join("&");
         }
         const baseUrl = StrangeGui.serverURL + '/' + resourceName;
-        const urlParams = {};
-        const filterText = this.filterDom.innerText;
-        const filterStrings = filterText.split(',')
-                                .map(fString => fString.trim())
-                                .filter(fString => fString.length > 0);
-        filterStrings.forEach((fString, idx) => {
-            urlParams[`param${idx}`] = filterStrings[idx];
-        });
         return baseUrl + '?' + encodeParams(urlParams);
     }
 
@@ -432,23 +424,12 @@ class StrangeGui {
                         this.rotListDom.appendChild(rotDiv);
                         let checkbox = document.createElement('input');
                         checkbox.type = 'checkbox';
-                        checkbox.addEventListener = ('change', (event) => {
-                            // TODO: here OR on checkbox toggle
+                        checkbox.addEventListener('change', (event) => {
                             if (rotTypes[idx] === 'filtering') {
-                                if (event.target.checked) {
-                                    this.handleRotCheckFilter(rotIds[idx]);
-                                }
-                                else {
-                                    this.handleRotUnCheckFilter(rotIds[idx]);
-                                }
+                                this.updateRotFilters();
                             }
                             else if (rotTypes[idx] === 'action') {
-                                if (event.target.checked) {
-                                    this.handleRotCheckAction();
-                                }
-                                else {
-                                    this.handleRotUncheckAction();
-                                }
+                                this.updateRotActions();
                             }
                         });
                         rotDiv.appendChild(checkbox);
@@ -466,6 +447,39 @@ class StrangeGui {
                     this.filterDom.classList.remove('red-border');
                 }, errorHighlightLengthMS);
             }
+        });
+    }
+
+    updateRotFilters() {
+        let checkedRoTIds = Array.from(this.rotListDom.children)
+                                .filter(rDom => rDom.children[0].checked)
+                                .map(rDom => rDom.dataset.serverId);
+        let url = this.buildFetchUrl('machines', { 'rotIds' : checkedRoTIds });
+        fetch(url, {
+            method: 'GET'
+        })
+        .then((response) => {
+            response.json()
+            .then((responseJson) => {
+                let machineList = responseJson.results;
+                let machineNames = machineList.map(m => m.name);
+                let machineIds = machineList.map(m => m._id);
+                let mListDom = document.getElementById('load-machine-list');
+                mListDom.innerHTML = '';
+                machineNames.forEach((mName, idx) => {
+                    let mLi = document.createElement('li');
+                    mLi.innerText = mName;
+                    mLi.setAttribute('data-server-id', machineIds[idx]);
+                    mLi.onclick = () => {
+                        window.strangeGui
+                            .loadResourceFromListItemDom('machines', mLi, event);
+                    };
+                    mListDom.appendChild(mLi);
+                });
+            });
+        })
+        .catch((error) => {
+            console.error(error);
         });
     }
 
