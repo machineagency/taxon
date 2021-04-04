@@ -1,0 +1,6 @@
+{
+    "name": "handleTallFeatures",
+    "type": "filtering",
+    "description": "machine must handle tall features",
+    "code": "() => {};"
+}

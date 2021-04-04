@@ -57,41 +57,11 @@ let attachRoutesWithDBAndStart = (db) => {
                 })
             });
         }
-        // CASE: queries exist -> search RoTs for machineIds
-        //       -> query machines with Ids
-        else if (Object.keys(req.query).length > 0) {
-            let heuristicSetFilter;
-            try {
-                heuristicSetFilter = makeFilterFromQuery(req.query);
-            }
-            catch (exceptionText) {
-                res.status(400).json({
-                    message: exceptionText
-                });
-                return;
-            }
-            db.collection('heuristicSets').find(heuristicSetFilter)
-            .toArray()
-            .then((heuristicSetResults) => {
-                let machineIds = heuristicSetResults.map(heuristicSet =>
-                                    heuristicSet.machineDbId);
-                let machineFilter = {
-                    '_id': { $in : machineIds }
-                };
-                db.collection('machines').find(machineFilter)
-                .sort({ name: 1 })
-                .toArray()
-                .then((results) => {
-                    res.status(200).json({
-                        results: results
-                    });
-                })
-                .catch((error) => {
-                    res.status(500).json({
-                        message: error
-                    })
-                });
-            });
+        // CASE: ROT id is provided -> search for the ROT in the database
+        //       -> get full list of machines -> run ROT as a JS filter over
+        //       the list -> respond with remaining list
+        else if (req.query.rotId) {
+            // TODO
         }
         // CASE: no queries -> list all machines without searching RoTs
         else {
@@ -255,6 +225,25 @@ let attachRoutesWithDBAndStart = (db) => {
             })
         });
     });
+
+    app.get('/rots', (req, res) => {
+        const filter = req.query.id ? { '_id': ObjectID(req.query.id) } : {};
+        db.collection('rots').find(filter)
+        .sort({ name: 1 })
+        .toArray()
+        .then((results) => {
+            let statusCode = results.length === 0 ? 404 : 200;
+            res.status(statusCode).json({
+                results: results
+            });
+        })
+        .catch((error) => {
+            res.status(500).json({
+                message: error
+            })
+        });
+    });
+
     app.get('/heuristicNames', (req, res) => {
         res.status(200).json({
             heuristicNames: Constants.heuristicNames
@@ -431,6 +420,7 @@ let makeFilterFromQuery = (queryObj) => {
 let seedDatabase = (db) => {
     const plansDir = MACHINE_DIR + 'machine_plans/';
     const workflowsDir = MACHINE_DIR + 'workflows/';
+    const rotsDir = MACHINE_DIR + 'rules_of_thumb/';
     db.dropDatabase()
     .then((_) => {
         fs.readdir(plansDir, (err, files) => {
@@ -470,6 +460,27 @@ let seedDatabase = (db) => {
                     console.log(`Loading workflow: ${filename}.`);
                     let workflowObj = JSON.parse(data);
                     db.collection('workflows').insertOne(workflowObj);
+                });
+            });
+        });
+    })
+    .then((_) => {
+        fs.readdir(rotsDir, (err, files) => {
+            if (err) {
+                throw err;
+            }
+            files.forEach((filename) => {
+                if (filename[0] === '.') {
+                    return;
+                }
+                let fullFilename = rotsDir + filename;
+                fs.readFile(fullFilename, (err, data) => {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log(`Loading rule of thumb: ${filename}.`);
+                    let rotObj = JSON.parse(data);
+                    db.collection('rots').insertOne(rotObj);
                 });
             });
         });
