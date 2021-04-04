@@ -421,6 +421,7 @@ class StrangeGui {
                         let rotDiv = document.createElement('div');
                         rotDiv.classList.add('rot-item');
                         rotDiv.setAttribute('data-server-id', rotIds[idx]);
+                        rotDiv.setAttribute('data-rot-type', rotTypes[idx]);
                         this.rotListDom.appendChild(rotDiv);
                         let checkbox = document.createElement('input');
                         checkbox.type = 'checkbox';
@@ -434,8 +435,11 @@ class StrangeGui {
                         });
                         rotDiv.appendChild(checkbox);
                         let descDiv = document.createElement('div');
+                        let prefix = rotTypes[idx] === 'filtering'
+                                        ? '(f) '
+                                        : '(a) ';
                         descDiv.classList.add('rot-description');
-                        descDiv.innerText = rotDescs[idx];
+                        descDiv.innerText = prefix + rotDescs[idx];
                         rotDiv.appendChild(descDiv);
                     });
                 });
@@ -451,9 +455,12 @@ class StrangeGui {
     }
 
     updateRotFilters() {
-        let checkedRoTIds = Array.from(this.rotListDom.children)
-                                .filter(rDom => rDom.children[0].checked)
-                                .map(rDom => rDom.dataset.serverId);
+        let checkedFilteringRoTIds = Array.from(this.rotListDom.children)
+            .filter(rDom => {
+                return rDom.children[0].checked
+                        && rDom.dataset.rotType === 'filtering';
+            })
+            .map(rDom => rDom.dataset.serverId);
         let url = this.buildFetchUrl('machines', { 'rotIds' : checkedRoTIds });
         fetch(url, {
             method: 'GET'
