@@ -497,9 +497,6 @@ class StrangeGui {
                         && rDom.dataset.rotType === 'action';
             })
             .map(rDom => rDom.dataset.serverId);
-        if (checkedActionRoTIds.length === 0) {
-            return;
-        }
         let url = this.buildFetchUrl('rots', { 'ids' : checkedActionRoTIds });
         fetch(url, {
             method: 'GET'

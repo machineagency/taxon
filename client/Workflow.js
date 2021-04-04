@@ -189,7 +189,7 @@ class Workflow {
                     let currLine = lines[lineIdx];
                     let checksPass = this.checkRotsForLine(currLine);
                     if (!checksPass) {
-                        console.error('uh oh!');
+                        this.stepButtonDom.classList.add('grayed');
                         return endFunction;
                     }
                     else {

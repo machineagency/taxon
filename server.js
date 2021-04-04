@@ -263,16 +263,16 @@ let attachRoutesWithDBAndStart = (db) => {
 
     app.get('/rots', (req, res) => {
         let filter;
-        if (req.query.ids) {
-            const rotArrRaw = req.query.ids.split(',');
-            if (rotArrRaw.length === 0) {
+        if (Object.keys(req.query).includes('ids')) {
+            if (req.query.ids == '') {
                 // If ids param is given but empty, make sure query returns
                 // no results using an impossible filter
                 filter = {
-                    $expr: { $eq: [0, 1] }
+                    _id: { $in: [] }
                 }
             }
             else {
+                const rotArrRaw = req.query.ids.split(',');
                 const rotIds = rotArrRaw.map(rid => ObjectID(rid));
                 filter = {
                     _id: {
@@ -288,8 +288,7 @@ let attachRoutesWithDBAndStart = (db) => {
         .sort({ name: 1 })
         .toArray()
         .then((results) => {
-            let statusCode = results.length === 0 ? 404 : 200;
-            res.status(statusCode).json({
+            res.status(200).json({
                 results: results
             });
         })
