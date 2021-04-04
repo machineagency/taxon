@@ -14,6 +14,7 @@ class Workflow {
         this.consoleDom = document.getElementById('workflow-console');
         this.injectTestProgTextNodes();
         this.progCurrFn = undefined;
+        this.actionRotFns = [];
         this.__currLineNum = 0;
     }
 
@@ -27,6 +28,20 @@ class Workflow {
 
     get statements() {
         return this.__splitProgTextIntoStatements(this.progText);
+    }
+
+    setActionRotCodes(rotCodes) {
+        // Define ROT utility functions
+        let $machine = this.parentGui.strangeScene.machine;
+        let $metrics = this.parentGui.strangeScene.metrics;
+        let tokenize = (line) => line.split('.');
+        let getSelector = (line) => tokenize(line)[0];
+        let getConstructor = (line) => getSelector(line).split('(')[0];
+        let getQuery = (line) => getSelector(line).split('(')[1].split('\'')[1];
+        let getMethods = (line) => {
+            return tokenize(line).splice(1);
+        };
+        this.actionRotFns = rotCodes.map(code => eval(code));
     }
 
     addLine(lineText) {
@@ -148,6 +163,12 @@ class Workflow {
     }
 
     __generateCurriedWorkflow() {
+        const endFunction = () => {};
+        Reflect.defineProperty(endFunction, 'name', {
+            value: Workflow.EndFunctionName,
+            writeable: false
+        });
+
         // Bindings!
         // let $m = this.generateMSelector();
         let $b = this.generateBSelector();
@@ -160,25 +181,37 @@ class Workflow {
         const lines = [...this.statements];
         const generateInnerFn = (lineIdx) => {
             if (lineIdx === lines.length) {
-                const endFunction = () => {};
-                Reflect.defineProperty(endFunction, 'name', {
-                    value: Workflow.EndFunctionName,
-                    writeable: false
-                });
                 return endFunction;
             }
             else {
                 let outerFn = () => {
                     let innerFn = generateInnerFn(lineIdx + 1);
                     let currLine = lines[lineIdx];
-                    // Eval seems unavoidable here
-                    eval(currLine);
-                    return innerFn;
+                    let checksPass = this.checkRotsForLine(currLine);
+                    if (!checksPass) {
+                        console.error('uh oh!');
+                        return endFunction;
+                    }
+                    else {
+                        eval(currLine);
+                        return innerFn;
+                    }
                 };
                 return outerFn;
             }
         };
         return generateInnerFn(0);
+    }
+
+    checkRotsForLine(line) {
+        let failedRotCheck = false;
+        this.actionRotFns.forEach((rotFn) => {
+            let success = rotFn(line);
+            if (!success) {
+                failedRotCheck = true;
+            }
+        });
+        return !failedRotCheck;
     }
 
     testCurry() {

@@ -490,6 +490,38 @@ class StrangeGui {
         });
     }
 
+    updateRotActions() {
+        let checkedActionRoTIds = Array.from(this.rotListDom.children)
+            .filter(rDom => {
+                return rDom.children[0].checked
+                        && rDom.dataset.rotType === 'action';
+            })
+            .map(rDom => rDom.dataset.serverId);
+        if (checkedActionRoTIds.length === 0) {
+            return;
+        }
+        let url = this.buildFetchUrl('rots', { 'ids' : checkedActionRoTIds });
+        fetch(url, {
+            method: 'GET'
+        })
+        .then((response) => {
+            if (response.ok) {
+                response.json()
+                .then((responseJson) => {
+                    let rotList = responseJson.results;
+                    let rotCodes = rotList.map(rot => rot.code);
+                    this.workflow.setActionRotCodes(rotCodes);
+                })
+            }
+            else {
+                throw response.statusText;
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+    }
+
     fetchAndRenderPartsNames() {
         let url = this.buildFetchUrl('partsPrograms');
         fetch(url, {
@@ -688,6 +720,7 @@ class StrangeGui {
         // Load new one
         if (resourceName === 'machines') {
             this.__modifyGUIForMachineListClick(event, newText, listItemDom);
+            this.updateRotActions();
         }
         else if (resourceName === 'workflows') {
             this.__modifyGUIForWorkflowListClick(event, newText, listItemDom);
