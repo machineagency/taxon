@@ -35,6 +35,7 @@ class StrangeGui {
         this.workflowListDom = document.getElementById('workflow-list');
         this.workflowDom = document.getElementById('workflow-container');
         this.consoleDom = document.getElementById('workflow-console');
+        this.rotListDom = document.getElementById('rot-container');
         this.filterDom.addEventListener('keydown', (event) => {
             if (event.keyCode === 13) {
                 // Enter
@@ -82,6 +83,7 @@ class StrangeGui {
         this.workflow = new Workflow(this);
         this.fetchAndRenderMachineNames();
         this.fetchAndRenderWorkflowNames();
+        this.fetchAndRenderRotNames();
         // this.fetchAndRenderMetricsNames();
         // this.fetchAndRenderPartsNames();
         document.addEventListener('dblclick', (event) => {
@@ -316,6 +318,7 @@ class StrangeGui {
     buildFetchUrl(resourceName) {
         console.assert(resourceName === 'machines'
                     || resourceName === 'workflows'
+                    || resourceName === 'rots'
                     || resourceName === 'partsPrograms'
                     || resourceName === 'metricsPrograms');
         const encodeParams = (paramObj) => {
@@ -395,6 +398,66 @@ class StrangeGui {
                                 .loadResourceFromListItemDom('workflows', mLi, event);
                         };
                         this.workflowListDom.appendChild(mLi);
+                    });
+                });
+            }
+            else {
+                const errorHighlightLengthMS = 2000;
+                this.filterDom.classList.add('red-border');
+                setTimeout(() => {
+                    this.filterDom.classList.remove('red-border');
+                }, errorHighlightLengthMS);
+            }
+        });
+    }
+
+    fetchAndRenderRotNames() {
+        let url = this.buildFetchUrl('rots');
+        fetch(url, {
+            method: 'GET'
+        })
+        .then((response) => {
+            if (response.ok) {
+                response.json()
+                .then((responseJson) => {
+                    let rotList = responseJson.results;
+                    let rotNames = rotList.map(r => r.name);
+                    let rotDescs = rotList.map(r => r.description);
+                    let rotTypes = rotList.map(r => r.type);
+                    let rotCodes = rotList.map(r => r.code);
+                    let rotIds = rotList.map(r => r._id);
+                    this.rotListDom.innerHTML = '';
+                    rotNames.forEach((mName, idx) => {
+                        let rotDiv = document.createElement('div');
+                        rotDiv.classList.add('rot-item');
+                        rotDiv.setAttribute('data-server-id', rotIds[idx]);
+                        this.rotListDom.appendChild(rotDiv);
+                        let checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.addEventListener = ('change', (event) => {
+                            // TODO: here OR on checkbox toggle
+                            if (rotTypes[idx] === 'filtering') {
+                                if (event.target.checked) {
+                                    this.handleRotCheckFilter(rotIds[idx]);
+                                }
+                                else {
+                                    this.handleRotUnCheckFilter(rotIds[idx]);
+                                }
+                            }
+                            else if (rotTypes[idx] === 'action') {
+                                if (event.target.checked) {
+                                    this.handleRotCheckAction();
+                                }
+                                else {
+                                    this.handleRotUncheckAction();
+                                }
+                            }
+                        });
+                        rotDiv.appendChild(checkbox);
+                        let descDiv = document.createElement('div');
+                        descDiv.classList.add('rot-description');
+                        descDiv.innerText = rotDescs[idx];
+                        rotDiv.appendChild(descDiv);
                     });
                 });
             }
