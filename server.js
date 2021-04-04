@@ -61,7 +61,31 @@ let attachRoutesWithDBAndStart = (db) => {
         //       -> get full list of machines -> run ROT as a JS filter over
         //       the list -> respond with remaining list
         else if (req.query.rotId) {
-            // TODO
+            const rotId = ObjectID(req.query.id);
+            db.collection('rots').findOne({
+                _id: rotId,
+                type: 'filtering'
+            })
+            .then((rot) => {
+                if (!rot) {
+                    throw 'Could not find rule of thumb.';
+                }
+                db.collection('machines').find()
+                .sort({ name: 1 })
+                .toArray()
+                .then((machineList) => {
+                    let rotFilterFn = eval(rot.code);
+                    let filteredMachines = machineList.filter(rotFilterFn);
+                    res.status(200).json({
+                        results: filteredMachines
+                    });
+                });
+            })
+            .catch((error) => {
+                res.status(500).json({
+                    message: error
+                })
+            });
         }
         // CASE: no queries -> list all machines without searching RoTs
         else {
