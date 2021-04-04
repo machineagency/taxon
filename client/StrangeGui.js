@@ -36,6 +36,9 @@ class StrangeGui {
         this.workflowDom = document.getElementById('workflow-container');
         this.consoleDom = document.getElementById('workflow-console');
         this.rotListDom = document.getElementById('rot-container');
+        this.workflowDom.addEventListener('input', (event) => {
+            this.workflow.grayStepButton();
+        });
         this.filterDom.addEventListener('keydown', (event) => {
             if (event.keyCode === 13) {
                 // Enter

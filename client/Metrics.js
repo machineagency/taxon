@@ -15,12 +15,21 @@ class Metrics {
         this.materialCompatibility = metricsProg.materialCompatibility;
         this.rootMeshGroup = new THREE.Group();
         this.workEnvelope = new WorkEnvelope(this, this.workEnvelope);
+        if (metricsProg.regions) {
+            this.regions = metricsProg.map((regionProg) => {
+                new Region(regionProg)
+            });
+        }
         this.parentScene.scene.add(this.rootMeshGroup);
     }
 
     clearFromScene() {
         this.parentScene.removeFromScene(this.workEnvelope.meshGroup);
     }
+}
+
+class Region {
+    // TODO
 }
 
 class WorkEnvelope {

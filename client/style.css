@@ -350,6 +350,7 @@ input[type="checkbox"] {
 
 .grayed {
     background-color: #666666;
+    pointer-events: none;
 }
 
 #gcode-highlight.error-highlight {

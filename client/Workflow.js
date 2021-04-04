@@ -30,6 +30,10 @@ class Workflow {
         return this.__splitProgTextIntoStatements(this.progText);
     }
 
+    grayStepButton() {
+        this.stepButtonDom.classList.add('grayed');
+    }
+
     setActionRotCodes(rotCodes) {
         // Define ROT utility functions
         let $machine = this.parentGui.strangeScene.machine;

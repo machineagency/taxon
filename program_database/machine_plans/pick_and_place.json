@@ -14,6 +14,21 @@
                 "z": 0
             }
         },
+        "envelopeRegions": {
+            "testRegion": {
+                "shape": "rectangle",
+                "dimensions" : {
+                    "width": 50,
+                    "height": 0,
+                    "length": 50
+                },
+                "position": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                }
+            }
+        },
         "footprint": {
             "width": 1000,
             "length": 650
