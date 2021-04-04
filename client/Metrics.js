@@ -12,6 +12,7 @@ class Metrics {
         this.parentScene.metrics = this;
         this.workEnvelope = metricsProg.workEnvelope;
         this.manufacturingStrategies = metricsProg.manufacturingStrategies;
+        this.materialCompatibility = metricsProg.materialCompatibility;
         this.rootMeshGroup = new THREE.Group();
         this.workEnvelope = new WorkEnvelope(this, this.workEnvelope);
         this.parentScene.scene.add(this.rootMeshGroup);
