@@ -2123,19 +2123,35 @@ class StrangeAnimator {
         const radialSegs = 4;
         const isClosed = false;
 
+        // Epsilon-height rectangle to extrude along path
+        const rectEps = 0.1;
+        let rectLength = obj.length;
+        console.assert(rectLength !== undefined);
+        let thinRect = new THREE.Shape([
+            new THREE.Vector2(0, 0),
+            new THREE.Vector2(rectLength / 2, 0),
+            new THREE.Vector2(rectLength / 2, rectEps),
+            new THREE.Vector2(-rectLength / 2, rectEps),
+            new THREE.Vector2(-rectLength / 2, 0),
+            new THREE.Vector2(0, 0),
+        ]);
+
         // Make material mesh
-        let heightOffset = new THREE.Vector3(0, obj.height / 2, 0);
         let points = [
-            obj.position.clone().sub(heightOffset),
-            // startPos,
-            newPos.clone().sub(heightOffset)
+            obj.position.clone(),
+            newPos.clone()
         ];
-        let path = new THREE.CatmullRomCurve3(points);
-        let geom = new THREE.TubeBufferGeometry(path, numTubeSegs, radius,
-                        radialSegs, isClosed);
+        let extrudePath = new THREE.CatmullRomCurve3(points);
+        const extrudeSettings = {
+            extrudePath: extrudePath,
+            bevelEnabled: false
+        };
+        let geom = new THREE.ExtrudeBufferGeometry(thinRect, extrudeSettings);
         geom.setDrawRange(0, 0);
         let mat = new THREE.MeshLambertMaterial({
-            color: Tool.color
+            color: Tool.color,
+            transparent: true,
+            opacity: 0.15
         });
         let mesh = new THREE.Mesh(geom, mat);
         this.strangeScene.materialMarks.add(mesh);
@@ -2157,7 +2173,7 @@ class StrangeAnimator {
         });
         let positionKF = new THREE.NumberKeyframeTrack('.geometry[drawRange].count',
                             [0, this.ANIM_SECONDS],
-                            [0, nMax],
+                            [0, 0], // Do not actually animate the draw range
                             THREE.InterpolateSmooth);
         let clip = new THREE.AnimationClip('Action',
                         this.ANIM_SECONDS, [ positionKF ]);
