@@ -265,13 +265,21 @@ let attachRoutesWithDBAndStart = (db) => {
         let filter;
         if (req.query.ids) {
             const rotArrRaw = req.query.ids.split(',');
-            const rotIds = rotArrRaw.map(rid => ObjectID(rid));
-            filter = {
-                _id: {
-                    $in: rotIds
-                },
-                type: 'filtering'
-            };
+            if (rotArrRaw.length === 0) {
+                // If ids param is given but empty, make sure query returns
+                // no results using an impossible filter
+                filter = {
+                    $expr: { $eq: [0, 1] }
+                }
+            }
+            else {
+                const rotIds = rotArrRaw.map(rid => ObjectID(rid));
+                filter = {
+                    _id: {
+                        $in: rotIds
+                    },
+                };
+            }
         }
         else {
             filter = {};
