@@ -19,7 +19,7 @@
         ],
         "materialCompatibility": {
             "include": [
-                "styrofoam"
+                "foam"
             ],
             "exclude": [
                 "wood", "metal", "plastic", "paper"
