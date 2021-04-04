@@ -2,5 +2,5 @@
     "name": "materialMatchMachine",
     "type": "action",
     "description": "material matches machine",
-    "code": "(actionStr)=>{try{let constructor=getConstructor(actionStr);if(constructor==='$material'){let query=getQuery(actionStr);let materialInclusions=$metrics.materialCompatibility.include;return materialInclusions.includes(query);}return true;}catch(e){console.log('Cannot enforce material matches machine.');return true;}}"
+    "code": "(actionStr)=>{try{let constructor=getConstructor(actionStr);if(constructor==='$material'){let query=getQuery(actionStr);let materialInclusions=$metrics.materialCompatibility.include;if (!materialInclusions.includes(query)) { console.error(`${query} does not work with ${$machine.name}.`);return false;}}return true;}catch(e){console.log('Cannot enforce material matches machine.');return true;}}"
 }
