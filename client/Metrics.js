@@ -14,11 +14,11 @@ class Metrics {
         this.manufacturingStrategies = metricsProg.manufacturingStrategies;
         this.rootMeshGroup = new THREE.Group();
         this.workEnvelope = new WorkEnvelope(this, this.workEnvelope);
-        this.renderAbstractTool();
         this.parentScene.scene.add(this.rootMeshGroup);
     }
 
-    renderAbstractTool() {
+    clearFromScene() {
+        this.parentScene.removeFromScene(this.workEnvelope.meshGroup);
     }
 }
 

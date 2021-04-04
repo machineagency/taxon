@@ -39,8 +39,10 @@ class StrangeScene {
         scene.add(rightDirectionalLight);
         scene.add(ambientLight);
         this.materialMarks = new THREE.Group();
+        this.materials = new THREE.Group();
         this.toolpaths = new THREE.Group();
         scene.add(this.materialMarks);
+        scene.add(this.materials);
         scene.add(this.toolpaths);
         return scene;
     }
@@ -99,9 +101,18 @@ class StrangeScene {
         this.toolpaths.add(toolpath);
     }
 
+    removeMaterials() {
+        let childrenRefCopy = this.materials.children.splice(0);
+        childrenRefCopy.forEach((mark) => {
+            this.materials.remove(mark);
+        });
+    }
+
     removeMaterialMarks() {
-        this.scene.remove(this.materialMarks);
-        this.materialMarks = new THREE.Group();
+        let childrenRefCopy = this.materialMarks.children.splice(0);
+        childrenRefCopy.forEach((mark) => {
+            this.materialMarks.remove(mark);
+        });
     }
 
     renderScene() {

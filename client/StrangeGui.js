@@ -598,6 +598,9 @@ class StrangeGui {
         // Remove old machine or PA from scene
         if (resourceName === 'machines' && this.strangeScene.machine) {
             this.strangeScene.machine.clearMachineFromScene();
+            this.strangeScene.machine.removeMaterialMarks();
+            this.strangeScene.machine.removeMaterials();
+            this.strangeScene.metrics.clearFromScene();
         }
 
         // Load new one

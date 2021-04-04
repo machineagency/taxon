@@ -68,6 +68,7 @@ class Workflow {
             this.parentGui.strangeScene.removeFromScene(zg);
         }
         this.parentGui.strangeScene.removeMaterialMarks();
+        this.parentGui.strangeScene.removeMaterials();
     }
 
     __splitProgTextIntoStatements(progText) {

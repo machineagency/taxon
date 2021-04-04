@@ -20,7 +20,7 @@ class Material {
         this.parentScene = parentScene;
         this.meshGroup = new THREE.Group();
         this.attributes = attributes;
-        parentScene.addSceneObjectDirectly(this.meshGroup);
+        parentScene.materials.add(this.meshGroup);
         this.meshGroup.name = 'material';
     }
 
