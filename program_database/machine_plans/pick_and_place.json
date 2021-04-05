@@ -15,7 +15,7 @@
             }
         },
         "envelopeRegions": {
-            "testRegion": {
+            "0402": {
                 "shape": "rectangle",
                 "dimensions" : {
                     "width": 50,
@@ -23,9 +23,35 @@
                     "length": 50
                 },
                 "position": {
-                    "x": 0,
+                    "x": 200,
+                    "y": 0,
+                    "z": -100
+                }
+            },
+            "0603": {
+                "shape": "rectangle",
+                "dimensions" : {
+                    "width": 50,
+                    "height": 0,
+                    "length": 50
+                },
+                "position": {
+                    "x": 200,
                     "y": 0,
                     "z": 0
+                }
+            },
+            "SOIC": {
+                "shape": "rectangle",
+                "dimensions" : {
+                    "width": 50,
+                    "height": 0,
+                    "length": 50
+                },
+                "position": {
+                    "x": 200,
+                    "y": 0,
+                    "z": 100
                 }
             }
         },

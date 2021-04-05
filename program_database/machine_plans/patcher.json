@@ -1,0 +1,33 @@
+{
+    "name": "patching-machine",
+    "metrics": {
+        "workEnvelope": {
+            "shape": "box",
+            "dimensions" : {
+                "width": 130,
+                "height": 110,
+                "length": 130
+            },
+            "position": {
+                "x": 0,
+                "y": 102.6,
+                "z": 0
+            }
+        },
+        "manufacturingStrategies": [
+            "additive"
+        ],
+        "materialCompatibility": {
+            "include": [
+                "plastic"
+            ],
+            "exclude": [
+                "wood", "metal"
+            ]
+        }
+    },
+    "blocks": [
+    ]
+}
+
+
