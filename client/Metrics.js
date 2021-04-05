@@ -82,6 +82,13 @@ class Region {
         return this.dimensions.radius;
     }
 
+    intersectsBox(box) {
+        let center = this.position;
+        let size = new THREE.Vector3(this.width, this.height, this.length);
+        let thisBox = new THREE.Box3().setFromCenterAndSize(center, size);
+        return thisBox.intersectsBox(box);
+    }
+
     renderDimensions() {
         let geom = this.calcGeometry(this.dimensions);
         let edgesGeom = new THREE.EdgesGeometry(geom);
