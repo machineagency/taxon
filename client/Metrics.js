@@ -15,33 +15,42 @@ class Metrics {
         this.materialCompatibility = metricsProg.materialCompatibility;
         this.rootMeshGroup = new THREE.Group();
         this.workEnvelope = new WorkEnvelope(this, this.workEnvelope);
-        if (metricsProg.regions) {
-            this.regions = metricsProg.map((regionProg) => {
-                new Region(regionProg)
+        if (metricsProg.envelopeRegions) {
+            this.envelopeRegions = Object.entries(metricsProg.envelopeRegions)
+                                         .map((kvPair) => {
+                let erName = kvPair[0];
+                let erProg = kvPair[1];
+                let er = new EnvelopeRegion(this, erProg);
+                er.name = erName;
+                return er;
             });
         }
         this.parentScene.scene.add(this.rootMeshGroup);
     }
 
     clearFromScene() {
-        this.parentScene.removeFromScene(this.workEnvelope.meshGroup);
+        if (this.workEnvelope) {
+            this.parentScene.removeFromScene(this.workEnvelope.meshGroup);
+        }
+        if (this.envelopeRegions) {
+            this.envelopeRegions.forEach((er) => {
+                this.parentScene.removeFromScene(er.meshGroup);
+            });
+        }
     }
 }
 
 class Region {
-    // TODO
-}
-
-class WorkEnvelope {
-    static color = 0x9d8dff;
+    //static color = 0x9d8dff;
+    static color = 0x4e467f;
     static shapes = ['rectangle', 'box', 'cylinder'];
 
     constructor(parentMetrics, weProg) {
         this.parentMetrics = parentMetrics;
         this.dimensions = weProg.dimensions;
         this.shape = weProg.shape;
-        this.name = 'WorkEnvelope';
-        this.componentType = 'WorkEnvelope';
+        this.name = 'Region';
+        this.componentType = 'Region';
         this.meshGroup = new THREE.Group();
         this.renderDimensions();
         this.parentMetrics.parentScene.scene.add(this.meshGroup);
