@@ -849,11 +849,39 @@ class BuildEnvironment extends StrangeComponent {
 }
 
 class Block extends StrangeComponent {
-    constructor(name, parentMachine, dimensions) {
+    static caseColor = 0x222222;
+    constructor(name, parentMachine, dimensions, attributes = {}) {
         super(name, parentMachine, dimensions);
+        this.componentType = 'Block';
         this.connections = [];
         this.parentMachine.addBlock(this);
         this.parentMachine.kinematics.addBlockAsRootNode(this);
+        this.attributes = attributes;
+        this.renderDimensions();
+    }
+
+    renderDimensions() {
+        this.removeMeshGroupFromScene();
+        this.caseGeom = BuildEnvironment.geometryFactories
+                                .stageCase(this.dimensions);
+        this.edgesGeom = new THREE.EdgesGeometry(this.caseGeom);
+        this.caseMaterial = new THREE.MeshLambertMaterial({
+            color : Block.caseColor,
+            transparent: true,
+            opacity: 0.05
+        });
+        this.edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x222222
+        });
+        this.caseMesh = new THREE.Mesh(this.caseGeom, this.caseMaterial);
+        this.wireSegments = new THREE.LineSegments(this.edgesGeom,
+                                this.edgesMaterial);
+        this.meshGroup = new THREE.Group();
+        this.meshGroup.add(this.caseMesh);
+        this.meshGroup.add(this.wireSegments);
+        this.meshGroup.blockName = this.name;
+        this.geometries = [this.caseGeom, this.edgesGeom]
+        this.addMeshGroupToScene();
     }
 
     setVoid(voidDims) {
@@ -1095,12 +1123,6 @@ class Stage extends Block {
     static validKinematicsNames = [ 'directDrive', 'hBot', 'coreXY' ];
     constructor(name, parentMachine, dimensions, attributes) {
         super(name, parentMachine, dimensions);
-        if (this.constructor === Stage) {
-            throw new Error('Can\'t instantiate abstract class Stage.');
-        }
-        // console.assert(attributes.driveType !== undefined, attributes);
-        // this.attributes = attributes;
-        // this.loadDriveMechanismStl();
         this.axes = [];
         this.drivingMotors = [];
         this.baseBlock = true;
@@ -1176,7 +1198,6 @@ class Stage extends Block {
 }
 
 class LinearStage extends Stage {
-    static caseColor = 0x222222;
     static validKinematicsNames = [ 'directDrive' ];
 
     constructor(name, parentMachine, dimensions, attributes = {}) {
@@ -1184,30 +1205,6 @@ class LinearStage extends Stage {
         this.componentType = 'LinearStage';
         this.kinematics = 'directDrive';
         this.renderDimensions();
-    }
-
-    renderDimensions() {
-        this.removeMeshGroupFromScene();
-        this.caseGeom = BuildEnvironment.geometryFactories
-                                .stageCase(this.dimensions);
-        this.edgesGeom = new THREE.EdgesGeometry(this.caseGeom);
-        this.caseMaterial = new THREE.MeshLambertMaterial({
-            color : LinearStage.caseColor,
-            transparent: true,
-            opacity: 0.05
-        });
-        this.edgesMaterial = new THREE.LineBasicMaterial({
-            color: 0x222222
-        });
-        this.caseMesh = new THREE.Mesh(this.caseGeom, this.caseMaterial);
-        this.wireSegments = new THREE.LineSegments(this.edgesGeom,
-                                this.edgesMaterial);
-        this.meshGroup = new THREE.Group();
-        this.meshGroup.add(this.caseMesh);
-        this.meshGroup.add(this.wireSegments);
-        this.meshGroup.blockName = this.name;
-        this.geometries = [this.caseGeom, this.edgesGeom]
-        this.addMeshGroupToScene();
     }
 
     renderArrows() {
@@ -2465,14 +2462,18 @@ class Compiler {
                 if (blockData.isTool) {
                     CurrentBlockConstructor = Tool;
                 }
-                if (blockData.attributes.isToolAssembly) {
+                else if (blockData.attributes.isToolAssembly) {
                     CurrentBlockConstructor = ToolAssembly;
                 }
-                if (blockData.attributes.isPlatform) {
+                else if (blockData.attributes.isPlatform) {
                     CurrentBlockConstructor = Platform;
                 }
+                else {
+                    CurrentBlockConstructor = Block
+                }
             }
-            else if (blockData.blockType === 'linear') {
+            else if (blockData.blockType === 'linear'
+                    || blockData.blockType === 'redundantLinear') {
                 CurrentBlockConstructor = LinearStage;
             }
             else if (blockData.blockType === 'parallel') {
@@ -2485,9 +2486,7 @@ class Compiler {
                 CurrentBlockConstructor = DeltaBotStage;
             }
             else {
-                // TODO: make a default or handle binary linear
-                console.warn('Making a linear stage by default');
-                CurrentBlockConstructor = LinearStage
+                CurrentBlockConstructor = Block
             }
             let block = new CurrentBlockConstructor(blockData.name, machine, {
                 width: blockData.dimensions.width,
