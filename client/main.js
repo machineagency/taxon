@@ -874,11 +874,11 @@ class Block extends StrangeComponent {
         let mesh = new THREE.Mesh(geom, meshMaterial);
         let edgesGeom = new THREE.EdgesGeometry(geom);
         let edgesMaterial = new THREE.LineDashedMaterial({
-            color: 0x222222,
+            color: 0xccbd73,
             linewidth: 1,
             scale: 1,
-            dashSize: 3,
-            gapSize: 3
+            dashSize: 2,
+            gapSize: 2
         });
         let wireSegments = new THREE.LineSegments(edgesGeom,
                                 edgesMaterial);

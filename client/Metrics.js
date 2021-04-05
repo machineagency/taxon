@@ -97,7 +97,7 @@ class Region {
             linewidth: 1,
             scale: 1,
             dashSize: 3,
-            gapSize: 3
+            gapSize: 2
         });
         this.mesh = new THREE.LineSegments(edgesGeom, material);
         this.mesh.computeLineDistances();
