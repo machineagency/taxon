@@ -144,6 +144,39 @@ class Region {
     }
 }
 
+class WorkEnvelope extends Region {
+    constructor(parentMetrics, weProg) {
+        super(parentMetrics, weProg);
+        this.name = 'WorkEnvelope';
+        this.componentType = 'WorkEnvelope';
+    }
+}
+
+class EnvelopeRegion extends Region {
+    constructor(parentMetrics, weProg) {
+        super(parentMetrics, weProg);
+        this.name = 'EnvelopeRegion';
+        this.componentType = 'EnvelopeRegion';
+    }
+
+    renderDimensions() {
+        let geom = this.calcGeometry(this.dimensions);
+        let edgesGeom = new THREE.EdgesGeometry(geom);
+        let material = new THREE.LineDashedMaterial({
+            color : WorkEnvelope.color,
+            linewidth: 1,
+            scale: 1,
+            dashSize: 3,
+            gapSize: 3
+        });
+        this.mesh = new THREE.LineSegments(edgesGeom, material);
+        this.mesh.computeLineDistances();
+        this.mesh.isWorkEnvelopeMesh = true;
+        this.meshGroup.blockName = this.name;
+        this.meshGroup.add(this.mesh);
+        this.geometries = [geom];
+    }
+}
 
 class MetricsCompiler {
     constructor() {
