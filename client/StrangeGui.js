@@ -464,7 +464,7 @@ class StrangeGui {
                         && rDom.dataset.rotType === 'filtering';
             })
             .map(rDom => rDom.dataset.serverId);
-        let url = this.buildFetchUrl('machines', { 'rotIds' : checkedRoTIds });
+        let url = this.buildFetchUrl('machines', { 'rotIds' : checkedFilteringRoTIds });
         fetch(url, {
             method: 'GET'
         })
