@@ -1,0 +1,8 @@
+{
+    "name": "weLargerThan",
+    "isDependent": true,
+    "type": "filtering",
+    "description": "w.e. larger than ___",
+    "code": "(machine) => { return true; };"
+}
+
