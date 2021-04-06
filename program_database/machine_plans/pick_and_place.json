@@ -172,25 +172,59 @@
                 "stepDisplacementRatio": 0.5
             },
             "connections": [
+                {
+                    "child": "needleHolder",
+                    "offset": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "needleHolder",
+            "isTool": true,
+            "blockType": "nonActuating",
+            "attributes": {
+                "toolType": "pnpHolder"
+            },
+            "dimensions": {
+                "width": 10,
+                "height": 135,
+                "length": 10
+            },
+            "connections": [
+                {
+                    "child": "needle0402",
+                    "offset": {
+                        "x": 0,
+                        "y": 92.5,
+                        "z": 0
+                    }
+                }
             ]
         },
         {
             "name": "needle0402",
             "isTool": true,
+            "blockType": "nonActuating",
+            "attributes": {
+                "toolType": "needle"
+            },
             "dimensions": {
                 "width": 10,
                 "height": 50,
                 "length": 10
-            },
-            "position": {
-                "x": -200,
-                "y": 25,
-                "z": -15
             }
         },
         {
             "name": "needle0603",
             "isTool": true,
+            "blockType": "nonActuating",
+            "attributes": {
+                "toolType": "needle"
+            },
             "dimensions": {
                 "width": 10,
                 "height": 50,
@@ -205,6 +239,10 @@
         {
             "name": "needleSOIC",
             "isTool": true,
+            "blockType": "nonActuating",
+            "attributes": {
+                "toolType": "needle"
+            },
             "dimensions": {
                 "width": 10,
                 "height": 50,
