@@ -267,7 +267,7 @@ input[type="checkbox"] {
     overflow: scroll;
 }
 
-#metrics-list-container {
+.list-container {
     overflow: scroll;
 }
 
