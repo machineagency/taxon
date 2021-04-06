@@ -3,6 +3,6 @@
     "actions": [
         "$material('foam').makeBox(100, 100, 100);",
         "$machine().zero();",
-        "$machine().moveTo(-300, 25, 0);"
+        "$machine().moveTo({x: -300, y: 25, z: 0});"
     ]
 }

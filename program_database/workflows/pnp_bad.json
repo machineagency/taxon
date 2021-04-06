@@ -1,8 +1,0 @@
-{
-    "name": "pnp error",
-    "actions": [
-        "$machine().zero();",
-        "$machine().moveTo(-100, 0, 0);"
-    ]
-}
-

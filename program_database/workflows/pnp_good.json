@@ -2,12 +2,12 @@
     "name": "pnp good",
     "actions": [
         "$machine().zero();",
-        "$machine().moveTo(-10, 0, 0);",
+        "$machine().moveTo({x: -10, y: 0, z: 0});",
         "$t('needle0402').park();",
-        "$machine().moveTo(0, 0, 0);",
-        "$machine().moveTo(-10, 0, 0);",
+        "$machine().moveTo({x: 0, y: 0, z: 0});",
+        "$machine().moveTo({x: -10, y: 0, z: 0});",
         "$t('needle0402').equip();",
-        "$machine().moveTo(0, 0, 0);"
+        "$machine().moveTo({x: 0, y: 0, z: 0});"
     ]
 }
 

@@ -2,15 +2,15 @@
     "name": "test print",
     "actions": [
          "$machine().zero();",
-         "$machine().moveTo(0, 0, 50);",
-         "$machine().moveTo(50, 0, 50);",
-         "$machine().moveTo(50, 0, 0);",
-         "$machine().moveTo(0, 0, 0);",
-         "$machine().moveTo(0, 2, 0);",
-         "$machine().moveTo(0, 2, 50);",
-         "$machine().moveTo(50, 2, 50);",
-         "$machine().moveTo(50, 2, 0);",
-         "$machine().moveTo(0, 2, 0);"
+         "$machine().moveTo({x: 0, y: 0, z: 50}, 10);",
+         "$machine().moveTo({x: 50, y: 0, z: 50}, 10);",
+         "$machine().moveTo({x: 50, y: 0, z: 0}, 10);",
+         "$machine().moveTo({x: 0, y: 0, z: 0}), 10);",
+         "$machine().moveTo({x: 0, y: 2, z: 50});",
+         "$machine().moveTo({x: 50, y: 2, z: 50}, 10);",
+         "$machine().moveTo({x: 50, y: 2, z: 0}, 10);",
+         "$machine().moveTo({x: 0, y: 2, z: 0}, 10);",
+         "$machine().moveTo({x: 0, y: 2, z: 50}, 10);"
     ]
 }
 
