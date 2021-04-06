@@ -5,7 +5,7 @@
          "$machine().moveTo({x: 0, y: 0, z: 50}, 10);",
          "$machine().moveTo({x: 50, y: 0, z: 50}, 10);",
          "$machine().moveTo({x: 50, y: 0, z: 0}, 10);",
-         "$machine().moveTo({x: 0, y: 0, z: 0}), 10);",
+         "$machine().moveTo({x: 0, y: 0, z: 0}, 10);",
          "$machine().moveTo({x: 0, y: 2, z: 50});",
          "$machine().moveTo({x: 50, y: 2, z: 50}, 10);",
          "$machine().moveTo({x: 50, y: 2, z: 0}, 10);",
