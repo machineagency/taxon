@@ -1,0 +1,13 @@
+{
+    "name": "deposit natto layers",
+    "actions": [
+        "$t('ventilator').activate();",
+        "$machine().zero();",
+        "$machine().moveTo(0, 0, 20).extrude(2);",
+        "$machine().moveTo(0, 5, 20);",
+        "$t('ventilator').fanOn();",
+        "$machine().moveTo(0, 5, 0);",
+        "$t('ventilator').fanOff();",
+        "$machine().moveTo(0, 5, 20).extrude(2);"
+    ]
+}
