@@ -1602,11 +1602,16 @@ class Kinematics {
         return worldPosition;
     }
 
+    coordsToWorldPosition(coords) {
+        let pt = new THREE.Vector3(coords.x, coords.y, coords.z);
+        return this.unzeroPoint(pt);
+    }
+
     getZeroedPosition() {
         // World coordinates -> control coordinates
         let zeroedPosition = new THREE.Vector3();
         if (this.zeroPosition === undefined) {
-            console.error('Machine has not yet been zeroed.');
+            console.warn('Getting tool position on an unzeroed machine.');
             return THREE.Vector3();
         }
         zeroedPosition.copy(this.getWorldPosition());
@@ -1616,7 +1621,7 @@ class Kinematics {
     unzeroPoint(point) {
         // Control coordinates -> world coordinates
         if (this.zeroPosition === undefined) {
-            console.error('Machine has not yet been zeroed.');
+            console.warn('Getting tool position on an unzeroed machine.');
             return THREE.Vector3();
         }
         let unzeroedPoint = new THREE.Vector3();
