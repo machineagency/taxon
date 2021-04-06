@@ -12,10 +12,25 @@ class Workflow {
         this.dom = document.getElementById('workflow-container');
         this.stepButtonDom = document.getElementById('step-button');
         this.consoleDom = document.getElementById('workflow-console');
-        this.injectTestProgTextNodes();
+        // this.injectTestProgTextNodes();
         this.progCurrFn = undefined;
         this.actionRotFns = [];
         this.__currLineNum = 0;
+        this.rotStore = { foo: 42 };
+
+        const consoleHandler = {
+            apply: (target, thisArg, argList) => {
+                let msg = argList[0];
+                this.consoleDom.innerText = msg;
+                if (target.name === 'error') {
+                    this.parentGui.setConsoleErrorColor();
+                }
+                return target(msg);
+            }
+        };
+        // FIXME: cannot unbind this uh oh
+        console.log = new Proxy(console.log, consoleHandler);
+        console.error = new Proxy(console.error, consoleHandler);
     }
 
     get kinematics() {
@@ -145,23 +160,10 @@ class Workflow {
     }
 
     parseStatementsIntoCurriedFn() {
-        const consoleHandler = {
-            apply: (target, thisArg, argList) => {
-                let msg = argList[0];
-                this.consoleDom.innerText = msg;
-                if (target.name === 'error') {
-                    this.parentGui.setConsoleErrorColor();
-                }
-                return target(msg);
-            }
-        };
         const CLASS_HIDDEN = 'hidden';
         const mUploadDom = document.getElementById('widget-upload-model');
         const mPositionDom = document.getElementById('widget-position-model');
         const runDom = document.getElementById('widget-run');
-        // FIXME: cannot unbind this uh oh
-        console.log = new Proxy(console.log, consoleHandler);
-        console.error = new Proxy(console.error, consoleHandler);
         let curriedWorkflow = this.__generateCurriedWorkflow();
         return curriedWorkflow;
     }
