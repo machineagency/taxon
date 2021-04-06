@@ -93,6 +93,19 @@ class Region {
         return this.dimensions.radius;
     }
 
+    containsPoint(pt) {
+        let largeNumber = 9000;
+        let center = this.position;
+        let size = new THREE.Vector3(this.width, this.height, this.length);
+        // This region's bounding box if it's a rectangle is "infinite" on
+        // the flat axis
+        if (this.shape === 'rectangle') {
+            size[this.flatAxis] = largeNumber;
+        }
+        let thisBox = new THREE.Box3().setFromCenterAndSize(center, size);
+        return thisBox.containsPoint(pt);
+    }
+
     intersectsBox(box) {
         let largeNumber = 9000;
         let center = this.position;
