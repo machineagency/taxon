@@ -54,24 +54,24 @@ class Workflow {
         let $machine = this.parentGui.strangeScene.machine;
         let $kinematics = this.parentGui.strangeScene.machine.kinematics;
         let $metrics = this.parentGui.strangeScene.metrics;
-        let tokenize = (line) => line.split('.');
-        let getSelector = (line) => tokenize(line)[0];
-        let getConstructor = (line) => getSelector(line).split('(')[0];
-        let getQuery = (line) => getSelector(line).split('(')[1].split('\'')[1];
-        let getMethods = (line) => {
-            return tokenize(line).splice(1);
+        let getConstructor = (line) => {
+            let stat = esprima.parse(line).body[0];
+            return stat.expression.callee.object.callee.name;
         };
-        let getMethodName = (method) => {
-            if (!method) {
-                return 'UNDEFINED_METHOD';
-            }
-            return method.split('(')[0];
+        let getQuery = (line) => {
+            let stat = esprima.parse(line).body[0];
+            let argObj = expression.callee.object.arguments[0];
+            return argObj.value;
         };
-        let getMethodArgs = (method) => {
-            if (!method) {
-                return [];
-            }
-            return method.replace(')', '').split('(')[1].split(',');
+        let getMethodName = (line) => {
+            let stat = esprima.parse(line).body[0];
+            return stat.expression.callee.property.name;
+        };
+        let getMethodArgs = (line) => {
+            let stat = esprima.parse(line).body[0];
+            let argObjs = stat.expression.arguments;
+            let argStrs = argObjs.map(ao => escodegen.generate(ao));
+            return argStrs;
         };
         // Because eval defines the RoT functions in this context, RoTs have
         // access to all the above functions
