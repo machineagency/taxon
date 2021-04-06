@@ -1,0 +1,6 @@
+{
+    "name": "fabricatesMetal",
+    "type": "filtering",
+    "description": "machine fabricates metal",
+    "code": "(machine) => { return machine; };"
+}

@@ -1,0 +1,6 @@
+{
+    "name": "ventilateLiquidBeforeNextLayer",
+    "type": "action",
+    "description": "dry liquid before next layer",
+    "code": "(action) => { return true; }"
+}
