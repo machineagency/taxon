@@ -1437,6 +1437,15 @@ class CrossStage extends Stage {
     }
 }
 
+class RotaryBlock extends Block {
+    constructor(name, parentMachine, dimensions, attributes = {}) {
+        super(name, parentMachine, dimensions, attributes);
+        this.componentType = 'RotaryBlock';
+        this.kinematics = 'rotary';
+        this.renderDimensions();
+    }
+}
+
 class Motor extends Block {
     static color = 0xffed90;
     constructor(name, parentMachine, dimensions, kinematics = 'directDrive') {
@@ -1878,6 +1887,9 @@ class Kinematics {
             let axisName = block.actuationAxes[0];
             this.strangeAnimator.setMoveBlocksOnAxisName(pathBlocks, axisName,
                                                          sign * displacement);
+        }
+        else if (block.kinematics === 'rotary') {
+            // TODO
         }
     }
 
@@ -2536,11 +2548,11 @@ class Compiler {
                     CurrentBlockConstructor = Block
                 }
             }
-            else if (blockData.blockType === 'linear'
-                    || blockData.blockType === 'redundantLinear') {
+            else if (blockData.blockType === 'linear') {
                 CurrentBlockConstructor = LinearStage;
             }
-            else if (blockData.blockType === 'parallel') {
+            else if (blockData.blockType === 'parallel'
+                    || blockData.blockType === 'redundantLinear') {
                 CurrentBlockConstructor = ParallelStage;
             }
             else if (blockData.blockType === 'cross') {
