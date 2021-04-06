@@ -561,6 +561,10 @@ class Machine {
         return maybeTool;
     }
 
+    getEquippedTool() {
+        return this.tools.find(t => t.attributes.equipped);
+    }
+
     getPlatform() {
         return this.blocks.find((b) => b.componentType === 'Platform');
     }

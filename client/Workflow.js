@@ -71,7 +71,9 @@ class Workflow {
             let stat = esprima.parse(line).body[0];
             let argObjs = stat.expression.arguments;
             let argStrs = argObjs.map(ao => escodegen.generate(ao));
-            return argStrs;
+            // Ugly but the only way to handle non-JSON object literals
+            let args = argStrs.map(as => eval('(' + as + ')'));
+            return args;
         };
         // Because eval defines the RoT functions in this context, RoTs have
         // access to all the above functions
@@ -355,20 +357,20 @@ class Workflow {
                     return selector;
                 },
                 fanOn: () => {
-                    tool.fanOn = true;
+                    tool.attributes.fanOn = true;
                     return selector;
                 },
                 fanOff: () => {
-                    tool.fanOn = false;
+                    tool.attributes.fanOn = false;
                     return selector;
                 },
                 park: () => {
-                    tool.equipped = false;
+                    tool.attributes.equipped = false;
                     kinematics.disconnectRootNodeForBlock(tool);
                     return selector;
                 },
                 equip: () => {
-                    tool.equipped = true;
+                    tool.attributes.equipped = true;
                     kinematics.addNewBlockAsRoot(tool);
                     return selector;
                 }
@@ -391,7 +393,12 @@ class Workflow {
                     return selector;
                 },
                 moveTo: (pt, extrudeMM) => {
-                    const axisToCoord = { x: pt.x, y: pt.y, z: pt.z };
+                    let toolPos = kinematics.getZeroedPosition();
+                    const axisToCoord = {
+                        x: pt.x !== undefined ? pt.x : toolPos.x,
+                        y: pt.y !== undefined ? pt.y : toolPos.y,
+                        z: pt.z !== undefined ? pt.z : toolPos.z
+                    };
                     kinematics.moveTool(axisToCoord, extrudeMM);
                     return selector;
                 }
