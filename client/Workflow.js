@@ -52,6 +52,7 @@ class Workflow {
     setActionRotCodes(rotCodes) {
         // Define ROT utility functions
         let $machine = this.parentGui.strangeScene.machine;
+        let $kinematics = this.parentGui.strangeScene.machine.kinematics;
         let $metrics = this.parentGui.strangeScene.metrics;
         let tokenize = (line) => line.split('.');
         let getSelector = (line) => tokenize(line)[0];
@@ -60,6 +61,20 @@ class Workflow {
         let getMethods = (line) => {
             return tokenize(line).splice(1);
         };
+        let getMethodName = (method) => {
+            if (!method) {
+                return 'UNDEFINED_METHOD';
+            }
+            return method.split('(')[0];
+        };
+        let getMethodArgs = (method) => {
+            if (!method) {
+                return [];
+            }
+            return method.replace(')', '').split('(')[1].split(',');
+        };
+        // Because eval defines the RoT functions in this context, RoTs have
+        // access to all the above functions
         this.actionRotFns = rotCodes.map(code => eval(code));
     }
 
@@ -71,6 +86,10 @@ class Workflow {
 
     step() {
         // TODO: block step until animations are done
+        if (!this.parentGui.strangeScene.machine) {
+            console.error('Please pick a machine first.');
+            return;
+        }
         if (this.progCurrFn === undefined) {
             this.progCurrFn = this.parseStatementsIntoCurriedFn();
         }
@@ -103,6 +122,7 @@ class Workflow {
         }
         this.parentGui.strangeScene.removeMaterialMarks();
         this.parentGui.strangeScene.removeMaterials();
+        this.rotStore = {};
     }
 
     __splitProgTextIntoStatements(progText) {
@@ -211,8 +231,10 @@ class Workflow {
 
     checkRotsForLine(line) {
         let failedRotCheck = false;
+        // Expose this Workflow's KV store for rots to keep state
+        const store = this.rotStore;
         this.actionRotFns.forEach((rotFn) => {
-            let success = rotFn(line);
+            let success = rotFn(line, store);
             if (!success) {
                 failedRotCheck = true;
             }
@@ -368,13 +390,9 @@ class Workflow {
                     kinematics.turnMotors(motorStepPairs);
                     return selector;
                 },
-                moveTo: (x, y, z) => {
-                    const axisToCoord = { x, y, z };
-                    kinematics.moveTool(axisToCoord);
-                    return selector;
-                },
-                extrude: (mm) => {
-                    tool.extrude(mm);
+                moveTo: (pt, extrudeMM) => {
+                    const axisToCoord = { x: pt.x, y: pt.y, z: pt.z };
+                    kinematics.moveTool(axisToCoord, extrudeMM);
                     return selector;
                 }
             };
