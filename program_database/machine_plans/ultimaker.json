@@ -4,13 +4,13 @@
         "workEnvelope": {
             "shape": "box",
             "dimensions" : {
-                "width": 130,
-                "height": 110,
-                "length": 130
+                "width": 240,
+                "height": 300,
+                "length": 330
             },
             "position": {
                 "x": 0,
-                "y": 102.6,
+                "y": 160,
                 "z": 0
             }
         },
@@ -24,8 +24,98 @@
             "exclude": [
                 "wood", "metal"
             ]
+        },
+        "footprint": {
+            "width": 585,
+            "length": 495
         }
     },
     "blocks": [
+        {
+            "name": "leadscrewHousing",
+            "blockType": "redundantLinear",
+            "actuationAxes": [ "y" ],
+            "dimensions": {
+                "width": 585,
+                "height": 350,
+                "length": 495
+            },
+            "position": {
+                "x": 0,
+                "y": 175,
+                "z": 0
+            },
+            "attributes": {
+                "driveType": "leadscrew",
+                "stepDisplacementRatio": 0.5
+            },
+            "connections": [
+                {
+                    "child": "build plate",
+                    "offset": {
+                        "x": 0,
+                        "y": -130,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "build plate",
+            "blockType": "nonActuating",
+            "dimensions": {
+                "length": 330,
+                "width": 240,
+                "height": 10
+            },
+            "attributes": {
+                "isPlatform": true,
+                "isImmobile": true
+            }
+        },
+        {
+            "name": "gantryAssembly",
+            "blockType": "cross",
+            "actuationAxes": [ "x", "z" ],
+            "dimensions": {
+                "width": 585,
+                "height": 100,
+                "length": 495
+            },
+            "position": {
+                "x": 0,
+                "y": 400,
+                "z": 0
+            },
+            "attributes": {
+                "driveType": "leadscrew",
+                "stepDisplacementRatio": 0.5
+            },
+            "connections": [
+                {
+                    "child": "extruder",
+                    "isInert": false,
+                    "offset": {
+                        "x": 0,
+                        "y": 65,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "extruder",
+            "blockType": "nonActuating",
+            "isTool": true,
+            "dimensions": {
+                "width": 50,
+                "height": 50,
+                "length": 50
+            },
+            "attributes": {
+                "toolType": "print3d",
+                "nozzleCount": 2
+            }
+        }
     ]
 }
