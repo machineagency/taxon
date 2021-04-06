@@ -985,10 +985,6 @@ class Tool extends Block {
         }
     }
 
-    extrude() {
-        // TODO: toggle a flag for material deposition animation
-    }
-
     __loadToolStl() {
         let filepath;
         if (this.toolType === 'print3dFDM') {
@@ -1765,7 +1761,7 @@ class Kinematics {
         }
     }
 
-    moveTool(axesToCoords) {
+    moveTool(axesToCoords, extrudeMM) {
         // NOTE: distinction between coords (zero applied) and position
         // matters here, as well is in verifyMoveInWorkEnvelope, but not
         // in the rest of moveToolRelative
@@ -1782,13 +1778,13 @@ class Kinematics {
                 y: adjustedPoint.y,
                 z: adjustedPoint.z,
             };
-            this.moveToolRelative(axesToCoordsAdjusted);
+            this.moveToolRelative(axesToCoordsAdjusted, extrudeMM);
             return true;
         }
         return false;
     }
 
-    moveToolRelative(axesToCoords) {
+    moveToolRelative(axesToCoords, extrudeMM) {
         let machine = this.strangeScene.machine;
         let blockNameToDisplacement = {};
         machine.blocks.forEach((block) => {
@@ -1817,7 +1813,7 @@ class Kinematics {
                 // TODO
             }
         });
-        this.actuateAllBlocks(blockNameToDisplacement);
+        this.actuateAllBlocks(blockNameToDisplacement, extrudeMM);
     }
 
 
@@ -1893,13 +1889,13 @@ class Kinematics {
         }
     }
 
-    actuateAllBlocks(blockNameToDisplacement) {
+    actuateAllBlocks(blockNameToDisplacement, extrudeMM) {
         Object.keys(blockNameToDisplacement).forEach((blockName) => {
             let block = this.machine.findBlockWithName(blockName);
             let displacement = blockNameToDisplacement[blockName];
             this.actuateBlock(block, displacement);
         });
-        this.strangeAnimator.animateToBlockEndPositions();
+        this.strangeAnimator.animateToBlockEndPositions(extrudeMM);
     }
 
     turnMotors(motorNameToSteps) {
@@ -2037,7 +2033,7 @@ class StrangeAnimator {
         return currPos;
     }
 
-    animateToBlockEndPositions() {
+    animateToBlockEndPositions(extrudeMM) {
         let actions = Object.keys(this.blockNameEndPositions).map((blockName) => {
             let block = this.strangeScene.machine.findBlockWithName(blockName);
             let endPos = this.blockNameEndPositions[block.name];
@@ -2049,7 +2045,10 @@ class StrangeAnimator {
             action.loop = THREE.LoopOnce;
             action.clampWhenFinished = true;
             // TODO: better design for turning this on and off
-            if (block.componentType === 'Tool' && block.attributes.toolType === 'print3d') {
+            if (block.componentType === 'Tool'
+                && extrudeMM
+                && (block.attributes.toolType === 'liquidDispenser'
+                || block.attributes.toolType === 'print3d')) {
                 let materialStartPos, materialEndPos;
                 if (this.isAnimatingAPlatform()) {
                     let platformT = this.calcPlatformTranslation();
