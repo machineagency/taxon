@@ -314,32 +314,69 @@ class Workflow {
                     setTimeout(() => {
                         kinematics.actuateBlock(block, -wiggleSteps);
                     }, delay);
+                    return selector;
                 }
             };
+            return selector;
         };
     }
 
     generateTSelector() {
         const kinematics = this.kinematics;
         return (toolName) => {
+            let tool = kinematics.machine.getTool(toolName);
+            let selector = {
+                activate: () => {
+                    tool.activate();
+                    return selector;
+                },
+                fanOn: () => {
+                    tool.fanOn = true;
+                    return selector;
+                },
+                fanOff: () => {
+                    tool.fanOn = false;
+                    return selector;
+                },
+                park: () => {
+                    tool.equipped = false;
+                    kinematics.disconnectRootNodeForBlock(tool);
+                    return selector;
+                },
+                equip: () => {
+                    tool.equipped = true;
+                    kinematics.addNewBlockAsRoot(tool);
+                    return selector;
+                }
+            };
+            return selector;
         };
     }
 
     generateMachineSelector() {
         const kinematics = this.kinematics;
-        return () => {
-            return {
+        return (toolName) => {
+            let tool = kinematics.machine.getTool(toolName);
+            let selector = {
                 zero: () => {
                     kinematics.zeroAtCurrentPosition();
+                    return selector;
                 },
                 stepMotors: (motorStepPairs) => {
                     kinematics.turnMotors(motorStepPairs);
+                    return selector;
                 },
                 moveTo: (x, y, z) => {
                     const axisToCoord = { x, y, z };
                     kinematics.moveTool(axisToCoord);
+                    return selector;
+                },
+                extrude: (mm) => {
+                    tool.extrude(mm);
+                    return selector;
                 }
             };
+            return selector;
         };
     }
 

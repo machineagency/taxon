@@ -1476,6 +1476,37 @@ class Kinematics {
         this.redetermineRootKNodes();
     }
 
+    disconnectRootNodeForBlock(block) {
+        let rootNodeBlockNames = this.rootKNodes.map(kn => kn.block.name);
+        console.assert(rootNodeBlockNames.includes(block.name));
+        let rootNode = this.findNodeWithBlockName(block.name);
+        // There should only be one child...
+        let toolChild;
+        rootNode.childNodes.forEach((child) => {
+            child.parentNode = undefined;
+            this.rootKNodes.push(child);
+            toolChild = child;
+        });
+        rootNode.childNodes = [];
+        return toolChild;
+    }
+
+    addNewBlockAsRoot(newBlock) {
+        // note that "child" and "parent" here are the sense of connections
+        // where this is reversed in the actual ktree implementation
+        let childBlock = newBlock;
+        // Assuming we only have one tool with a full kinematic chain behind
+        // it and this is the "current" tool
+        let currNode = this.rootKNodes.find((knode) => {
+            return knode.childNodes.length > 0;
+        });
+        let parentBlock = currNode.block
+        this.addConnectionToTree(parentBlock, childBlock, false);
+
+        let cnIdx = this.rootKNodes.indexOf(currNode);
+        this.rootKNodes.splice(cnIdx);
+    }
+
     redetermineRootKNodes(possibleRootNode) {
         let maybeNodeToRemove;
         this.rootKNodes.forEach((rootKNode) => {
@@ -1651,19 +1682,6 @@ class Kinematics {
         let toolGoalPosition = new THREE.Vector3(axesToCoords['x'],
                                                  axesToCoords['y'],
                                                  axesToCoords['z']);
-        // In the case of 2D work envelopes, for simplicity's sake, project
-        // the toolGoalPosition on the null axis to the envelope
-        // if (this.metrics.workEnvelope.shape === 'rectangle') {
-        //     if (this.metrics.workEnvelope.width === 0) {
-        //         toolGoalPosition.setX(this.metrics.workEnvelope.position.x);
-        //     }
-        //     else if (this.metrics.workEnvelope.height === 0) {
-        //         toolGoalPosition.setY(this.metrics.workEnvelope.position.y);
-        //     }
-        //     else {
-        //         toolGoalPosition.setZ(this.metrics.workEnvelope.position.z);
-        //     }
-        // }
         let containResult = this.checkContainsPoint(toolGoalPosition);
         if (!containResult) {
             let e = `Move to ${axesToCoords.x} ${axesToCoords.y} ${axesToCoords.z} is outside work envelope.`;
@@ -1690,6 +1708,20 @@ class Kinematics {
             let bbox = new THREE.Box3();
             let size = new THREE.Vector3(we.width + eps, we.height + eps,
                                          we.length + eps);
+            // This region's bounding box if it's a rectangle is "infinite" on
+            // the flat axis
+            if (we.shape === 'rectangle') {
+                const largeNumber = 9000;
+                if (!we.width) {
+                    size.x = largeNumber;
+                }
+                if (!we.height) {
+                    size.y = largeNumber;
+                }
+                if (!we.length) {
+                    size.z = largeNumber;
+                }
+            };
             bbox.setFromCenterAndSize(center, size);
             return bbox.containsPoint(unzeroedPoint);
         }
@@ -1742,6 +1774,9 @@ class Kinematics {
                                      axesToCoords[axisSecond],
                                      axesToCoords[axisThird]];
                 blockNameToDisplacement[block.name] = displacements;
+            }
+            else if (block.kinematics === 'rotary') {
+                // TODO
             }
         });
         this.actuateAllBlocks(blockNameToDisplacement);

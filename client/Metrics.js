@@ -56,6 +56,17 @@ class Region {
         this.parentMetrics.parentScene.scene.add(this.meshGroup);
         this.position = new THREE.Vector3(weProg.position.x, weProg.position.y,
                                          weProg.position.z);
+        if (this.shape === 'rectangle') {
+            if (!this.width) {
+                this.flatAxis = 'x';
+            }
+            if (!this.height) {
+                this.flatAxis = 'y';
+            }
+            if (!this.length) {
+                this.flatAxis = 'z';
+            }
+        }
     }
 
     get position() {
@@ -83,8 +94,14 @@ class Region {
     }
 
     intersectsBox(box) {
+        let largeNumber = 9000;
         let center = this.position;
         let size = new THREE.Vector3(this.width, this.height, this.length);
+        // This region's bounding box if it's a rectangle is "infinite" on
+        // the flat axis
+        if (this.shape === 'rectangle') {
+            size[this.flatAxis] = largeNumber;
+        }
         let thisBox = new THREE.Box3().setFromCenterAndSize(center, size);
         return thisBox.intersectsBox(box);
     }
