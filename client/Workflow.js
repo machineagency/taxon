@@ -332,8 +332,8 @@ class Workflow {
     }
 
     generateBSelector() {
-        const kinematics = this.kinematics;
         return (blockName) => {
+            const kinematics = this.kinematics;
             let block = kinematics.machine.findBlockWithName(blockName);
             console.assert(block !== undefined,
                             'Could not find a block with that name');
@@ -355,8 +355,8 @@ class Workflow {
     }
 
     generateTSelector() {
-        const kinematics = this.kinematics;
         return (toolName) => {
+            const kinematics = this.kinematics;
             let tool = kinematics.machine.getTool(toolName);
             let selector = {
                 activate: () => {
@@ -387,8 +387,8 @@ class Workflow {
     }
 
     generateMachineSelector() {
-        const kinematics = this.kinematics;
         return (toolName) => {
+            const kinematics = this.kinematics;
             let tool = kinematics.machine.getTool(toolName);
             let selector = {
                 zero: () => {
