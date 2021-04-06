@@ -958,6 +958,7 @@ class Block extends StrangeComponent {
 
 class Tool extends Block {
     static color = 0xe44242;
+    static inactiveColor = 0xaaaaaa;
     static defaultPosition = new THREE.Vector3(0, 150, 0);
     constructor(name, parentMachine, dimensions, attributes) {
         super(name, parentMachine, dimensions);
@@ -972,6 +973,22 @@ class Tool extends Block {
         this.renderDimensions();
     }
 
+    activate() {
+        if (!this.attributes.active) {
+            this.attributes.active = true;
+            let material = new THREE.MeshLambertMaterial({
+                color : Tool.color,
+                transparent: true,
+                opacity: 0.50
+            });
+            this.meshGroup.children[0].material = material;
+        }
+    }
+
+    extrude() {
+        // TODO: toggle a flag for material deposition animation
+    }
+
     __loadToolStl() {
         let filepath;
         if (this.toolType === 'print3dFDM') {
@@ -981,7 +998,7 @@ class Tool extends Block {
             return new Promise(resolve => {
                 let geom = BuildEnvironment.geometryFactories.tool(this.dimensions);
                 let material = new THREE.MeshLambertMaterial({
-                    color : Tool.color
+                    color : this.attributes.active ? Tool.color : Tool.inactiveColor
                 });
                 let placeHolderMesh = new THREE.Mesh(geom, material);
                 resolve(placeHolderMesh);
@@ -1016,8 +1033,10 @@ class Tool extends Block {
             length: this.length
         });
         let edgesGeom = new THREE.EdgesGeometry(bboxGeom);
+        let activeDefinedFalse = this.attributes.active !== undefined
+                                    && !this.attributes.active;
         let material = new THREE.MeshLambertMaterial({
-            color : Tool.color,
+            color : activeDefinedFalse ? Tool.inactiveColor : Tool.color,
             transparent: true,
             opacity: 0.50
         });
