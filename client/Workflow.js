@@ -304,7 +304,7 @@ class Workflow {
             let block = kinematics.machine.findBlockWithName(blockName);
             console.assert(block !== undefined,
                             'Could not find a block with that name');
-            return {
+            let selector = {
                 wiggle: () => {
                     const wiggleSteps = 20;
                     const epsSec = 0.01;

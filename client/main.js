@@ -546,9 +546,19 @@ class Machine {
         return block;
     }
 
-    getTool() {
-        // TODO: toolswitching
-        return this.tools[0];
+    getTool(name) {
+        let maybeTool;
+        if (name !== undefined) {
+            maybeTool = this.tools.find(t => t.name === name);
+            return maybeTool;
+        }
+        else {
+            maybeTool = this.tools[0];
+        }
+        if (!maybeTool) {
+            console.error(`Couldn't find tool: ${name || "any tool at all"}`);
+        }
+        return maybeTool;
     }
 
     getPlatform() {
