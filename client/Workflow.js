@@ -222,7 +222,13 @@ class Workflow {
                         return endFunction;
                     }
                     else {
-                        eval(currLine);
+                        try {
+                            eval(currLine);
+                        }
+                        catch (e) {
+                            console.error(e);
+                            return EndFunction;
+                        }
                         return innerFn;
                     }
                 };
