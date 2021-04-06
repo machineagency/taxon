@@ -4,9 +4,9 @@
         "workEnvelope": {
             "shape": "rectangle",
             "dimensions" : {
-                "width": 370,
+                "width": 570,
                 "height": 0,
-                "length": 570
+                "length": 370
             },
             "position": {
                 "x": 0,
@@ -152,7 +152,7 @@
                     "child": "pickAndPlaceHead",
                     "offset": {
                         "x": 90,
-                        "y": 22.5,
+                        "y": 50,
                         "z": 0
                     }
                 }
@@ -160,23 +160,20 @@
         },
         {
             "name": "pickAndPlaceHead",
-            "blockType": "rotary",
-            "actuationAxes": [ "beta" ],
+            "blockType": "nonActuating",
             "dimensions": {
                 "width": 45,
                 "height": 135,
                 "length": 90
             },
             "attributes": {
-                "driveType": "timingBelt",
-                "stepDisplacementRatio": 0.5
             },
             "connections": [
                 {
                     "child": "needleHolder",
                     "offset": {
                         "x": 0,
-                        "y": 0,
+                        "y": 55,
                         "z": 0
                     }
                 }
@@ -199,7 +196,7 @@
                     "child": "needle0402",
                     "offset": {
                         "x": 0,
-                        "y": 92.5,
+                        "y": 115,
                         "z": 0
                     }
                 }
@@ -210,11 +207,13 @@
             "isTool": true,
             "blockType": "nonActuating",
             "attributes": {
-                "toolType": "needle"
+                "toolType": "needle",
+                "pcbSize": "0402",
+                "equipped": true
             },
             "dimensions": {
                 "width": 10,
-                "height": 50,
+                "height": 100,
                 "length": 10
             }
         },
@@ -223,16 +222,17 @@
             "isTool": true,
             "blockType": "nonActuating",
             "attributes": {
-                "toolType": "needle"
+                "toolType": "needle",
+                "pcbSize": "0603"
             },
             "dimensions": {
                 "width": 10,
-                "height": 50,
+                "height": 100,
                 "length": 10
             },
             "position": {
                 "x": -200,
-                "y": 25,
+                "y": 50,
                 "z": 0
             }
         },
@@ -241,16 +241,17 @@
             "isTool": true,
             "blockType": "nonActuating",
             "attributes": {
-                "toolType": "needle"
+                "toolType": "needle",
+                "pcbSize": "0603"
             },
             "dimensions": {
                 "width": 10,
-                "height": 50,
+                "height": 100,
                 "length": 10
             },
             "position": {
                 "x": -200,
-                "y": 25,
+                "y": 50,
                 "z": 15
             }
         }

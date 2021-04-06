@@ -1,13 +1,12 @@
 {
-    "name": "pnp good",
+    "name": "correct pick and place",
     "actions": [
         "$machine().zero();",
-        "$machine().moveTo({x: -10, y: 0, z: 0});",
+        "$machine().moveTo({x: -87.5, y: 0, z: -15});",
         "$t('needle0402').park();",
-        "$machine().moveTo({x: 0, y: 0, z: 0});",
-        "$machine().moveTo({x: -10, y: 0, z: 0});",
-        "$t('needle0402').equip();",
-        "$machine().moveTo({x: 0, y: 0, z: 0});"
+        "$machine().moveTo({x: -87.5, y: 0, z: 0});",
+        "$t('needle0603').equip();",
+        "$machine().moveTo({x: 300, y: 0, z: 0});"
     ]
 }
 

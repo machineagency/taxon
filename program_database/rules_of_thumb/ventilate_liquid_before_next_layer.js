@@ -1,5 +1,4 @@
 (action, store) => {
-    // todo fix bnased on new syntax
     try {
         if (getMethodName(action) === 'fanOn') {
             store['highestLayerWet'] = false;
@@ -16,7 +15,7 @@
     }
     catch (e) {
         console.log('Cannot enforce "ventilate liquid before next layer."');
-        console.log(e);
+        // console.log(e);
         return true;
     }
 }

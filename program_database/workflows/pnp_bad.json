@@ -1,0 +1,8 @@
+{
+    "name": "incorrect pick and place",
+    "actions": [
+        "$machine().zero();",
+        "$machine().moveTo({x: 300, y: 0, z: 0});"
+    ]
+}
+
