@@ -1,6 +1,5 @@
 {
     "name": "machineIsAdditive",
     "type": "filtering",
-    "description": "machine is additive",
-    "code": "(machine) => { try { let strategies = machine.metrics.manufacturingStrategies; return strategies.includes('additive'); } catch { return false; } };"
+    "description": "machine is additive"
 }

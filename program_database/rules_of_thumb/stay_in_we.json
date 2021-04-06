@@ -1,6 +1,5 @@
 {
     "name": "stayInWe",
     "type": "action",
-    "description": "tool stays in w.e.",
-    "code": "(action) => { return true; }"
+    "description": "tool stays in w.e."
 }

@@ -1,6 +1,5 @@
 {
     "name": "handleTallFeatures",
     "type": "filtering",
-    "description": "machine handles tall features",
-    "code": "(machine) => { return machine; };"
+    "description": "machine handles tall features"
 }

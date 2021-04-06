@@ -528,15 +528,26 @@ let seedDatabase = (db) => {
                 if (filename[0] === '.') {
                     return;
                 }
-                let fullFilename = rotsDir + filename;
-                fs.readFile(fullFilename, (err, data) => {
-                    if (err) {
-                        throw err;
-                    }
-                    console.log(`Loading rule of thumb: ${filename}.`);
-                    let rotObj = JSON.parse(data);
-                    db.collection('rots').insertOne(rotObj);
-                });
+                if (filename.split('.')[1] === 'json') {
+                    let fullFilename = rotsDir + filename;
+                    let jsFilename = filename.split('.')[0] + '.js';
+                    let jsFullFileName = rotsDir + jsFilename;
+                    fs.readFile(fullFilename, (err, rotData) => {
+                        if (err) {
+                            throw err;
+                        }
+                        console.log(`Loading rule of thumb: ${filename}.`);
+                        let rotObj = JSON.parse(rotData);
+                        fs.readFile(jsFullFileName, (err, jsData) => {
+                            if (err) {
+                                console.error(`Missing JS for: ${filename}.`);
+                                throw err;
+                            }
+                            rotObj.code = jsData.toString();
+                            db.collection('rots').insertOne(rotObj);
+                        });
+                    });
+                }
             });
         });
     })
