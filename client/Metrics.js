@@ -133,8 +133,8 @@ class Region {
         if (this.shape === 'rectangle') {
             let geom;
             if (this.height === 0) {
-                geom = new THREE.PlaneBufferGeometry(dimensions.length,
-                                                     dimensions.width);
+                geom = new THREE.PlaneBufferGeometry(dimensions.width,
+                                                     dimensions.length);
                 geom.rotateX(Math.PI / 2);
                 return geom;
             }
