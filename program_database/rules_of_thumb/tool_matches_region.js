@@ -18,7 +18,7 @@
     }
     catch (e) {
         console.log('Cannot enforce "tool matches region."');
-        console.log(e);
+        console.warn(e);
         return true;
     }
 };

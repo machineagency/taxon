@@ -15,7 +15,7 @@
     }
     catch (e) {
         console.log('Cannot enforce "ventilate liquid before next layer."');
-        // console.log(e);
+        console.warn(e);
         return true;
     }
 }
