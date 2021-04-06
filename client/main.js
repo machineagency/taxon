@@ -89,6 +89,13 @@ class StrangeScene {
         return controls;
     }
 
+    recompileMachine() {
+        if (this.machine && this.lastCompiledMachineProg) {
+            this.machine.clearMachineFromScene();
+            this.compiler.decompileIntoScene(this, this.lastCompiledMachineProg);
+        }
+    }
+
     addSceneObjectDirectly(sceneObj) {
         this.scene.add(sceneObj);
     }
@@ -2513,6 +2520,7 @@ class Compiler {
         if (strangeScene.machine !== undefined) {
             strangeScene.machine.clearMachineFromScene();
         }
+        strangeScene.lastCompiledMachineProg = machineProg;
         let machine = new Machine('', strangeScene, false);
         this.decompileIntoMachineObjFromProg(machine, machineProg);
         return machine;
@@ -2614,13 +2622,12 @@ class Compiler {
 
 function main() {
     let ss = new StrangeScene();
-    let compiler = new Compiler();
     // ss.instructionQueue = new InstructionQueue();
     // ss.instructionQueue.setKinematics(ss.machine.kinematics);
     // let jobFile = new JobFile(ss);
     // jobFile.setKinematics(kinematics);
     window.strangeScene = ss;
-    window.compiler = compiler;
+    window.strangeScene.compiler = new Compiler();
     // window.jobFile = jobFile;
     window.strangeGui = new StrangeGui(ss);
     window.testPrograms = TestPrograms;

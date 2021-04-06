@@ -606,7 +606,7 @@ class StrangeGui {
     decompileGCText() {
         let gcDom = document.getElementById('gc-container-1');
         let gcText = gcDom.innerText;
-        let machine = window.compiler
+        let machine = window.strangeScene.compiler
             .decompileIntoScene(window.strangeScene, gcText);
         window.kinematics.reinitializeForMachine(machine);
     }
@@ -829,7 +829,8 @@ class StrangeGui {
     __inflateSceneFromGCText() {
         let gcDom = document.getElementById('gc-container-1');
         let gcText = gcDom.innerText;
-        let newMachine = window.compiler.decompileIntoScene(window
+        let newMachine = window.strangeScene.
+            compiler.decompileIntoScene(window
             .strangeScene,
             gcText);
     }

@@ -124,6 +124,7 @@ class Workflow {
         }
         this.parentGui.strangeScene.removeMaterialMarks();
         this.parentGui.strangeScene.removeMaterials();
+        this.parentGui.strangeScene.recompileMachine();
         this.rotStore = {};
     }
 
