@@ -1,5 +1,5 @@
 {
-    "name": "simpleWireCut",
+    "name": "simple wire cut",
     "actions": [
         "$material('foam').makeBox(100, 100, 100);",
         "$machine().zero();",

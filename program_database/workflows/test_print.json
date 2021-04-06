@@ -1,5 +1,5 @@
 {
-    "name": "testPrint",
+    "name": "test print",
     "actions": [
          "$machine().zero();",
          "$machine().moveTo(0, 0, 50);",
