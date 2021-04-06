@@ -10,7 +10,7 @@
             },
             "position": {
                 "x": 0,
-                "y": 102.6,
+                "y": 90,
                 "z": 0
             }
         },
@@ -27,6 +27,183 @@
         }
     },
     "blocks": [
+        {
+            "name": "build plate",
+            "blockType": "nonActuating",
+            "dimensions": {
+                "length": 100,
+                "width": 100,
+                "height": 10
+            },
+            "attributes": {
+                "isPlatform": true
+            }
+        },
+        {
+            "name": "platform belt",
+            "blockType": "linear",
+            "invertDisplacement": true,
+            "actuationAxes": [ "x" ],
+            "dimensions": {
+                "width": 165,
+                "height": 25,
+                "length": 165
+            },
+            "position": {
+                "x": 0,
+                "y": 12.5,
+                "z": 0
+            },
+            "attributes": {
+                "driveType": "leadScrew",
+                "stepDisplacementRatio": 0.7
+            },
+            "connections": [
+                {
+                    "child": "build plate",
+                    "offset": {
+                        "x": 0,
+                        "y": -17.5,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "carriage",
+            "blockType": "linear",
+            "actuationAxes": [ "z" ],
+            "dimensions": {
+                "width": 12.5,
+                "height": 50,
+                "length": 170
+            },
+            "position": {
+                "x": 55,
+                "y": 112.5,
+                "z": 0
+            },
+            "attributes": {
+                "driveType": "leadScrew",
+                "stepDisplacementRatio": 0.5
+            },
+            "connections": [
+                {
+                    "child": "gantry",
+                    "isInert": false,
+                    "offset": {
+                        "x": 12.5,
+                        "y": 0,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "gantry",
+            "blockType": "linear",
+            "actuationAxes": [ "y" ],
+            "dimensions": {
+                "width": 12.5,
+                "height": 75,
+                "length": 50
+            },
+            "attributes": {
+                "driveType": "leadScrew",
+                "stepDisplacementRatio": 0.5
+            },
+            "connections": [
+                {
+                    "child": "toolSubstrate",
+                    "isInert": false,
+                    "offset": {
+                        "x": 8.75,
+                        "y": 25,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "toolSubstrate",
+            "blockType": "nonActuating",
+            "dimensions": {
+                "width": 5,
+                "height": 50,
+                "length": 50
+            },
+            "attributes": {
+            },
+            "connections": [
+                {
+                    "child": "dispenser",
+                    "isInert": false,
+                    "offset": {
+                        "x": 8.75,
+                        "y": 12.5,
+                        "z": 0
+                    }
+                },
+                {
+                    "child": "solutionContainer",
+                    "isInert": true,
+                    "offset": {
+                        "x": 8.75,
+                        "y": 0,
+                        "z": -18.75
+                    }
+                },
+                {
+                    "child": "ventilator",
+                    "isInert": true,
+                    "offset": {
+                        "x": 9,
+                        "y": 18.5,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "dispenser",
+            "blockType": "nonActuating",
+            "isTool": true,
+            "dimensions": {
+                "width": 12.5,
+                "height": 75,
+                "length": 12.5
+            },
+            "attributes": {
+                "toolType": "liquidDispenser",
+                "active": true,
+                "nozzleCount": 1
+            }
+        },
+        {
+            "name": "solutionContainer",
+            "blockType": "nonActuating",
+            "dimensions": {
+                "width": 12.5,
+                "height": 50,
+                "length": 12.5
+            },
+            "attributes": {
+            }
+        },
+        {
+            "name": "ventilator",
+            "blockType": "nonActuating",
+            "isTool": true,
+            "dimensions": {
+                "width": 12.5,
+                "height": 12.5,
+                "length": 50
+            },
+            "attributes": {
+                "toolType": "fan",
+                "active": false
+            }
+        }
     ]
 }
 
