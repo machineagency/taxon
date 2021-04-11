@@ -413,12 +413,14 @@ class StrangeGui {
             if (response.ok) {
                 response.json()
                 .then((responseJson) => {
+                    // Why don't you just iterate over rots agh
                     let rotList = responseJson.results;
                     let rotNames = rotList.map(r => r.name);
                     let rotDescs = rotList.map(r => r.description);
                     let rotTypes = rotList.map(r => r.type);
                     let rotCodes = rotList.map(r => r.code);
                     let rotIds = rotList.map(r => r._id);
+                    let rotIsDependents = rotList.map(r => r.isDependent);
                     this.rotListDom.innerHTML = '';
                     rotNames.forEach((mName, idx) => {
                         let rotDiv = document.createElement('div');
@@ -444,6 +446,12 @@ class StrangeGui {
                         descDiv.classList.add('rot-description');
                         descDiv.innerText = prefix + rotDescs[idx];
                         rotDiv.appendChild(descDiv);
+                        if (rotIsDependents[idx]) {
+                            let depValDiv = document.createElement('div');
+                            depValDiv.setAttribute('contenteditable', true);
+                            depValDiv.classList.add('dep-val-box');
+                            rotDiv.appendChild(depValDiv);
+                        }
                     });
                 });
             }
