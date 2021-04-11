@@ -192,6 +192,16 @@ input[type="checkbox"] {
     border: 1px dashed #ffffff;
 }
 
+.dep-val-box {
+    outline: none;
+    border: 1px dashed #ffffff;
+    display: inline-block;
+    width: 100px;
+    margin-left: 10px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
 #heuristic-set-container {
     height: 150px;
     padding-top: 10px;
