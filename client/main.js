@@ -91,7 +91,6 @@ class StrangeScene {
 
     recompileMachine() {
         if (this.machine && this.lastCompiledMachineProg) {
-            this.machine.clearMachineFromScene();
             this.compiler.decompileIntoScene(this, this.lastCompiledMachineProg);
         }
     }
@@ -2519,6 +2518,7 @@ class Compiler {
     decompileIntoScene(strangeScene, machineProg) {
         if (strangeScene.machine !== undefined) {
             strangeScene.machine.clearMachineFromScene();
+            strangeScene.metrics.clearFromScene();
         }
         strangeScene.lastCompiledMachineProg = machineProg;
         let machine = new Machine('', strangeScene, false);
