@@ -5,9 +5,9 @@
         let dimArray = JSON.parse(depValue);
         let [minWidth, minHeight, minLength] = dimArray;
         let we = machine.metrics.workEnvelope;
-        return we.width >= minWidth
-            && we.height >= minHeight
-            && we.length >= minLength;
+        return we.dimensions.width >= minWidth
+            && we.dimensions.height >= minHeight
+            && we.dimensions.length >= minLength;
     }
     catch (e) {
         return false;

@@ -447,9 +447,16 @@ class StrangeGui {
                         descDiv.innerText = prefix + rotDescs[idx];
                         rotDiv.appendChild(descDiv);
                         if (rotIsDependents[idx]) {
+                            const defaultVal = '[0, 0, 0]';
                             let depValDiv = document.createElement('div');
                             depValDiv.setAttribute('contenteditable', true);
                             depValDiv.classList.add('dep-val-box');
+                            depValDiv.innerText = defaultVal;
+                            depValDiv.addEventListener('keypress', (event) => {
+                                if (event.code === 'Enter') {
+                                    this.updateRotFilters();
+                                }
+                            });
                             rotDiv.appendChild(depValDiv);
                         }
                     });
@@ -466,13 +473,25 @@ class StrangeGui {
     }
 
     updateRotFilters() {
-        let checkedFilteringRoTIds = Array.from(this.rotListDom.children)
+        let urlParams = {};
+        let depVals = [];
+        let checkedFilteringRoTIds = [];
+        Array.from(this.rotListDom.children)
             .filter(rDom => {
                 return rDom.children[0].checked
                         && rDom.dataset.rotType === 'filtering';
             })
-            .map(rDom => rDom.dataset.serverId);
-        let url = this.buildFetchUrl('machines', { 'rotIds' : checkedFilteringRoTIds });
+            .forEach((rDom) => {
+                let rotServerId = rDom.dataset.serverId;
+                checkedFilteringRoTIds.push(rotServerId);
+                let maybeDepValDom = Array.from(rDom.children)
+                                    .find(c => c.className === 'dep-val-box');
+                if (maybeDepValDom) {
+                    urlParams[rotServerId] = maybeDepValDom.innerText.trim();
+                }
+            });
+        urlParams['rotIds'] = checkedFilteringRoTIds;
+        let url = this.buildFetchUrl('machines', urlParams);
         fetch(url, {
             method: 'GET'
         })

@@ -80,8 +80,12 @@ let attachRoutesWithDBAndStart = (db) => {
                 .then((machineList) => {
                     let rotCodes = rots.map(rot => rot.code);
                     let rotFns = rotCodes.map(code => eval(code));
+                    let rotIds = rots.map(rot => rot._id);
                     let totalFilter = (machine) => {
-                        let resultBooleans = rotFns.map(rotFn => rotFn(machine));
+                        let resultBooleans = rotFns.map((rotFn, rotIdx) => {
+                            let maybeDepVal = req.query[rotIds[rotIdx]];
+                            return rotFn(machine, maybeDepVal);
+                        });
                         return resultBooleans.reduce((acc, currEl) => {
                             return acc && currEl;
                         }, true);
