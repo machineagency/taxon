@@ -1,1 +1,2 @@
-(action) => { return true; };
+(action, store) => {
+    return true; };

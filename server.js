@@ -23,7 +23,7 @@ const url = 'mongodb://127.0.0.1:27017/strange-machine';
 mongoClient.connect(url, { useUnifiedTopology: true })
     .then(client => {
         console.log('...connected to the database.');
-        const db = client.db('strange-machine');
+        const db = client.db('taxon');
         if (DO_SEED_DATABASE) {
             console.log('Seeding the database.');
             seedDatabase(db);
