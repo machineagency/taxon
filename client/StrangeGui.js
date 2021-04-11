@@ -37,8 +37,12 @@ class StrangeGui {
         this.consoleDom = document.getElementById('workflow-console');
         this.rotListDom = document.getElementById('rot-container');
         this.modalDom = document.getElementById('modal-container');
+        this.modalContentDom = document.getElementById('modal-content');
         this.modalDom.addEventListener('click', (event) => {
             this.hideModal();
+        });
+        this.modalContentDom.addEventListener('click', (event) => {
+            event.stopPropagation();
         });
         this.workflowDom.addEventListener('input', (event) => {
             this.workflow.grayStepButton();
@@ -126,11 +130,29 @@ class StrangeGui {
         });
     }
 
-    showModal() {
+    showModalForRotWithId(rotId) {
         this.modalDom.classList.remove('hidden');
+        let url = this.buildFetchUrl('rots', { ids: rotId });
+        fetch(url, {
+            method: 'GET'
+        })
+        .then((response) => {
+            if (response.ok) {
+                response.json()
+                .then((responseJson) => {
+                    let rot = responseJson.results[0];
+                    let prettyCode = escodegen.generate(esprima.parse(rot.code));
+                    this.modalContentDom.innerText = prettyCode;
+                });
+            }
+            else {
+                this.modalContentDom.innerText = 'Could not find rule of thumb.';
+            }
+        });
     }
 
     hideModal() {
+        this.modalContentDom.innerText = '';
         this.modalDom.classList.add('hidden');
     }
 
@@ -439,6 +461,9 @@ class StrangeGui {
                         rotDiv.classList.add('rot-item');
                         rotDiv.setAttribute('data-server-id', rotIds[idx]);
                         rotDiv.setAttribute('data-rot-type', rotTypes[idx]);
+                        rotDiv.addEventListener('dblclick', (event) => {
+                            this.showModalForRotWithId(rotIds[idx]);
+                        });
                         this.rotListDom.appendChild(rotDiv);
                         let checkbox = document.createElement('input');
                         checkbox.type = 'checkbox';

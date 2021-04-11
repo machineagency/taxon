@@ -39,18 +39,19 @@ body {
     top: 0px;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.6);
 }
 
-.modal-content {
-    height: 200px;
-    width: 400px;
+#modal-content {
+    height: 400px;
+    width: 800px;
     color: white;
     background-color: black;
     position: absolute;
-    top: 30%;
-    left: 30%;
+    top: 10%;
+    left: 20%;
     padding: 20px;
+    font-size: 12px;
 }
 
 pre {
