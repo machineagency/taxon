@@ -36,6 +36,10 @@ class StrangeGui {
         this.workflowDom = document.getElementById('workflow-container');
         this.consoleDom = document.getElementById('workflow-console');
         this.rotListDom = document.getElementById('rot-container');
+        this.modalDom = document.getElementById('modal-container');
+        this.modalDom.addEventListener('click', (event) => {
+            this.hideModal();
+        });
         this.workflowDom.addEventListener('input', (event) => {
             this.workflow.grayStepButton();
         });
@@ -120,6 +124,14 @@ class StrangeGui {
                 });
             }
         });
+    }
+
+    showModal() {
+        this.modalDom.classList.remove('hidden');
+    }
+
+    hideModal() {
+        this.modalDom.classList.add('hidden');
     }
 
     async runAutoComplete() {

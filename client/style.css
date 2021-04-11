@@ -32,6 +32,27 @@ body {
     overflow: hidden;
 }
 
+#modal-container {
+    position: fixed;
+    z-index: 1002;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    height: 200px;
+    width: 400px;
+    color: white;
+    background-color: black;
+    position: absolute;
+    top: 30%;
+    left: 30%;
+    padding: 20px;
+}
+
 pre {
     font-family: JetBrainsMono, serif;
 }
