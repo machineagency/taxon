@@ -2,6 +2,6 @@
     "name": "weLargerThan",
     "isDependent": true,
     "type": "filtering",
-    "description": "w.e. larger than ___"
+    "description": "w.e. larger than"
 }
 
