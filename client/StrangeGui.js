@@ -11,7 +11,6 @@ class StrangeGui {
 
     static serverURL = 'http://localhost:3000';
 
-
     constructor(strangeScene) {
         this.strangeScene = strangeScene;
         this.tooltips = [];

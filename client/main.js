@@ -174,7 +174,6 @@ class StrangeScene {
                     // Do not cull triangles with inward-pointing normals
                     side: THREE.DoubleSide
                 });
-                // stlGeom.center();
                 stlMesh = new THREE.Mesh(stlGeom, material);
                 stlMesh.isLoadedStl = true;
                 this.model = stlMesh;
@@ -359,7 +358,6 @@ class InstructionQueue {
             let zeroGrid = this.kinematics.zeroGrid;
             this.kinematics.strangeScene.removeFromScene(zeroGrid);
             jobFile.removeDomHighlight();
-            // window.strangeScene.removeMaterialMarks();
             return;
         }
         if (this.motorsBusy) {
@@ -2111,7 +2109,6 @@ class StrangeAnimator {
                 matMoveAction.loop = THREE.LoopOnce;
                 matMoveAction.clampWhenFinished = true;
                 return [action, matMoveAction];
-                // return action;
             }
             else {
                 return action;
@@ -2621,13 +2618,8 @@ class Compiler {
 
 function main() {
     let ss = new StrangeScene();
-    // ss.instructionQueue = new InstructionQueue();
-    // ss.instructionQueue.setKinematics(ss.machine.kinematics);
-    // let jobFile = new JobFile(ss);
-    // jobFile.setKinematics(kinematics);
     window.strangeScene = ss;
     window.strangeScene.compiler = new Compiler();
-    // window.jobFile = jobFile;
     window.strangeGui = new StrangeGui(ss);
     window.testPrograms = TestPrograms;
 
