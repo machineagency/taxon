@@ -4,13 +4,15 @@ A grammar of digital fabrication machines.
 
 ## About
 
-The code for taxon comprises server and client code to run the Taxon interface in a web browser.
-Client-side code renders the interface and also compiles Taxon programs to simulations (center of interface) and heuristics.
-Client-side code also allows you to script machine actions as _procedures_ in the tool.
+The code for Taxon comprises server and client code to run the Taxon interface in a web browser.
+Server-side code reads from the `program_database/` directory and loads the parts of Taxon programs into a database.
+Client-side code renders the interface, pulls Taxon programs from the server, and compiles programs to a scene.
+Users can then load different workflows and rules of thumb.
+The recommended way to add or edit programs is by editing the files in `program_database/` rather then making edits in the browser.
 
 ## Installation
 
-Installation consists of three parts: running a MongoDB instance which is required by the server, then installing and running the server itself.
+Installation consists of three parts: running a MongoDB instance which is required by the server, then installing dependencies, and running the server itself.
 
 ### Running MongoDB
 
@@ -26,15 +28,16 @@ const url = 'mongodb://127.0.0.1:27017/';
 
 You may have to edit the address to port to match your instance.
 
-### Setting Up
+### Installing Dependencies
 
 1. Clone the repository.
-2. Run `npm install`.
+2. Install Node.js and NPM if they are not already installed.
+3. Run `npm install`.
 
 ### Running the Server
 
 1. Ensure that you have a MongoDB instance running!
-2. Run `node server`.
+2. Run `node server`. Alternatively, install [Nodemon](https://nodemon.io/) and run `nodemon server` to reload the server whenever any source files are edited, which is very handy for writing new Taxon programs.
 3. Navigate to `localhost:3000` in your favorite browser.
 
 ## Writing Taxon Programs
