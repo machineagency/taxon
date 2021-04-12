@@ -17,6 +17,7 @@ class StrangeGui {
         this.tooltips = [];
         this.heuristicNames = [];
         this.fetchHeuristicNames();
+        this.appContainerDom = document.getElementById('container');
         this.gcDom = document.getElementById('gc-container-1');
         this.programPadDom = document.getElementById('program-pad');
         this.jobPad = document.getElementById('job-pad')
@@ -95,7 +96,7 @@ class StrangeGui {
         this.fetchAndRenderMachineNames();
         this.fetchAndRenderWorkflowNames();
         this.fetchAndRenderRotNames();
-        this.gcDom.addEventListener('dblclick', (event) => {
+        this.appContainerDom.addEventListener('dblclick', (event) => {
             let programPadClicked = this.programPadDom.contains(event.target);
             let jobPadClicked = this.programPadDom.contains(event.target);
             if (!programPadClicked && !jobPadClicked) {
