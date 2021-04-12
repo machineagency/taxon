@@ -145,16 +145,16 @@ class Region {
     calcGeometry(dimensions) {
         if (this.shape === 'rectangle') {
             let geom;
-            if (this.height === 0) {
+            if (!this.height) {
                 geom = new THREE.PlaneBufferGeometry(dimensions.width,
                                                      dimensions.length);
                 geom.rotateX(Math.PI / 2);
                 return geom;
             }
-            else if (this.width === 0) {
+            else if (!this.width) {
                 geom = new THREE.PlaneBufferGeometry(dimensions.height,
                                                      dimensions.length);
-                geom.rotateZ(Math.PI / 2);
+                geom.rotateY(Math.PI / 2);
                 return geom;
             }
             else {

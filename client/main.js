@@ -1581,10 +1581,10 @@ class Kinematics {
         this.zeroGrid = new THREE.GridHelper(gridSize, divisions,
                                              centerColor, mainColor);
         if (we.shape === 'rectangle') {
-            if (we.width === 0) {
+            if (!we.width) {
                 this.zeroGrid.rotateZ(Math.PI / 2);
             }
-            else if (we.length === 0) {
+            else if (!we.length) {
                 this.zeroGrid.rotateX(Math.PI / 2);
             }
         }

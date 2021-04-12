@@ -5,7 +5,6 @@
             "shape": "rectangle",
             "dimensions" : {
                 "width": 250,
-                "height": 0,
                 "length": 250
             },
             "position": {
