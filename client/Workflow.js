@@ -344,10 +344,16 @@ class Workflow {
                     const delay = (kinematics.strangeAnimator.ANIM_SECONDS +
                                     epsSec) * 1000;
                     kinematics.actuateBlock(block, wiggleSteps);
+                    kinematics.strangeAnimator.animateToBlockEndPositions(0);
                     setTimeout(() => {
                         kinematics.actuateBlock(block, -wiggleSteps);
+                        kinematics.strangeAnimator.animateToBlockEndPositions(0);
                     }, delay);
                     return selector;
+                },
+                actuate: (displacement) => {
+                    kinematics.actuateBlock(block, displacement);
+                    kinematics.strangeAnimator.animateToBlockEndPositions(0);
                 }
             };
             return selector;
