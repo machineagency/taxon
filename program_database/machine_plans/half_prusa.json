@@ -1,0 +1,89 @@
+{
+    "name": "block-demo",
+    "metrics": {
+        "workEnvelope": {
+            "shape": "rectangle",
+            "dimensions" : {
+                "height": 110,
+                "length": 130
+            },
+            "position": {
+                "x": -47.5,
+                "y": 102.6,
+                "z": 0
+            }
+        }
+    },
+    "blocks": [
+        {
+            "name": "crossbarAssembly",
+            "blockType": "linear",
+            "actuationAxes": [ "z" ],
+            "dimensions": {
+                "width": 12.5,
+                "height": 25,
+                "length": 170
+            },
+            "attributes": {
+                "driveType": "timingBelt",
+                "stepDisplacementRatio": 0.5
+            },
+            "connections": [
+                {
+                    "child": "extruder",
+                    "isInert": false,
+                    "offset": {
+                        "x": 17.5,
+                        "y": 0,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "verticalDoubleLeadScrewFrame",
+            "blockType": "parallel",
+            "actuationAxes": [ "y" ],
+            "dimensions": {
+                "width": 20,
+                "height": 150,
+                "length": 170
+            },
+            "position": {
+                "x": 0,
+                "y": 87.5,
+                "z": 0
+            },
+            "attributes": {
+                "driveType": "leadscrew",
+                "stepDisplacementRatio": 0.5
+            },
+            "connections": [
+                {
+                    "child": "crossbarAssembly",
+                    "isInert": false,
+                    "offset": {
+                        "x": 16.25,
+                        "y": 27.5,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "extruder",
+            "blockType": "nonActuating",
+            "isTool": true,
+            "dimensions": {
+                "width": 25,
+                "height": 25,
+                "length": 25
+            },
+            "attributes": {
+                "toolType": "print3d",
+                "nozzleCount": 1
+            }
+        }
+    ]
+}
+

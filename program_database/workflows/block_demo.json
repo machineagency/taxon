@@ -1,0 +1,9 @@
+{
+    "name": "block demo",
+    "actions": [
+         "$b('verticalDoubleLeadScrewFrame').actuate(20);",
+         "$b('crossbarAssembly').actuate(20);",
+         "$machine().zero();",
+         "$machine().moveTo({y: 20, z: 20});"
+    ]
+}

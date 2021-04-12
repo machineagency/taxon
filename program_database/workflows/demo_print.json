@@ -1,0 +1,10 @@
+{
+    "name": "demo moves",
+    "actions": [
+         "$machine().zero();",
+         "$machine().moveTo({x: 0, y: 10, z: 50});",
+         "$machine().moveTo({x: 29, y: 0, z: 40});",
+         "$machine().moveTo({x: 50, y: 20, z: 50});",
+         "$machine().moveTo({x: 43, y: 80, z: 10});"
+    ]
+}

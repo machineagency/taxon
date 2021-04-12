@@ -2059,7 +2059,6 @@ class StrangeAnimator {
             let action = mixer.clipAction(clip);
             action.loop = THREE.LoopOnce;
             action.clampWhenFinished = true;
-            // TODO: better design for turning this on and off
             if (block.componentType === 'Tool'
                 && extrudeMM
                 && (block.attributes.toolType === 'liquidDispenser'
