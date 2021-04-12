@@ -79,7 +79,7 @@
             ]
         },
         {
-            "name": "carriage",
+            "name": "crossbarAssembly",
             "blockType": "linear",
             "actuationAxes": [ "z" ],
             "dimensions": {
@@ -104,8 +104,7 @@
             ]
         },
         {
-            "name": "y leadscrews",
-            "implementation": "verticalDoubleLeadScrewFrame",
+            "name": "verticalDoubleLeadScrewFrame",
             "blockType": "parallel",
             "actuationAxes": [ "y" ],
             "dimensions": {
@@ -124,7 +123,7 @@
             },
             "connections": [
                 {
-                    "child": "carriage",
+                    "child": "crossbarAssembly",
                     "isInert": false,
                     "offset": {
                         "x": 16.25,
