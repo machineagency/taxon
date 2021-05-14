@@ -228,7 +228,7 @@ class Workflow {
                         }
                         catch (e) {
                             console.error(e);
-                            return EndFunction;
+                            return endFunction;
                         }
                         return innerFn;
                     }
