@@ -1,0 +1,10 @@
+{
+    "name": "forge signature",
+    "actions": [
+         "$path('signature.svg').load();",
+         "$image().findContours();",
+         "$projection().selectContour();",
+         "$path('signature.svg').translateTo($projection.selectedContour);",
+         "$machine().run($path('signature.svg'));"
+    ]
+}
