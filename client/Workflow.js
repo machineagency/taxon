@@ -205,6 +205,7 @@ class Workflow {
         let $machine = this.generateMachineSelector();
         let $model = this.generateModelSelector();
         let $material = this.generateMaterialSelector();
+        let $path = this.generatePathSelector();
 
         // Curry magic
         const lines = [...this.statements];
@@ -462,7 +463,35 @@ class Workflow {
                     let contours = slicer.slice(modelMesh, modelGeom);
                     slicer.addContoursToStrangeScene(contours, strangeScene);
                 }
+            };
+        };
+    }
+
+    generatePathSelector() {
+        const parsePathFromSVG = (fileName) => {
+            // TODO: acually implement
+            return { foo: 42 };
+        };
+        return (pathName) => {
+            const strangeScene = this.kinematics.strangeScene;
+            let selector;
+            if (strangeScene.paths[pathName] !== undefined) {
+                let pathObj = strangeScene.paths[pathName];
+                pathObj.someMethod = () => {
+                    // TODO: add methods onto the 3JS obj this way
+                };
+                return pathObj;
             }
+            else {
+                selector = {
+                    loadFromFile: (fileName) => {
+                        let newPath = parsePathFromSVG(fileName);
+                        strangeScene.paths[pathName] = newPath;
+                        return newPath;
+                    }
+                };
+            }
+            return selector;
         };
     }
 

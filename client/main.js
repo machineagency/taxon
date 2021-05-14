@@ -23,6 +23,7 @@ class StrangeScene {
         this.mixers = [];
         this.controls = this.initControls(this.camera, this.renderer);
         this.instructionQueue = new InstructionQueue();
+        this.paths = { };
     }
 
     initScene() {
