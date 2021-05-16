@@ -23,7 +23,7 @@ class StrangeScene {
         this.mixers = [];
         this.controls = this.initControls(this.camera, this.renderer);
         this.instructionQueue = new InstructionQueue();
-        this.paths = { };
+        this.toolpaths = { };
     }
 
     initScene() {
@@ -105,7 +105,17 @@ class StrangeScene {
     }
 
     addToolpath(toolpath) {
-        this.toolpaths.add(toolpath);
+        this.toolpaths[toolpath.name] = toolpath;
+        this.addSceneObjectDirectly(toolpath.group);
+    }
+
+    removeToolpath(toolpath) {
+        delete this.toolpaths[toolpath.name];
+        this.removeFromScene(toolpath.group);
+    }
+
+    getToolpathWithName(toolpathName) {
+        return this.toolpaths[toolpathName];
     }
 
     removeMaterials() {

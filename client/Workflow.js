@@ -1,10 +1,8 @@
 'use strict';
 
 import { Slicer } from './Slicer.js';
+import { Toolpath } from './Toolpath.js';
 import { Material } from './Material.js';
-import { SVGLoader } from './build/SVGLoader.js';
-// FIXME: remove below import
-import * as THREE from './build/three.module.js';
 
 class Workflow {
 
@@ -472,48 +470,13 @@ class Workflow {
 
     generatePathSelector() {
         // FIXME: move as much logic as possible to Path.js
-        const parsePathFromSVG = (fileName, scene, pathName) => {
-            let loader = new SVGLoader();
-            let promise = new Promise((resolve, reject) => {
-                loader.load(fileName, (data) => {
-                    scene.paths[pathName] = data.paths;
-                    resolve(data.paths);
-                }, undefined, (error) => {
-                    console.error(error);
-                });
-            });
-            return promise;
-        };
-        const renderPathInScene = (path, scene) => {
-            let pathGroup = new THREE.Group();
-            pathGroup.type = 'toolpath';
-            let material = new THREE.LineDashedMaterial({
-                color : 0x4e467f,
-                linewidth: 1,
-                scale: 1,
-                dashSize: 3,
-                gapSize: 3
-            });
-            path.forEach((subpath) => {
-                let shapes = SVGLoader.createShapes(subpath);
-                shapes.forEach((shape) => {
-                    let geom = new THREE.ShapeBufferGeometry(shape);
-                    let edgesGeom = new THREE.EdgesGeometry(geom);
-                    let segments = new THREE.LineSegments(edgesGeom, material);
-                    pathGroup.add(segments);
-                });
-            });
-            pathGroup.rotateX(Math.PI / 2);
-            scene.addSceneObjectDirectly(pathGroup);
-        };
-
         return (pathName) => {
             const strangeScene = this.kinematics.strangeScene;
             let selector;
-            if (strangeScene.paths[pathName] !== undefined) {
+            let pathObj = strangeScene.getToolpathWithName(pathName);
+            if (pathObj !== undefined) {
                 // CASE: path has been loaded, so just pull it up and give
                 // it some methods.
-                let pathObj = strangeScene.paths[pathName];
                 pathObj.someMethod = () => {
                     // TODO: add methods onto the 3JS obj this way
                 };
@@ -525,10 +488,7 @@ class Workflow {
                 // evaluate to the path object during its call to load.
                 selector = {
                     loadFromFile: (fileName) => {
-                        parsePathFromSVG(fileName, strangeScene, pathName)
-                        .then((path) => {
-                            renderPathInScene(path, strangeScene);
-                        });
+                        new Toolpath(fileName, strangeScene, pathName);
                     }
                 };
             }
