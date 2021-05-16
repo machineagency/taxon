@@ -487,21 +487,23 @@ class Workflow {
         const renderPathInScene = (path, scene) => {
             let pathGroup = new THREE.Group();
             pathGroup.type = 'toolpath';
-            let material = new THREE.LineBasicMaterial({
-                color : 0x000000,
+            let material = new THREE.LineDashedMaterial({
+                color : 0x4e467f,
                 linewidth: 1,
-                side: THREE.DoubleSide
+                scale: 1,
+                dashSize: 3,
+                gapSize: 3
             });
             path.forEach((subpath) => {
                 let shapes = SVGLoader.createShapes(subpath);
                 shapes.forEach((shape) => {
-                    let geom = new THREE.ShapeGeometry(shape);
+                    let geom = new THREE.ShapeBufferGeometry(shape);
                     let edgesGeom = new THREE.EdgesGeometry(geom);
-                    // FIXME: edgesGeom is failing
-                    let mesh = new THREE.Mesh(geom, material);
-                    pathGroup.add(mesh);
+                    let segments = new THREE.LineSegments(edgesGeom, material);
+                    pathGroup.add(segments);
                 });
             });
+            pathGroup.rotateX(Math.PI / 2);
             scene.addSceneObjectDirectly(pathGroup);
         };
 
