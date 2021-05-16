@@ -489,12 +489,15 @@ class Workflow {
             pathGroup.type = 'toolpath';
             let material = new THREE.LineBasicMaterial({
                 color : 0x000000,
-                linewidth: 1
+                linewidth: 1,
+                side: THREE.DoubleSide
             });
             path.forEach((subpath) => {
                 let shapes = SVGLoader.createShapes(subpath);
                 shapes.forEach((shape) => {
                     let geom = new THREE.ShapeGeometry(shape);
+                    let edgesGeom = new THREE.EdgesGeometry(geom);
+                    // FIXME: edgesGeom is failing
                     let mesh = new THREE.Mesh(geom, material);
                     pathGroup.add(mesh);
                 });
