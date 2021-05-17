@@ -35,7 +35,7 @@ class Toolpath {
 
     __renderPathInScene (path, scene) {
         let material = new THREE.LineDashedMaterial({
-            color : 0x4e467f,
+            color : 0xe44242,
             linewidth: 1,
             scale: 1,
             dashSize: 3,
