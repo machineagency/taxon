@@ -15,6 +15,12 @@ class Toolpath {
         });
     }
 
+    placeAt(xyzObj) {
+        let pos = new THREE.Vector3(xyzObj.x, xyzObj.y, xyzObj.z);
+        this.group.position.copy(pos);
+        return this;
+    }
+
     __parsePathFromSVG (fileName, scene, pathName) {
         let loader = new SVGLoader();
         let promise = new Promise((resolve, reject) => {

@@ -469,17 +469,12 @@ class Workflow {
     }
 
     generatePathSelector() {
-        // FIXME: move as much logic as possible to Path.js
         return (pathName) => {
             const strangeScene = this.kinematics.strangeScene;
             let selector;
             let pathObj = strangeScene.getToolpathWithName(pathName);
             if (pathObj !== undefined) {
-                // CASE: path has been loaded, so just pull it up and give
-                // it some methods.
-                pathObj.someMethod = () => {
-                    // TODO: add methods onto the 3JS obj this way
-                };
+                // CASE: path has been loaded, so just pull it up.
                 return pathObj;
             }
             else {
