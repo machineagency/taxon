@@ -74,10 +74,13 @@ class Camera:
 
 class Interpreter(cmd.Cmd):
     def __init__(self):
+        cmd.Cmd.__init__(self)
+        Interpreter.intro = "Welcome to the interpreter."
+        Interpreter.prompt = "> "
         self.camera = Camera()
 
     def do_image(self, arg):
-        pass
+        self.camera.open_video_preview()
 
     def do_find_contours(self, arg):
         pass
@@ -85,8 +88,15 @@ class Interpreter(cmd.Cmd):
     def do_project_select_contours(self,arg):
         pass
 
+    def do_bye(self, arg):
+        print("Bye!")
+        return True
+
+    def do_EOF(self, arg):
+        return True
+
 def main():
-    pass
+    Interpreter().cmdloop();
 
 if __name__ == '__main__':
     main()
