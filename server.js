@@ -6,6 +6,7 @@ const app            = express();
 const bodyParser     = require('body-parser');
 const path           = require('path');
 const fs             = require('fs');
+const ps             = require('python-shell');
 const mongodb        = require('mongodb');
 const mongoClient    = mongodb.MongoClient;
 const ObjectID       = mongodb.ObjectID;
@@ -16,6 +17,12 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(express.static(__dirname + '/client')); // set the static files location /public/img will be /img for users
 const DO_SEED_DATABASE = true;
 const MACHINE_DIR = './program_database/';
+const shell = new ps.PythonShell('./cp_interpreter.py', {
+    pythonOptions: ['-u'] // don't buffer messages sent from interpreter.py
+});
+shell.on('message', (message) => {
+    console.log(`PC --> ${message}`);
+});
 
 // connect to db ===========================================
 console.log('Looking for MongoDB instance...');
@@ -35,6 +42,9 @@ mongoClient.connect(url, { useUnifiedTopology: true })
 // routes and start ========================================
 
 let attachRoutesWithDBAndStart = (db) => {
+
+    app.put('/rpc/doImage', (req, res) => {
+    });
 
     app.get('/machines', (req, res) => {
         // CASE: there is a request property ID -> just search for
