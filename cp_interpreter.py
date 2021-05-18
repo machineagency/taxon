@@ -35,12 +35,12 @@ class Camera:
     def update_video_preview(self):
         img = self._read_video_image()
         img_edge = self._process_image(img)
-        contours = calc_contours(img_edge)
-        try:
-            work_env_contour = find_work_env_in_contours(contours)
-            cv2.drawContours(img, [work_env_contour], -1, (0, 255, 0), 3)
-        except ValueError:
-            pass
+        # contours = calc_contours(img_edge)
+        # try:
+        #     work_env_contour = find_work_env_in_contours(contours)
+        #     cv2.drawContours(img, [work_env_contour], -1, (0, 255, 0), 3)
+        # except ValueError:
+        #     pass
         cv2.imshow('preview', img)
 
     def close_video_preview(self):
@@ -80,7 +80,11 @@ class Interpreter(cmd.Cmd):
         self.camera = Camera()
 
     def do_image(self, arg):
-        self.camera.open_video_preview()
+        if not self.camera.video_preview_open:
+            self.camera.open_video_preview()
+        else:
+            self.camera.update_video_preview()
+        self.__cv_render_windows()
 
     def do_find_contours(self, arg):
         pass
@@ -94,6 +98,9 @@ class Interpreter(cmd.Cmd):
 
     def do_EOF(self, arg):
         return True
+
+    def __cv_render_windows(self):
+        cv2.waitKey(1)
 
 def main():
     Interpreter().cmdloop();
