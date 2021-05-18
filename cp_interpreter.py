@@ -75,6 +75,10 @@ class Camera:
 class Interpreter(cmd.Cmd):
     def __init__(self):
         cmd.Cmd.__init__(self)
+        self.PROJ_SCREEN_SIZE_HW = (720, 1280)
+        self.PROJ_NAME = 'projection'
+        cv2.namedWindow(self.PROJ_NAME, cv2.WND_PROP_FULLSCREEN)
+
         Interpreter.intro = "Welcome to the interpreter."
         Interpreter.prompt = "> "
         self.camera = Camera()
@@ -85,6 +89,23 @@ class Interpreter(cmd.Cmd):
         else:
             self.camera.update_video_preview()
         self.__cv_render_windows()
+
+    def do_choose_point(self, arg):
+        click_xy = None
+        def proj_handle_click(event, x, y, flags, param):
+            if event == cv2.EVENT_LBUTTONDOWN:
+                nonlocal click_xy
+                click_xy = (x, y)
+
+        cv2.setMouseCallback(self.PROJ_NAME, proj_handle_click)
+        choose_point_proj = np.zeros(self.PROJ_SCREEN_SIZE_HW)
+        cv2.imshow(self.PROJ_NAME, choose_point_proj)
+        while True:
+            cv2.waitKey(100)
+            if click_xy:
+                cv2.destroyWindow(self.PROJ_NAME)
+                print(click_xy)
+                break
 
     def do_find_contours(self, arg):
         pass
