@@ -2,10 +2,7 @@
     "name": "forge signature",
     "actions": [
         "$path('sig').loadFromFile('triangle.svg');",
-        "$path('sig').placeAt({x: -100});",
-        "$image().findContours();",
-        "$projection().selectContour();",
-        "$path('signature.svg').translateTo($projection.selectedContour);",
+        "$path('sig').placeAt($image.choosePoint());",
         "$machine().run($path('sig'));"
     ]
 }
