@@ -17,12 +17,10 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(express.static(__dirname + '/client')); // set the static files location /public/img will be /img for users
 const DO_SEED_DATABASE = true;
 const MACHINE_DIR = './program_database/';
-const shell = new ps.PythonShell('./cp_interpreter.py', {
-    pythonOptions: ['-u'] // don't buffer messages sent from interpreter.py
+const shell = new ps.PythonShell('./cp_interpreter.py', {});
+shell.on('message', (message) => {
+    console.log(`PC --> ${message}`);
 });
-// shell.on('message', (message) => {
-//     console.log(`PC --> ${message}`);
-// });
 
 // connect to db ===========================================
 console.log('Looking for MongoDB instance...');
@@ -44,19 +42,18 @@ mongoClient.connect(url, { useUnifiedTopology: true })
 let attachRoutesWithDBAndStart = (db) => {
 
     app.get('/rpc/image', (req, res) => {
-        shell.send('image\n');
+        shell.send('image');
         res.status(200).send();
     });
 
     app.get('/rpc/choosePoint', (req, res) => {
-        shell.send('choose_point\n');
         shell.on('message', (xyPair) => {
-            console.log('here');
             console.log(`${xyPair}`);
             res.status(200).json({
                 results: xyPair
             });
         });
+        shell.send('choose_point');
     });
 
     app.get('/machines', (req, res) => {
