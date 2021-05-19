@@ -110,6 +110,7 @@ class Interpreter(cmd.Cmd):
             cv2.waitKey(100)
             if click_xy:
                 cv2.destroyWindow(self.PROJ_NAME)
+                cv2.waitKey(1)
                 print(click_xy)
                 break
 
@@ -125,9 +126,6 @@ class Interpreter(cmd.Cmd):
 
     def do_EOF(self, arg):
         return True
-
-    def __cv_render_windows(self):
-        cv2.waitKey(1)
 
 def main():
     Interpreter().cmdloop();
