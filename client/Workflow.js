@@ -2,7 +2,7 @@
 
 import { Slicer } from './Slicer.js';
 import { Toolpath } from './Toolpath.js';
-import { Image } from './Image.js';
+import { CameraProjector } from './Image.js';
 import { Material } from './Material.js';
 
 class Workflow {
