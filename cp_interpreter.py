@@ -84,11 +84,17 @@ class Interpreter(cmd.Cmd):
         self.camera = Camera()
 
     def do_image(self, arg):
-        if not self.camera.video_preview_open:
-            self.camera.open_video_preview()
-        else:
-            self.camera.update_video_preview()
-        self.__cv_render_windows()
+        self.camera.open_video_preview()
+        while True:
+            # NOTE: Seems to receive buffered key presses from the interpreter
+            # which causes premature firing sometimes. Not sure how to
+            # fix this, adding delay does't seem to help.
+            maybe_key = cv2.waitKey(100)
+            if maybe_key > 0:
+                print(maybe_key)
+                self.camera.close_video_preview()
+                cv2.waitKey(1)
+                break
 
     def do_choose_point(self, arg):
         click_xy = None
