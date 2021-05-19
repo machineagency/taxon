@@ -20,9 +20,9 @@ const MACHINE_DIR = './program_database/';
 const shell = new ps.PythonShell('./cp_interpreter.py', {
     pythonOptions: ['-u'] // don't buffer messages sent from interpreter.py
 });
-shell.on('message', (message) => {
-    console.log(`PC --> ${message}`);
-});
+// shell.on('message', (message) => {
+//     console.log(`PC --> ${message}`);
+// });
 
 // connect to db ===========================================
 console.log('Looking for MongoDB instance...');
@@ -43,7 +43,20 @@ mongoClient.connect(url, { useUnifiedTopology: true })
 
 let attachRoutesWithDBAndStart = (db) => {
 
-    app.put('/rpc/doImage', (req, res) => {
+    app.get('/rpc/image', (req, res) => {
+        shell.send('image\n');
+        res.status(200).send();
+    });
+
+    app.get('/rpc/choosePoint', (req, res) => {
+        shell.send('choose_point\n');
+        shell.on('message', (xyPair) => {
+            console.log('here');
+            console.log(`${xyPair}`);
+            res.status(200).json({
+                results: xyPair
+            });
+        });
     });
 
     app.get('/machines', (req, res) => {
