@@ -48,9 +48,12 @@ let attachRoutesWithDBAndStart = (db) => {
 
     app.get('/rpc/choosePoint', (req, res) => {
         shell.on('message', (xyPair) => {
-            console.log(`${xyPair}`);
+            let parsedPair = xyPair.split(',').map(s => parseInt(s));
             res.status(200).json({
-                results: xyPair
+                results: {
+                    x: parsedPair[0],
+                    y: parsedPair[1]
+                }
             });
         });
         shell.send('choose_point');

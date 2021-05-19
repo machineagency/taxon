@@ -73,7 +73,7 @@ class Camera:
         return self.contours
 
 class Interpreter(cmd.Cmd):
-    def __init__(self, use_prompt=False):
+    def __init__(self, use_prompt=False, no_camera=True):
         cmd.Cmd.__init__(self)
         self.PROJ_SCREEN_SIZE_HW = (720, 1280)
         self.PROJ_NAME = 'projection'
@@ -84,7 +84,9 @@ class Interpreter(cmd.Cmd):
             Interpreter.prompt = "> "
         else:
             Interpreter.prompt = ""
-        self.camera = Camera()
+
+        if not no_camera:
+            self.camera = Camera()
 
     def do_image(self, arg):
         if self.camera.video_preview_open:
@@ -116,7 +118,7 @@ class Interpreter(cmd.Cmd):
             if click_xy:
                 cv2.destroyWindow(self.PROJ_NAME)
                 cv2.waitKey(1)
-                print(click_xy)
+                print(f'{click_xy[0]},{click_xy[1]}')
                 break
 
     def do_find_contours(self, arg):
