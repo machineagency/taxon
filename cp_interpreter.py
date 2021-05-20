@@ -110,12 +110,14 @@ class Interpreter(cmd.Cmd):
                 nonlocal click_xy
                 click_xy = (x, y)
 
-        cv2.setMouseCallback(self.PROJ_NAME, proj_handle_click)
         choose_point_proj = np.zeros(self.PROJ_SCREEN_SIZE_HW)
+        cv2.namedWindow(self.PROJ_NAME, cv2.WND_PROP_FULLSCREEN)
         cv2.imshow(self.PROJ_NAME, choose_point_proj)
+        cv2.setMouseCallback(self.PROJ_NAME, proj_handle_click)
         while True:
             cv2.waitKey(100)
             if click_xy:
+                cv2.setMouseCallback(self.PROJ_NAME, lambda *args : None)
                 cv2.destroyWindow(self.PROJ_NAME)
                 cv2.waitKey(1)
                 print(f'{click_xy[0]},{click_xy[1]}')
