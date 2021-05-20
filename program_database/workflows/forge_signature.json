@@ -2,7 +2,7 @@
     "name": "forge signature",
     "actions": [
         "$path('sig').loadFromFile('triangle.svg');",
-        "$path('sig').placeAt($image.choosePoint());",
+        "$path('sig').placeAt($cp().choosePoint());",
         "$machine().run($path('sig'));"
     ]
 }
