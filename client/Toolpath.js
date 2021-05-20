@@ -15,10 +15,16 @@ class Toolpath {
         });
     }
 
-    placeAt(xyzObj) {
-        let pos = new THREE.Vector3(xyzObj.x, xyzObj.y, xyzObj.z);
-        this.group.position.copy(pos);
-        return this;
+    placeAt(maybeXyzObj) {
+        // maybeXyzObj is either a raw obj, or a promise to fetch one. Because
+        // we can't tell, wrap it in a new promise in any case. Once we do
+        // have a value xyzObj, then go ahead and execute the logic for
+        // placeAt itself.
+        let promiseXyzObj = Promise.resolve(maybeXyzObj);
+        promiseXyzObj.then((xyzObj) => {
+            let pos = new THREE.Vector3(xyzObj.x, xyzObj.y, xyzObj.z);
+            this.group.position.copy(pos);
+        });
     }
 
     __parsePathFromSVG (fileName, scene, pathName) {
