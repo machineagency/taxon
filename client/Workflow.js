@@ -2,7 +2,7 @@
 
 import { Slicer } from './Slicer.js';
 import { Toolpath } from './Toolpath.js';
-import { CameraProjector } from './Image.js';
+import { CameraProjector } from './CameraProjector.js';
 import { Material } from './Material.js';
 
 class Workflow {
@@ -49,6 +49,10 @@ class Workflow {
 
     grayStepButton() {
         this.stepButtonDom.classList.add('grayed');
+    }
+
+    ungrayStepButton() {
+        this.stepButtonDom.classList.remove('grayed');
     }
 
     setActionRotCodes(rotCodes) {
@@ -117,7 +121,7 @@ class Workflow {
         if (currHighlightedNode !== null) {
             currHighlightedNode.id = '';
         }
-        this.stepButtonDom.classList.remove('grayed');
+        this.ungrayStepButton();
         this.consoleDom.innerText = '';
         this.parentGui.removeConsoleErrorColor();
         let zg = this.kinematics.zeroGrid;
@@ -208,6 +212,7 @@ class Workflow {
         let $model = this.generateModelSelector();
         let $material = this.generateMaterialSelector();
         let $path = this.generatePathSelector();
+        let $cp = this.generateCPSelector();
 
         // Curry magic
         const lines = [...this.statements];
@@ -489,6 +494,18 @@ class Workflow {
                 };
             }
             return selector;
+        };
+    }
+
+    generateCPSelector() {
+        let cp = new CameraProjector(this);
+        return () => {
+            let innerObj = {
+                choosePoint: () => {
+                    return cp.choosePoint();
+                }
+            };
+            return innerObj;
         };
     }
 

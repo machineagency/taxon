@@ -12,9 +12,6 @@ import { StrangeGui } from './StrangeGui.js';
 import { MetricsCompiler } from './Metrics.js';
 import { PartsCompiler } from './Parts.js';
 import { TestPrograms } from './TestPrograms.js';
-import { CameraProjector } from './Image.js';
-
-window.cp = new CameraProjector();
 
 class StrangeScene {
     static modelBoxHelperColor = 0xe44242;
