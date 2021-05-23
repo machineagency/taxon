@@ -23,7 +23,7 @@ class StrangeScene {
         this.mixers = [];
         this.controls = this.initControls(this.camera, this.renderer);
         this.instructionQueue = new InstructionQueue();
-        this.toolpaths = { };
+        this.toolpathLookup = { };
     }
 
     initScene() {
@@ -41,10 +41,10 @@ class StrangeScene {
         scene.add(ambientLight);
         this.materialMarks = new THREE.Group();
         this.materials = new THREE.Group();
-        this.toolpaths = new THREE.Group();
+        this.toolpathsGroup = new THREE.Group();
         scene.add(this.materialMarks);
         scene.add(this.materials);
-        scene.add(this.toolpaths);
+        scene.add(this.toolpathsGroup);
         return scene;
     }
 
@@ -105,17 +105,23 @@ class StrangeScene {
     }
 
     addToolpath(toolpath) {
-        this.toolpaths[toolpath.name] = toolpath;
-        this.addSceneObjectDirectly(toolpath.group);
+        this.toolpathLookup[toolpath.name] = toolpath;
+        this.toolpathsGroup.add(toolpath.group);
     }
 
     removeToolpath(toolpath) {
-        delete this.toolpaths[toolpath.name];
-        this.removeFromScene(toolpath.group);
+        delete this.toolpathLookup[toolpath.name];
+        this.toolpathsGroup.remove(toolpath.group);
+    }
+
+    removeAllToolpaths() {
+        this.scene.remove(this.toolpathsGroup);
+        this.toolpathsGroup = new THREE.Group();
+        this.toolpathLookup = {};
     }
 
     getToolpathWithName(toolpathName) {
-        return this.toolpaths[toolpathName];
+        return this.toolpathLookup[toolpathName];
     }
 
     removeMaterials() {

@@ -104,6 +104,9 @@ class Interpreter(cmd.Cmd):
                 break
 
     def do_choose_point(self, arg):
+        # TODO: determine x and y scaling factors based on the ratio
+        # of the work envelope to the projection window
+        COORD_SCALE = 3.77952755906
         click_xy = None
         def proj_handle_click(event, x, y, flags, param):
             if event == cv2.EVENT_LBUTTONDOWN:
@@ -120,7 +123,9 @@ class Interpreter(cmd.Cmd):
                 cv2.setMouseCallback(self.PROJ_NAME, lambda *args : None)
                 cv2.destroyWindow(self.PROJ_NAME)
                 cv2.waitKey(1)
-                print(f'{click_xy[0]},{click_xy[1]}')
+                scaled_x = click_xy[0] / COORD_SCALE
+                scaled_y = click_xy[1] / COORD_SCALE
+                print(f'{scaled_x},{scaled_y}')
                 break
 
     def do_find_contours(self, arg):
