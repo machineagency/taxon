@@ -73,7 +73,7 @@ class Camera:
         return self.contours
 
 class Interpreter(cmd.Cmd):
-    def __init__(self, use_prompt=False, no_camera=True):
+    def __init__(self, use_prompt=False, no_camera=False):
         cmd.Cmd.__init__(self)
         self.PROJ_SCREEN_SIZE_HW = (720, 1280)
         self.PROJ_NAME = 'projection'

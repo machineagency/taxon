@@ -422,6 +422,9 @@ class Workflow {
                     };
                     kinematics.moveTool(axisToCoord, extrudeMM);
                     return selector;
+                },
+                run: () => {
+                    console.warn('Not yet implemented.');
                 }
             };
             return selector;
