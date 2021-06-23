@@ -1,0 +1,8 @@
+{
+    "name": "calibrate pen bleed",
+    "actions": [
+        "$path('sig').loadFromFile('triangle.svg');",
+        "$path('sig').placeAt($cp().choosePoint());",
+        "$machine().run($path('sig'));"
+    ]
+}
