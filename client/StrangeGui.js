@@ -96,15 +96,11 @@ class StrangeGui {
         this.fetchAndRenderWorkflowNames();
         this.fetchAndRenderRotNames();
         this.appContainerDom.addEventListener('dblclick', (event) => {
-            let programPadClicked = this.programPadDom.contains(event.target);
-            let jobPadClicked = this.programPadDom.contains(event.target);
-            if (!programPadClicked && !jobPadClicked) {
+            let gcDomClicked = this.gcDom.contains(event.target);
+            if (!gcDomClicked) {
                 let cObjs = this.strangeScene.getClickedObjectsFromClickEvent(event);
                 let primaryName = cObjs[0];
-                if (event.shiftKey) {
-                    this.workflow.addLine(primaryName);
-                }
-                else {
+                if (primaryName) {
                     this.scrollProgramToBlockName(primaryName);
                 }
             }
