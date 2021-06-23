@@ -52,6 +52,8 @@ body {
     left: 20%;
     padding: 20px;
     font-size: 12px;
+    border: 1px solid white;
+    max-width: 80%;
 }
 
 pre {
@@ -337,6 +339,7 @@ input[type="checkbox"] {
 #rot-container {
     padding-top: 10px;
     height: 150px;
+    cursor: pointer;
 }
 
 .rot-item * {
