@@ -137,8 +137,7 @@ class StrangeGui {
                 response.json()
                 .then((responseJson) => {
                     let rot = responseJson.results[0];
-                    let prettyCode = escodegen.generate(esprima.parse(rot.code));
-                    this.modalContentDom.innerText = prettyCode;
+                    this.modalContentDom.innerText = rot.code;
                 });
             }
             else {
