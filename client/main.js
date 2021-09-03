@@ -193,6 +193,8 @@ class StrangeScene {
                 });
                 stlMesh = new THREE.Mesh(stlGeom, material);
                 stlMesh.isLoadedStl = true;
+                stlMesh.scale.set(2, 2, 2);
+                stlMesh.rotateX(-Math.PI / 2);
                 this.model = stlMesh;
                 this.modelGeom = stlGeom;
                 this.modelBoxHelper = new THREE.BoxHelper(stlMesh,

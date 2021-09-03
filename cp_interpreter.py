@@ -77,7 +77,7 @@ class Interpreter(cmd.Cmd):
         cmd.Cmd.__init__(self)
         self.PROJ_SCREEN_SIZE_HW = (720, 1280)
         self.PROJ_NAME = 'projection'
-        cv2.namedWindow(self.PROJ_NAME, cv2.WND_PROP_FULLSCREEN)
+        # cv2.namedWindow(self.PROJ_NAME, cv2.WND_PROP_FULLSCREEN)
 
         Interpreter.intro = "Welcome to the interpreter."
         if use_prompt:
