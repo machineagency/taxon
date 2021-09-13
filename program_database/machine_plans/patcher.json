@@ -4,13 +4,13 @@
         "workEnvelope": {
             "shape": "box",
             "dimensions" : {
-                "width": 130,
-                "height": 110,
-                "length": 130
+                "width": 240,
+                "height": 300,
+                "length": 330
             },
             "position": {
                 "x": 0,
-                "y": 102.6,
+                "y": 160,
                 "z": 0
             }
         },
@@ -24,10 +24,165 @@
             "exclude": [
                 "wood", "metal"
             ]
+        },
+        "footprint": {
+            "width": 585,
+            "length": 495
         }
     },
     "blocks": [
+        {
+            "name": "leadscrewHousing",
+            "blockType": "redundantLinear",
+            "actuationAxes": [ "y" ],
+            "dimensions": {
+                "width": 400,
+                "height": 350,
+                "length": 400
+            },
+            "position": {
+                "x": 0,
+                "y": 175,
+                "z": 0
+            },
+            "attributes": {
+                "driveType": "leadscrew",
+                "stepDisplacementRatio": 0.5
+            },
+            "connections": [
+                {
+                    "child": "build plate",
+                    "offset": {
+                        "x": 0,
+                        "y": 145,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "build plate",
+            "blockType": "nonActuating",
+            "dimensions": {
+                "length": 330,
+                "width": 240,
+                "height": 10
+            },
+            "attributes": {
+                "isPlatform": true,
+                "isImmobile": true
+            }
+        },
+        {
+            "name": "gantryAssembly",
+            "blockType": "cross",
+            "actuationAxes": [ "x", "z" ],
+            "dimensions": {
+                "width": 290,
+                "height": 50,
+                "length": 330
+            },
+            "position": {
+                "x": 25,
+                "y": 375,
+                "z": 0
+            },
+            "attributes": {
+                "driveType": "leadscrew",
+                "stepDisplacementRatio": 0.5
+            },
+            "connections": [
+                {
+                    "child": "xzRotator",
+                    "isInert": false,
+                    "offset": {
+                        "x": 0,
+                        "y": 24,
+                        "z": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "xzRotator",
+            "blockType": "rotary",
+            "actuationAxes": [ "x", "z" ],
+            "dimensions": {
+                "width": 50,
+                "height": 10,
+                "length": 100
+            },
+            "attributes": {
+                "driveType": "leadscrew",
+                "stepDisplacementRatio": 0.5
+            },
+            "connections": [
+                {
+                    "child": "extruder",
+                    "isInert": false,
+                    "offset": {
+                        "x": 0,
+                        "y": 25,
+                        "z": 25
+                    }
+                },
+                {
+                    "child": "mill",
+                    "isInert": false,
+                    "offset": {
+                        "x": 0,
+                        "y": 25,
+                        "z": -25
+                    }
+                }
+            ]
+        },
+        {
+            "name": "extruder",
+            "blockType": "nonActuating",
+            "isTool": true,
+            "dimensions": {
+                "width": 50,
+                "height": 50,
+                "length": 50
+            },
+            "attributes": {
+                "toolType": "print3d",
+                "nozzleCount": 2
+            }
+        },
+        {
+            "name": "mill",
+            "blockType": "nonActuating",
+            "isTool": true,
+            "dimensions": {
+                "width": 50,
+                "height": 50,
+                "length": 50
+            },
+            "attributes": {
+                "toolType": "mill"
+            }
+        },
+        {
+            "name": "xyRotator",
+            "blockType": "rotary",
+            "actuationAxes": [ "a" ],
+            "dimensions": {
+                "width": 50,
+                "height": 350,
+                "length": 330
+            },
+            "position": {
+                "x": 145,
+                "y": 175,
+                "z": 0
+            },
+            "attributes": {
+                "driveType": "leadscrew",
+                "stepDisplacementRatio": 0.5
+            }
+        }
     ]
 }
-
 
