@@ -1,6 +1,6 @@
-# taxon
+# Taxon
 
-A grammar of digital fabrication machines.
+Applying the safety and extensibility of programming to hands-on making.
 
 ## About
 
