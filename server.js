@@ -20,7 +20,7 @@ const MACHINE_DIR = './program_database/';
 
 // connect to db ===========================================
 console.log('Looking for MongoDB instance...');
-const url = 'mongodb://127.0.0.1:27017/';
+const url = 'mongodb://taxon-mongo:27017/';
 mongoClient.connect(url, { useUnifiedTopology: true })
     .then(client => {
         console.log('...connected to the database.');
