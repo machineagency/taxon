@@ -1,0 +1,27 @@
+stages:       #what are the different 'stages'?  Maybe there's a test, build and deploy phase.  Here's we're just deploying.
+- deploy
+
+deploy_test:    #the label of this job
+  stage: deploy  #what stage is belongs to
+  script:        #the script we're going to run on the remote system when this thing fires.
+    - docker-compose up -d --build    #builds and brings up everything in daemon mode
+  environment:    #Special tag, which links to the enviorments tab in your GL project.
+    name: test    #a label
+    url: https://taxon-test.cs.washington.edu  #Link which will show up on the enviornments tab
+  tags:           #Controls which runner to select
+    - lab-docker-test   #in this case the runner for docker-test
+  only:           #controls what this gets run on
+    - branches    #in this case everytime any branch gets pushed
+
+deploy_prod:
+  stage: deploy
+    script:
+    - docker-compose up -d --build
+  environment:
+    name: prod
+    url: https://taxon.cs.washington.edu
+  tags:
+    - lab-docker-prod
+  only:
+    - tags
+
