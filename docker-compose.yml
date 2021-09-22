@@ -2,6 +2,8 @@ version: '2'
 services:
   taxon-web:
     build: .
+    environment:
+      - DB_URL=taxon-mongo
     ports:
       - "8597:8597"
     depends_on:
