@@ -12,7 +12,7 @@ const mongoClient    = mongodb.MongoClient;
 const ObjectID       = mongodb.ObjectID;
 
 // configuration ===========================================
-let port = process.env.PORT || 3000; // set our port
+let port = 8597; // set our port (8597 required for CSE hosting)
 app.use(bodyParser.json()); // for parsing application/json
 app.use(express.static(__dirname + '/client')); // set the static files location /public/img will be /img for users
 const DO_SEED_DATABASE = true;

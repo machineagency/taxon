@@ -3,7 +3,7 @@ services:
   taxon-web:
     build: .
     ports:
-      - "3000:3000"
+      - "8597:8597"
     depends_on:
       - taxon-mongo
   taxon-mongo:
