@@ -15,7 +15,7 @@ deploy_test:    #the label of this job
 
 deploy_prod:
   stage: deploy
-    script:
+  script:
     - docker-compose up -d --build
   environment:
     name: prod
