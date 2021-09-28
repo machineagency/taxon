@@ -1,0 +1,42 @@
+{
+  "name": "makerbot-sketch",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "box",
+      "dimensions": {
+        "width": 150,
+        "length": 150,
+        "height": 150
+      },
+      "position": {
+        "x": 0,
+        "y": 75,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 423,
+      "length": 433
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "FDM"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "PLA",
+        "MakerBot Sketch Tough Material"
+      ],
+      "exclude": [
+        ""
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 1,
+        "website": "https://www.makerbot.com/3d-printers/sketch-classroom/"
+      }
+    }
+  }
+}

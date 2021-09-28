@@ -1,0 +1,46 @@
+{
+  "name": "makerbot-replicator-z18",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "box",
+      "dimensions": {
+        "width": 305,
+        "length": 300,
+        "height": 457
+      },
+      "position": {
+        "x": 0,
+        "y": 228.5,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 565,
+      "length": 861
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "FDM"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "PLA",
+        "MakerBot Sketch Tough Material",
+        "Bronzefill",
+        "Copperfill",
+        "Woodfill",
+        "Corkfill"
+      ],
+      "exclude": [
+        ""
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 5,
+        "website": "https://www.makerbot.com/3d-printers/replicator-z18/"
+      }
+    }
+  }
+}

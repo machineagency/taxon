@@ -1,0 +1,41 @@
+{
+  "name": "potterbot-micro",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "cylinder",
+      "dimensions": {
+        "width": 280,
+        "length": 265,
+        "height": 305
+      },
+      "position": {
+        "x": 0,
+        "y": 152.5,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 762,
+      "length": 711
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "FDM"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "Clay or paste like materials"
+      ],
+      "exclude": [
+        "Non-clay material"
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 3,
+        "website": "https://3dpotter.com/printers/potterbot-micro-10"
+      }
+    }
+  }
+}

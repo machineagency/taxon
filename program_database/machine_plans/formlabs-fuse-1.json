@@ -1,0 +1,41 @@
+{
+  "name": "formlabs-fuse-1",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "box",
+      "dimensions": {
+        "width": 165,
+        "length": 165,
+        "height": 300
+      },
+      "position": {
+        "x": 0,
+        "y": 150,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 645,
+      "length": 1070
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "SLS"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "Nylon 12 Powder"
+      ],
+      "exclude": [
+        ""
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 18,
+        "website": "https://formlabs.com/3d-printers/fuse-1/"
+      }
+    }
+  }
+}

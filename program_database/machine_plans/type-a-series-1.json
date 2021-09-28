@@ -1,0 +1,43 @@
+{
+  "name": "type-a-series-1",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "box",
+      "dimensions": {
+        "width": 305,
+        "length": 305,
+        "height": 305
+      },
+      "position": {
+        "x": 0,
+        "y": 152.5,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 765,
+      "length": 801
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "FDM"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "PLA",
+        "High Carbon PLA",
+        "PET"
+      ],
+      "exclude": [
+        ""
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 4,
+        "website": "https://www.adafruit.com/product/2412"
+      }
+    }
+  }
+}

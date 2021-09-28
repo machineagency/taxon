@@ -1,0 +1,43 @@
+{
+  "name": "reprap-mendel",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "box",
+      "dimensions": {
+        "width": 200,
+        "length": 200,
+        "height": 140
+      },
+      "position": {
+        "x": 0,
+        "y": 70,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 500,
+      "length": 360
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "FDM"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "PLA",
+        "HDPE",
+        "ABS"
+      ],
+      "exclude": [
+        ""
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 0,
+        "website": "https://reprap.org/wiki/Mendel"
+      }
+    }
+  }
+}

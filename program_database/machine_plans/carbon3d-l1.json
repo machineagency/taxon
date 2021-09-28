@@ -1,0 +1,42 @@
+{
+  "name": "carbon3d-l1",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "box",
+      "dimensions": {
+        "width": 400,
+        "length": 460,
+        "height": 250
+      },
+      "position": {
+        "x": 0,
+        "y": 125,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 0,
+      "length": 0
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "SLA"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "Single-cure prototype resin",
+        "dual cure engineering resin"
+      ],
+      "exclude": [
+        "Third-party dental resins"
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 0,
+        "website": "https://www.carbon3d.com/products/"
+      }
+    }
+  }
+}

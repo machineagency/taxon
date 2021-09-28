@@ -1,0 +1,49 @@
+{
+  "name": "ultimaker-s3",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "box",
+      "dimensions": {
+        "width": 230,
+        "length": 200,
+        "height": 190
+      },
+      "position": {
+        "x": 0,
+        "y": 95,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 637,
+      "length": 489
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "FDM"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "PLA",
+        "ABS",
+        "Nylon",
+        "CPE",
+        "CPE+",
+        "PC",
+        "TPU95A",
+        "PP",
+        "PVA"
+      ],
+      "exclude": [
+        ""
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 0,
+        "website": "https://ultimaker.com/3d-printers/ultimaker-s3"
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "formlabs-3l",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "box",
+      "dimensions": {
+        "width": 335,
+        "length": 200,
+        "height": 300
+      },
+      "position": {
+        "x": 0,
+        "y": 150,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 770,
+      "length": 740
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "SLA"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "Photopolymer Resins"
+      ],
+      "exclude": [
+        "Biocompatibles"
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 10,
+        "website": "https://formlabs.com/3d-printers/form-3/"
+      }
+    }
+  }
+}

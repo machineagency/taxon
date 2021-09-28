@@ -1,0 +1,41 @@
+{
+  "name": "m3d-micro",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "box",
+      "dimensions": {
+        "width": 114,
+        "length": 109,
+        "height": 117
+      },
+      "position": {
+        "x": 0,
+        "y": 58.5,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 185,
+      "length": 185
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "FDM"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "PLA"
+      ],
+      "exclude": [
+        ""
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 349,
+        "website": "https://store.printm3d.com/pages/micro-plus"
+      }
+    }
+  }
+}

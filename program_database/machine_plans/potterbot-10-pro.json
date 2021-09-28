@@ -1,0 +1,41 @@
+{
+  "name": "potterbot-10-pro",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "cylinder",
+      "dimensions": {
+        "width": 415,
+        "length": 500,
+        "height": 405
+      },
+      "position": {
+        "x": 0,
+        "y": 202.5,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 812,
+      "length": 1981
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "FDM"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "Clay or paste like materials"
+      ],
+      "exclude": [
+        "Non-clay material"
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 6,
+        "website": "https://3dpotter.com/printers/potterbot-10-pro"
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "makerbot-replicator+",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "box",
+      "dimensions": {
+        "width": 195,
+        "length": 295,
+        "height": 165
+      },
+      "position": {
+        "x": 0,
+        "y": 82.5,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 441,
+      "length": 410
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "FDM"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "PLA",
+        "MakerBot Sketch Tough Material",
+        "Bronzefill",
+        "Copperfill",
+        "Woodfill",
+        "Corkfill"
+      ],
+      "exclude": [
+        ""
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 1,
+        "website": "https://www.makerbot.com/3d-printers/replicator/"
+      }
+    }
+  }
+}

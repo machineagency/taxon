@@ -1,0 +1,45 @@
+{
+  "name": "prusa-mini",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "box",
+      "dimensions": {
+        "width": 180,
+        "length": 180,
+        "height": 180
+      },
+      "position": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 380,
+      "length": 330
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "FDM"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "PLA",
+        "PETG",
+        "ASA",
+        "ABS",
+        "Flex"
+      ],
+      "exclude": [
+        ""
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 349,
+        "website": "https://www.prusa3d.com/original-prusa-mini/"
+      }
+    }
+  }
+}

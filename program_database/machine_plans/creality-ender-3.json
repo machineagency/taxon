@@ -1,0 +1,44 @@
+{
+  "name": "creality-ender-3",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "box",
+      "dimensions": {
+        "width": 220,
+        "length": 220,
+        "height": 250
+      },
+      "position": {
+        "x": 0,
+        "y": 125,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 440,
+      "length": 465
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "FDM"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "PLA",
+        "TPU",
+        "ABS",
+        "PETG"
+      ],
+      "exclude": [
+        ""
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 155,
+        "website": "https://www.creality3dofficial.com/products/official-creality-ender-3-3d-printer"
+      }
+    }
+  }
+}

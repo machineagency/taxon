@@ -1,0 +1,41 @@
+{
+  "name": "potterbot-scara",
+  "blocks": [],
+  "metrics": {
+    "workEnvelope": {
+      "shape": "cylinder",
+      "dimensions": {
+        "width": 1829,
+        "length": 1143,
+        "height": 0
+      },
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    },
+    "footprint": {
+      "width": 2235,
+      "length": 2134
+    },
+    "manufacturingStrategies": [
+      "additive",
+      "FDM"
+    ],
+    "materialCompatibility": {
+      "include": [
+        "Clay"
+      ],
+      "exclude": [
+        "Non-clay material"
+      ]
+    },
+    "metafeatures": {
+      "vendorInfo": {
+        "price": 17,
+        "website": "https://3dpotter.com/printers/scara"
+      }
+    }
+  }
+}
