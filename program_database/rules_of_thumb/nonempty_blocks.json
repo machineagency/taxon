@@ -1,0 +1,5 @@
+{
+    "name": "nonemptyBlocks",
+    "type": "filtering",
+    "description": "non-empty blocks"
+}
