@@ -3,7 +3,7 @@
   "blocks": [],
   "metrics": {
     "workEnvelope": {
-      "shape": "cylinder",
+      "shape": "box",
       "dimensions": {
         "width": 415,
         "length": 500,

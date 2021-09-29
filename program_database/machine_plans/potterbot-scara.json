@@ -5,13 +5,12 @@
     "workEnvelope": {
       "shape": "cylinder",
       "dimensions": {
-        "width": 1829,
-        "length": 1143,
-        "height": 0
+        "radius": 914.5,
+        "height": 1145
       },
       "position": {
         "x": 0,
-        "y": 0,
+        "y": 572.5,
         "z": 0
       }
     },
