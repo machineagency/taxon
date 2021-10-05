@@ -5,11 +5,13 @@ services:
     environment:
       - DB_URL=taxon-mongo
     ports:
-      - "8597:8597"
+      - "127.0.0.1:8598:8598"
     depends_on:
       - taxon-mongo
+    restart: always
   taxon-mongo:
     image: mongo
     ports:
       - "27017:27017"
     command: --quiet
+    restart: always

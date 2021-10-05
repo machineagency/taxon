@@ -9,7 +9,7 @@ import { STLLoader } from './build/STLLoader.js';
 
 class StrangeGui {
 
-    static serverURL = 'http://localhost:8597';
+    static serverURL = 'http://localhost:8598';
 
     constructor(strangeScene) {
         this.strangeScene = strangeScene;
