@@ -23,5 +23,5 @@ deploy_prod:
   tags:
     - lab-docker-prod
   only:
-    - tags
+    - branches
 
