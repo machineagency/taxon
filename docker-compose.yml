@@ -10,7 +10,7 @@ services:
       - taxon-mongo
     restart: always
   taxon-mongo:
-    image: mongo
+    image: mongo:4.4.9
     ports:
       - "27017:27017"
     command: --quiet
