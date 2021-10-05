@@ -9,8 +9,6 @@ import { STLLoader } from './build/STLLoader.js';
 
 class StrangeGui {
 
-    static serverURL = 'http://localhost:8598';
-
     constructor(strangeScene) {
         this.strangeScene = strangeScene;
         this.tooltips = [];
@@ -112,7 +110,7 @@ class StrangeGui {
     }
 
     async fetchHeuristicNames() {
-        let url = StrangeGui.serverURL + '/heuristicNames';
+        let url = '/heuristicNames';
         fetch(url, {
             method: 'GET'
         })
@@ -356,7 +354,7 @@ class StrangeGui {
                 return kv.map(encodeURIComponent).join("=");
             }).join("&");
         }
-        const baseUrl = StrangeGui.serverURL + '/' + resourceName;
+        const baseUrl = '/' + resourceName;
         return baseUrl + '?' + encodeParams(urlParams);
     }
 
@@ -620,7 +618,7 @@ class StrangeGui {
         // TODO: static check that the machine compiles/is well-formed
         let gcDom = document.getElementById('gc-container-1');
         let gcText = gcDom.innerText;
-        let url = StrangeGui.serverURL + '/machine';
+        let url = '/machine';
         let postMachineRes = await fetch(url, {
             method: 'POST',
             headers: {
@@ -648,7 +646,7 @@ class StrangeGui {
         if (!userConfirmed) {
             return;
         }
-        let url = StrangeGui.serverURL + `/machine?id=${gcId}`;
+        let url = `/machine?id=${gcId}`;
         let deleteRes = await fetch(url, {
             method: 'DELETE'
         });
@@ -683,7 +681,7 @@ class StrangeGui {
         let fileReader = new FileReader();
         fileReader.addEventListener('load', async (event) => {
             let fileText = event.target.result;
-            let url = StrangeGui.serverURL + '/machine';
+            let url = '/machine';
             let postMachineRes = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -722,7 +720,7 @@ class StrangeGui {
         let heuristicSetDom = document.getElementById('heuristic-set-container');
         let machineDbId = window.strangeScene.machine.dbId;
         console.assert(machineDbId !== undefined);
-        let url = StrangeGui.serverURL + `/heuristicSet?id=${machineDbId}`;
+        let url = `/heuristicSet?id=${machineDbId}`;
         let response = await fetch(url, {
             method: 'GET'
         });
@@ -747,7 +745,7 @@ class StrangeGui {
                     || resourceName === 'metricsPrograms');
         let itemName = listItemDom.innerText.toLowerCase();
         let itemId = listItemDom.dataset.serverId;
-        let url = StrangeGui.serverURL + `/${resourceName}?id=${itemId}`;
+        let url = `/${resourceName}?id=${itemId}`;
         let response = await fetch(url, {
             method: 'GET'
         });
