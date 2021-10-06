@@ -355,7 +355,9 @@ class StrangeGui {
             }).join("&");
         }
         const baseUrl = '/' + resourceName;
-        return baseUrl + '?' + encodeParams(urlParams);
+        const params = encodeParams(urlParams);
+        const separator = params !== '' ? '?' : '';
+        return baseUrl + separator + params;
     }
 
     // TODO: make the following 3 functions one function
